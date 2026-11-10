@@ -1,5 +1,8 @@
 # Political map UI — 0.4.1
 
+For current terrain and city/capital markers, see
+[Living Atlas terrain](living-atlas-terrain.md). The details below are historical.
+
 For the current founding GUI, kingdom menu and interactive map controls, see
 [kingdom management v0.5.0](kingdom-management.md). This document retains the
 earlier milestone behavior and verification history.

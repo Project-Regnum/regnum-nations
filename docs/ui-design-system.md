@@ -1,5 +1,8 @@
 # Regnum Nations UI design system
 
+The subsequent [Living Atlas terrain integration](living-atlas-terrain.md) retains
+this folio styling and extends the political map with explored terrain and layers.
+
 ## v0.6.3 — The Living Atlas standard
 
 The user-approved v0.6.2 **Kingdom Administration** folio is the visual standard

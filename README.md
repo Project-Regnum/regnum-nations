@@ -21,6 +21,13 @@ full roles, diplomacy, economy and warfare are not.
 
 See [UI design system, Living Atlas reference and screenshot steps](docs/ui-design-system.md).
 
+Living Atlas now draws explored Minecraft terrain beneath translucent political
+territories, with city/capital markers and a Layers control for combined,
+political-only and terrain-only views. The terrain pipeline is adapted from MIT
+Diorama; no mapping mod is required. See the [assessment, cache behavior and
+verification instructions](docs/living-atlas-terrain.md) and
+[third-party attribution](THIRD_PARTY_NOTICES.md).
+
 See [v0.6.0 cities, migration, colors, safe deletion and manual checks](docs/cities-and-sovereignty.md).
 
 See [v0.5.1 UX, administration, safety, and manual checks](docs/ux-and-administration.md).
@@ -58,6 +65,7 @@ Mojang mappings, and separate common and client source sets.
 ./gradlew build       # Verify and build mod and sources JARs in build/libs/
 ./gradlew runGameTest # Run the isolated headless server tests
 ./gradlew runClient   # Launch the development client
+./gradlew runAtlasTest # Opt-in real-client terrain checks (requires a display)
 ./gradlew runServer   # Launch the development server
 ./gradlew runDatagen  # Run data generation (no providers registered yet)
 python3 tools/verify_mod_jar.py # Check the built JAR and compatibility resources

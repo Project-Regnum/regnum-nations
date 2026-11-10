@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "dev.sakhno.regnum.nations.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ExampleMixin",
+    "TerritoryBlockItemMixin",
+    "TerritoryBucketMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

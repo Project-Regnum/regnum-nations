@@ -1,41 +1,45 @@
 {
-	"schemaVersion": 1,
-	"id": "project-reigns",
-	"version": "${version}",
-	"name": "Project Reigns",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/project-reigns/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"dev.sakhno.reigns.ProjectReigns"
-		],
-		"client": [
-			"dev.sakhno.reigns.client.ProjectReignsClient"
-		],
-		"fabric-datagen": [
-			"dev.sakhno.reigns.client.ProjectReignsDataGenerator"
-		]
-	},
-	"mixins": [
-		"project-reigns.mixins.json",
-		{
-			"config": "project-reigns.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.20.1",
-		"minecraft": "~1.21.1",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "regnum-nations",
+  "version": "${version}",
+  "name": "Regnum Nations",
+  "description": "Nations and territorial management for Project Regnum: Living Atlas, settlements, kingdoms, claims and political maps.",
+  "authors": [
+    "Project Regnum"
+  ],
+  "contact": {
+    "homepage": "https://github.com/Project-Regnum",
+    "sources": "https://github.com/Project-Regnum/regnum-nations",
+    "issues": "https://github.com/Project-Regnum/regnum-nations/issues"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/regnum-nations/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.sakhno.regnum.nations.RegnumNations"
+    ],
+    "client": [
+      "dev.sakhno.regnum.nations.client.RegnumNationsClient"
+    ],
+    "fabric-datagen": [
+      "dev.sakhno.regnum.nations.client.RegnumNationsDataGenerator"
+    ]
+  },
+  "mixins": [
+    "regnum-nations.mixins.json",
+    {
+      "config": "regnum-nations.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "provides": [
+    "project-reigns"
+  ]
 }

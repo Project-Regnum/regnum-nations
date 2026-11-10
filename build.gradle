@@ -15,7 +15,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"project-reigns" {
+		"regnum-nations" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
@@ -25,8 +25,25 @@ loom {
 fabricApi {
 	configureDataGeneration {
 		client = true
-		modId = "project-reigns"
+		modId = "regnum-nations"
 	}
+
+	// Exercise persistence in a real server world using the existing Fabric API.
+	configureTests {
+		createSourceSet = true
+		modId = "regnum-nations-test"
+		enableClientGameTests = false
+	}
+}
+
+// GameTests use fixed locations and live saved data. Start each run with a fresh
+// disposable test world; never touch the development server world under run/.
+def resetGameTestWorld = tasks.register('resetGameTestWorld', Delete) {
+	delete layout.buildDirectory.dir('run/gameTest/world')
+}
+
+tasks.named('runGameTest') {
+	dependsOn resetGameTestWorld
 }
 
 dependencies {
@@ -60,6 +77,26 @@ java {
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Pure rule checks without adding a test-library dependency. Server integration stays in GameTests.
+sourceSets {
+	rulesTest {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
+}
+
+tasks.register('testKingdomNames', JavaExec) {
+	group = 'verification'
+	description = 'Checks kingdom display-name and uniqueness rules without Minecraft startup.'
+	dependsOn tasks.named('rulesTestClasses')
+	classpath = sourceSets.rulesTest.runtimeClasspath
+	mainClass = 'dev.sakhno.regnum.nations.kingdom.KingdomNameTest'
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('testKingdomNames')
 }
 
 jar {

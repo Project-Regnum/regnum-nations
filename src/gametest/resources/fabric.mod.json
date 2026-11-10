@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "regnum-nations-test",
+  "version": "1.0.0",
+  "name": "Regnum Nations Tests",
+  "environment": "server",
+  "entrypoints": {
+    "fabric-gametest": [
+      "dev.sakhno.regnum.nations.block.KingdomObeliskTests",
+      "dev.sakhno.regnum.nations.kingdom.KingdomFoundingTests",
+      "dev.sakhno.regnum.nations.kingdom.TerritoryTests",
+      "dev.sakhno.regnum.nations.kingdom.KingdomManagementTests",
+      "dev.sakhno.regnum.nations.kingdom.KingdomAdminTests",
+      "dev.sakhno.regnum.nations.kingdom.SovereigntyTests",
+      "dev.sakhno.regnum.nations.kingdom.RoyalCartographyTests",
+      "dev.sakhno.regnum.nations.kingdom.RenameCompatibilityTests"
+    ]
+  },
+  "depends": {
+    "regnum-nations": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

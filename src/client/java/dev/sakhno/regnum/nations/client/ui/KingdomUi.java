@@ -84,8 +84,10 @@ final class KingdomUi {
         tooltip(g,font,font.split(value,Math.max(40,Math.min(200,g.guiWidth()/2))),mx,my);
     }
     static void tooltip(GuiGraphics g,Font font,List<FormattedCharSequence> lines,int mx,int my) {
-        // Hints and shortened record values stay compact; full records remain in narration.
-        int max = Math.max(1,Math.min(3,(g.guiHeight()-16)/LINE));
+        tooltip(g,font,lines,mx,my,3);
+    }
+    static void tooltip(GuiGraphics g,Font font,List<FormattedCharSequence> lines,int mx,int my,int maxLines) {
+        int max = Math.max(1,Math.min(maxLines,(g.guiHeight()-16)/LINE));
         if (lines.size() > max) {
             var clipped = new java.util.ArrayList<>(lines.subList(0,Math.max(0,max-1)));
             clipped.add(Component.literal("…").getVisualOrderText()); lines = clipped;
@@ -153,48 +155,78 @@ final class KingdomUi {
         }
     }
     enum ButtonStyle { NORMAL, PRIMARY, DANGER }
+    /** One frame and state implementation for text controls, map icons, tabs and swatches. */
     static class RoyalButton extends Button {
+        protected static final int CONTENT_PAD=6,ICON_SIZE=11,ICON_GAP=4;
         private ButtonStyle style;
         private boolean selected;
+        private long pressedUntil;
         RoyalButton(int x,int y,int width,Component label,OnPress press) { this(x,y,width,label,press,ButtonStyle.NORMAL); }
         RoyalButton(int x,int y,int width,Component label,OnPress press,ButtonStyle style) {
             super(x,y,width,CONTROL,label,press,DEFAULT_NARRATION); this.style = style;
+            setTooltip(Tooltip.create(label));
         }
         void style(ButtonStyle value) { style=value; }
-        void selected(boolean value) { selected = value; }
-        @Override protected void renderWidget(GuiGraphics g,int mx,int my,float delta) {
-            int accent=style==ButtonStyle.DANGER?BURGUNDY:AtlasGraphics.BRASS;
-            boolean primary=style!=ButtonStyle.NORMAL;
+        void selected(boolean value) { selected=value; }
+        protected boolean isSelected() { return selected; }
+        @Override public void onPress() {
+            // Native mouse/keyboard activation still invokes the existing callback exactly once.
+            pressedUntil=System.nanoTime()+120_000_000L;
+            super.onPress();
+        }
+        @Override protected final void renderWidget(GuiGraphics g,int mx,int my,float delta) {
+            if (getWidth()<3 || getHeight()<3) return;
             boolean hovered=active&&isHoveredOrFocused();
-            if (primary||selected||hovered) g.fill(getX(),getY(),getRight(),getBottom(),hovered?HOVER:AtlasGraphics.SHADOW);
-            g.fill(getX()+2,getBottom()-2,getRight()-2,getBottom()-1,!active?AtlasGraphics.ETCH:hovered?AtlasGraphics.LIGHT:primary||selected?accent:AtlasGraphics.ETCH);
-            g.fill(getX(),getY()+4,getX()+1,getBottom()-4,AtlasGraphics.ETCH);
-            g.fill(getRight()-1,getY()+4,getRight(),getBottom()-4,AtlasGraphics.ETCH);
-            if (selected) g.fill(getX()+2,getY()+4,getX()+3,getBottom()-4,INK);
-            if (isFocused()) g.fill(getX()+2,getY(),getRight()-2,getY()+1,INK);
-            renderScrollingString(g,Minecraft.getInstance().font,5,active?(style==ButtonStyle.DANGER?ERROR:INK):MUTED);
+            boolean pressed=active&&pressedUntil!=0&&System.nanoTime()<pressedUntil;
+            boolean chosen=isSelected();
+            int accent=style==ButtonStyle.DANGER?BURGUNDY:AtlasGraphics.BRASS;
+            int border=!active?AtlasGraphics.ETCH:pressed?GOLD:hovered?AtlasGraphics.LIGHT:chosen||style!=ButtonStyle.NORMAL?accent:AtlasGraphics.RULE;
+            int x=getX(),y=getY(),r=getRight(),b=getBottom();
+            g.fill(x+1,y,r-1,b,border); g.fill(x,y+1,r,b-1,border);
+            g.fill(x+1,y+1,r-1,b-1,!active?DISABLED:pressed?AtlasGraphics.LEATHER:hovered?HOVER:chosen?AtlasGraphics.PAPER:RECESS);
+            g.fill(x+2,y+1,r-2,y+2,pressed?AtlasGraphics.SHADOW:hovered?AtlasGraphics.LIGHT:AtlasGraphics.ETCH);
+            g.fill(x+2,b-3,r-2,b-1,pressed?AtlasGraphics.ETCH:AtlasGraphics.LEATHER);
+            int color=!active?MUTED:style==ButtonStyle.DANGER?ERROR:chosen||hovered||pressed?AtlasGraphics.LIGHT:INK;
+            // Content stays inside the existing hitbox, even with compressed or localized labels.
+            g.enableScissor(x+1,y+1,r-1,b-1);
+            renderContent(g,color,pressed?1:0);
+            g.disableScissor();
+            if (isFocused()) {
+                g.fill(x+3,y+3,x+5,y+4,INK); g.fill(r-5,y+3,r-3,y+4,INK);
+            }
+            renderIndicator(g,active?accent:AtlasGraphics.ETCH);
+        }
+        protected void renderContent(GuiGraphics g,int color,int offset) { renderLabel(g,color,offset,0); }
+        /** Returns the start of the centered icon/label group for icon-bearing subclasses. */
+        protected final int renderLabel(GuiGraphics g,int color,int offset,int leadingWidth) {
+            var font=Minecraft.getInstance().font;
+            int available=Math.max(0,getWidth()-CONTENT_PAD*2-leadingWidth);
+            String label=font.plainSubstrByWidth(ellipsize(font,getMessage(),available),available);
+            int left=getX()+(getWidth()-font.width(label)-leadingWidth)/2+offset;
+            g.drawString(font,label,left+leadingWidth,getY()+(getHeight()-font.lineHeight)/2+offset,color,false);
+            return left;
+        }
+        protected void renderIndicator(GuiGraphics g,int accent) {
+            if (isSelected()) g.fill(getX()+4,getBottom()-3,getRight()-4,getBottom()-2,accent);
         }
         @Override public void updateWidgetNarration(NarrationElementOutput output) {
             super.updateWidgetNarration(output);
-            if (selected) output.add(NarratedElementType.HINT,text("selected"));
+            if (isSelected()) output.add(NarratedElementType.HINT,text("selected"));
         }
     }
-    static final class ColorSwatch extends Button {
+    static final class ColorSwatch extends RoyalButton {
         private final int index;
         private final IntSupplier selection;
         ColorSwatch(int x,int y,int width,int index,IntSupplier selection,IntConsumer select) {
-            super(x,y,width,CONTROL,text("color_"+index),b -> select.accept(index),DEFAULT_NARRATION);
+            super(x,y,width,text("color_"+index),b -> select.accept(index));
             this.index=index; this.selection=selection;
-            setTooltip(Tooltip.create(getMessage()));
         }
-        @Override protected void renderWidget(GuiGraphics g,int mx,int my,float delta) {
-            boolean chosen = selection.getAsInt()==index;
-            g.fill(getX(),getY(),getRight(),getBottom(),isFocused()?SELECTED:chosen?INK:AtlasGraphics.BRASS);
-            g.fill(getX()+1,getY()+1,getRight()-1,getBottom()-1,AtlasGraphics.SHADOW);
-            g.fill(getX()+3,getY()+3,getRight()-3,getBottom()-3,PoliticalColors.rgb(index));
-            if (chosen) {
+        @Override protected boolean isSelected() { return selection.getAsInt()==index; }
+        @Override protected void renderContent(GuiGraphics g,int color,int offset) {
+            g.fill(getX()+3+offset,getY()+3+offset,getRight()-3+offset,getBottom()-3+offset,PoliticalColors.rgb(index));
+            if (isSelected()) {
                 // Geometric check: works with every font and never relies on color alone.
-                int x=getX()+getWidth()/2-3,y=getY()+9;
+                int x=getX()+getWidth()/2-3+offset,y=getY()+9+offset;
                 g.fill(x-1,y-1,x+3,y+5,BACKGROUND); g.fill(x+2,y-4,x+7,y+3,BACKGROUND);
                 g.fill(x,y,x+2,y+4,SELECTED); g.fill(x+2,y+2,x+4,y+4,SELECTED); g.fill(x+4,y-3,x+6,y+3,SELECTED);
             }
@@ -202,7 +234,7 @@ final class KingdomUi {
         }
         @Override public void updateWidgetNarration(NarrationElementOutput output) {
             super.updateWidgetNarration(output);
-            output.add(NarratedElementType.HINT,text(selection.getAsInt()==index?"selected":"select_color"));
+            if (!isSelected()) output.add(NarratedElementType.HINT,text("select_color"));
         }
     }
 }

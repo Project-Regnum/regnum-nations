@@ -4,6 +4,7 @@ import dev.sakhno.regnum.nations.RegnumNations;
 import java.util.UUID;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import com.mojang.math.Axis;
 
 /** The Living Atlas's small tiled folio and pixel heraldry. No world or persistent state. */
 final class AtlasGraphics {
@@ -71,6 +72,30 @@ final class AtlasGraphics {
     }
     static void mark(GuiGraphics g,int x,int y,boolean capital) {
         sprite(g,x,y,capital?80:64,48,12,12,1);
+    }
+    /** Fixed-size map symbols; roof and royal banner carry the disclosed political color. */
+    static void mapSettlement(GuiGraphics g,int x,int y,boolean capital,int color) {
+        int u=capital?160:128;
+        sprite(g,x-7,y-7,u,0,15,15,1);
+        g.setColor(((color>>>16)&255)/255f,((color>>>8)&255)/255f,(color&255)/255f,1);
+        sprite(g,x-7,y-7,u+16,0,15,15,1);
+        g.setColor(1,1,1,1);
+    }
+    static void mapPlayer(GuiGraphics g,int x,int y,float yaw) {
+        g.pose().pushPose();
+        g.pose().translate(x+0.5f,y+0.5f,0);
+        g.pose().mulPose(Axis.ZP.rotationDegrees(yaw+180));
+        sprite(g,-3,-3,192,0,7,7,1);
+        g.pose().popPose();
+    }
+    /** Static parchment hatching beneath transparent unknown terrain, never a terrain sample. */
+    static void mapFog(GuiGraphics g,int left,int top,int right,int bottom) {
+        g.fill(left,top,right,bottom,0xff303936);
+        for (int y=top;y<bottom;y+=32) for (int x=left;x<right;x+=32) {
+            g.fill(x+5,y+10,x+11,y+11,0xff35403b);
+            g.fill(x+8,y+7,x+9,y+14,0xff35403b);
+            g.fill(x+22,y+25,x+26,y+26,0xff2c3532);
+        }
     }
     /** A municipal stamp, deliberately smaller and simpler than the sovereign standard. */
     static void civicSeal(GuiGraphics g,int x,int y,int color) {

@@ -3,6 +3,7 @@ package dev.sakhno.regnum.nations.client.ui;
 import dev.sakhno.regnum.nations.networking.PoliticalMapPayloads.*;
 import dev.sakhno.regnum.nations.networking.AtlasPayloads;
 import dev.sakhno.regnum.nations.client.terrain.AtlasTerrain;
+import dev.sakhno.regnum.nations.client.ui.RoyalControlButton.Icon;
 import java.util.*;
 import dev.sakhno.regnum.nations.networking.KingdomManagementPayloads;
 import dev.sakhno.regnum.nations.networking.KingdomManagementPayloads.Action;
@@ -19,7 +20,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public final class PoliticalMapScreen extends RoyalScreen {
-    private static final int MAP_TOP=48,MAP_BOTTOM=96,LEGEND_ROW=16;
+    private static final int MAP_TOP=48,MAP_BOTTOM=60,LEGEND_ROW=16;
     private final KingdomManagementScreen parent;
     private boolean manageMode;
     private KingdomManagementPayloads.State management;
@@ -28,11 +29,10 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private UUID viewedCity;
     private RoyalButton territoryAction;
     private Button refreshButton;
-    private RoyalButton modeButton;
+    private RoyalControlButton modeButton;
+    private RoyalControlButton layersButton;
     private MapCanvas canvas;
-    private Component actionHint=Component.empty(),cachedInspectorMessage;
-    private int cachedInspectorWidth;
-    private List<net.minecraft.util.FormattedCharSequence> inspectorLines=List.of();
+    private Component actionHint=Component.empty();
     private boolean actionFailed;
     private static final String[] LEGEND_KEYS={"map_key_personal","map_key_selected","map_key_unknown"};
     private int selectedX, selectedZ, detailsSequence;
@@ -67,59 +67,71 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private static Component text(String key, Object... args) { return Component.translatable("map.regnum-nations." + key, args); }
     @Override protected void init() {
         panning = false;
-        int legendColumn=Math.clamp(width/4,80,140);
+        int legendColumn=Math.clamp(width/5,76,112);
         right=width-legendColumn-MARGIN-GAP; bottom=height-MAP_BOTTOM;
         legendX=right+GAP*2; legendWidth=width-MARGIN-legendX;
         legendListY=top+GAP*2+LINE; legendKeyY=bottom-MARGIN-LEGEND_KEYS.length*(LINE+2);
-        toolbarY=height-MARGIN-CONTROL; inspectorY=bottom+GAP;
+        toolbarY=height-MARGIN-CONTROL; inspectorY=bottom+4;
         layoutCenterX=Double.NaN;
         canvas=addRenderableWidget(new MapCanvas());
         Component back=KingdomUi.text("back_kingdom"),view=KingdomUi.text("mode_view"),manage=KingdomUi.text("mode_manage");
         int[] navigation=AtlasWidgets.rowWidths(font,(width-MARGIN*2)/2,CONTROL*2,back,font.width(manage)>font.width(view)?manage:view);
-        int navigationX=width-MARGIN-navigation[0]-GAP-navigation[1],navigationY=top-CONTROL-MARGIN;
+        int navigationX=width-MARGIN-CONTROL-GAP-navigation[0]-GAP-navigation[1],navigationY=top-CONTROL-MARGIN;
         headerTextWidth=navigationX-GAP-MARGIN*2;
-        addRenderableWidget(new RoyalButton(navigationX,navigationY,navigation[0],back,b -> showOverview()));
-        modeButton = addRenderableWidget(new RoyalButton(navigationX+navigation[0]+GAP,navigationY,navigation[1],KingdomUi.text(manageMode ? "mode_manage" : "mode_view"),b -> {
+        addRenderableWidget(new RoyalControlButton(navigationX,navigationY,navigation[0],back,Icon.NONE,false,b -> showOverview()))
+                .setTooltip(Tooltip.create(back));
+        modeButton = addRenderableWidget(new RoyalControlButton(navigationX+navigation[0]+GAP,navigationY,navigation[1],KingdomUi.text(manageMode ? "mode_manage" : "mode_view"),Icon.NONE,false,b -> {
             manageMode = !manageMode;
             modeButton.setMessage(KingdomUi.text(manageMode ? "mode_manage" : "mode_view"));
-            modeButton.selected(manageMode);
+            modeButton.selected(true);
             feedback = Component.empty(); updateActions();
         }));
-        modeButton.selected(manageMode);
+        modeButton.selected(true);
         modeButton.setTooltip(Tooltip.create(KingdomUi.text("mode_hint")));
         int actionWidth=Math.min((width-MARGIN*2)/3,Math.max(CONTROL*4,Math.max(font.width(KingdomUi.text("claim")),font.width(KingdomUi.text("unclaim")))+PAD*2));
-        territoryAction = addRenderableWidget(new RoyalButton(width-MARGIN-actionWidth,inspectorY+GAP,actionWidth,KingdomUi.text("claim"),
+        territoryAction = addRenderableWidget(new RoyalControlButton(width-MARGIN-actionWidth,inspectorY+2,actionWidth,KingdomUi.text("claim"),Icon.NONE,false,
                 b -> sendDetails(releasing() ? Action.UNCLAIM : Action.CLAIM)));
         territoryAction.active = false; territoryAction.visible = manageMode;
         territoryAction.style(releasing()?ButtonStyle.DANGER:ButtonStyle.PRIMARY);
-        int closeWidth=Math.max(CONTROL*3,font.width(text("close"))+PAD*2);
-        int[] tools=AtlasWidgets.rowWidths(font,width-MARGIN*2-closeWidth-GAP,CONTROL+4,text("refresh"),Component.literal("−"),Component.literal("+"),text("fit"),text("layers"));
+        // Keep the zoom tools close together, with wider space between functional groups.
+        int groupGap=GAP+2,zoomGap=2;
+        int flexibleWidth=width-MARGIN*2-CONTROL*3-groupGap*2-zoomGap*2;
+        int fitWidth=Math.min(Math.max(CONTROL*2,font.width(text("fit"))+16),flexibleWidth/2);
+        int layersWidth=Math.min(Math.max(CONTROL*3,font.width(text("layers"))+32),flexibleWidth-fitWidth);
         int toolX=MARGIN;
-        refreshButton = addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[0],text("refresh"),b -> { fitNextSnapshot = true; request(); needsDetails = true; feedback = Component.empty(); }));
-        toolX+=tools[0]+GAP;
-        Button out=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[1],Component.literal("−"),b -> zoom=Math.max(MIN_ZOOM,zoom/1.25)) {
-            @Override protected net.minecraft.network.chat.MutableComponent createNarrationMessage() { return KingdomUi.text("zoom_out").copy(); }
-        });
-        out.setTooltip(Tooltip.create(KingdomUi.text("zoom_out")));
-        toolX+=tools[1]+GAP;
-        Button in=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[2],Component.literal("+"),b -> zoom=Math.min(MAX_ZOOM,zoom*1.25)) {
-            @Override protected net.minecraft.network.chat.MutableComponent createNarrationMessage() { return KingdomUi.text("zoom_in").copy(); }
-        });
-        in.setTooltip(Tooltip.create(KingdomUi.text("zoom_in")));
-        toolX+=tools[2]+GAP;
-        addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[3],text("fit"),b -> fitClaims()));
-        toolX+=tools[3]+GAP;
-        RoyalButton layers=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[4],text("layers"),b -> {
-            layer=(layer+1)%3;
-            b.setTooltip(Tooltip.create(text("layer_"+layer)));
+        refreshButton = addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,text("refresh"),Icon.REFRESH,true,b -> {
+            fitNextSnapshot = true; request(); needsDetails = true; feedback = Component.empty();
         }));
-        layers.setTooltip(Tooltip.create(text("layer_"+layer)));
-        addRenderableWidget(new RoyalButton(width-MARGIN-closeWidth,toolbarY,closeWidth,text("close"),b -> onClose()));
+        refreshButton.setTooltip(Tooltip.create(text("refresh")));
+        toolX+=CONTROL+groupGap;
+        Button out=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_out"),Icon.MINUS,true,
+                b -> zoom=Math.max(MIN_ZOOM,zoom/1.25)));
+        out.setTooltip(Tooltip.create(KingdomUi.text("zoom_out")));
+        toolX+=CONTROL+zoomGap;
+        Button in=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_in"),Icon.PLUS,true,
+                b -> zoom=Math.min(MAX_ZOOM,zoom*1.25)));
+        in.setTooltip(Tooltip.create(KingdomUi.text("zoom_in")));
+        toolX+=CONTROL+zoomGap;
+        addRenderableWidget(new RoyalControlButton(toolX,toolbarY,fitWidth,text("fit"),Icon.NONE,false,b -> fitClaims()))
+                .setTooltip(Tooltip.create(KingdomUi.text("map_keyboard")));
+        toolX+=fitWidth+groupGap;
+        layersButton=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,layersWidth,text("layers"),Icon.LAYERS,false,b -> {
+            layer=(layer+1)%3;
+            updateLayerButton();
+        }));
+        updateLayerButton();
+        addRenderableWidget(new RoyalControlButton(width-MARGIN-CONTROL,MARGIN,CONTROL,text("close"),Icon.CLOSE,true,b -> onClose()))
+                .setTooltip(Tooltip.create(text("close")));
         setInitialFocus(canvas);
         if (requested == 0) request();
         if (!selected && minecraft.player != null && minecraft.level != null) {
             var pos = minecraft.player.chunkPosition(); select(pos.x,pos.z);
         }
+    }
+    private void updateLayerButton() {
+        Component description=text("layer_"+layer);
+        layersButton.layerState(layer,description);
+        layersButton.setTooltip(Tooltip.create(text("layers").copy().append(": ").append(description)));
     }
     private void request() {
         if (minecraft.player == null) return;
@@ -140,10 +152,9 @@ public final class PoliticalMapScreen extends RoyalScreen {
     public void accept(Snapshot data) {
         if (data.sequence() != sequence || minecraft.level == null || !data.dimension().equals(minecraft.level.dimension().location())) return;
         snapshot = data;
-        cells.clear(); nameWidths.clear();
+        cells.clear();
         for (Cell c : data.cells()) {
             cells.put(key(c.x(), c.z()), c);
-            nameWidths.computeIfAbsent(c.owner(),id -> font.width(c.name())+8);
         }
         if (fitNextSnapshot) fitClaims();
         fitNextSnapshot = true;
@@ -162,7 +173,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         if (parent!=null) parent.invalidate();
         management=null; ownSettlement=null; details=null;
         detailsSequence=KingdomUi.nextSequence(); detailsRequested=0; actionPending=false; needsDetails=true;
-        sequence=KingdomUi.nextSequence(); snapshot=null; cells.clear(); nameWidths.clear(); cityMarkers=List.of();
+        sequence=KingdomUi.nextSequence(); snapshot=null; cells.clear(); cityMarkers=List.of();
         state="loading"; fitNextSnapshot=false; refreshDue=true;
         feedback=Component.empty(); actionFailed=false; updateActions();
     }
@@ -208,7 +219,10 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private final List<Cell> legendEntries=new ArrayList<>();
     private final List<String> legendNames=new ArrayList<>();
     private final List<MapLabel> labels=new ArrayList<>();
-    private final Map<UUID,Integer> nameWidths=new HashMap<>();
+    private record MarkerPoint(AtlasPayloads.CityMarker marker,Cell cell,int x,int y) { }
+    private record MapMarker(MarkerPoint point,List<MarkerPoint> members) { }
+    private final List<MapMarker> mapMarkers=new ArrayList<>();
+    private List<AtlasPayloads.CityMarker> layoutCityMarkers;
     private double layoutCenterX=Double.NaN,layoutCenterZ,layoutZoom;
     private int layoutRight,layoutBottom,layoutPlayerX,layoutPlayerZ;
     private Snapshot layoutSnapshot;
@@ -216,10 +230,10 @@ public final class PoliticalMapScreen extends RoyalScreen {
     /** Geometry, label widths and legend order change with the viewport/snapshot, not each frame. */
     private void prepareLayout(int playerX,int playerZ) {
         if (layoutCenterX==centerX && layoutCenterZ==centerZ && layoutZoom==zoom && layoutRight==right
-                && layoutBottom==bottom && layoutSnapshot==snapshot && layoutPlayerX==playerX && layoutPlayerZ==playerZ) return;
+                && layoutBottom==bottom && layoutSnapshot==snapshot && layoutCityMarkers==cityMarkers && layoutPlayerX==playerX && layoutPlayerZ==playerZ) return;
         layoutCenterX=centerX; layoutCenterZ=centerZ; layoutZoom=zoom; layoutRight=right; layoutBottom=bottom;
-        layoutSnapshot=snapshot; layoutPlayerX=playerX; layoutPlayerZ=playerZ;
-        tiles.clear(); legendEntries.clear(); legendNames.clear(); labels.clear();
+        layoutSnapshot=snapshot; layoutCityMarkers=cityMarkers; layoutPlayerX=playerX; layoutPlayerZ=playerZ;
+        tiles.clear(); legendEntries.clear(); legendNames.clear(); labels.clear(); mapMarkers.clear();
         Map<UUID,List<Tile>> groups=new HashMap<>();
         double ox=originX(),oz=originZ();
         for (Cell c:cells.values()) {
@@ -236,23 +250,49 @@ public final class PoliticalMapScreen extends RoyalScreen {
         for (List<Tile> group:groups.values()) legendEntries.add(group.getFirst().cell());
         legendEntries.sort(Comparator.comparing(Cell::name).thenComparing(Cell::owner));
         for (Cell c:legendEntries) legendNames.add(ellipsize(font,Component.literal(c.name()),legendWidth-15));
-        if (zoom<14) return;
+        // Retain exact anchors. Nearby cities share one hit target rather than moving pins.
+        var points=new ArrayList<MarkerPoint>();
+        for (var marker:cityMarkers) {
+            Cell cell=cells.get(key(marker.pos().getX()>>4,marker.pos().getZ()>>4));
+            if (cell==null || !cell.owner().equals(marker.city())) continue;
+            int x=(int)Math.floor(ox+(marker.pos().getX()+0.5)/16*zoom);
+            int y=(int)Math.floor(oz+(marker.pos().getZ()+0.5)/16*zoom);
+            if (x<8 || x>=right || y<top || y>=bottom) continue;
+            points.add(new MarkerPoint(marker,cell,x,y));
+        }
+        points.sort(Comparator.comparing((MarkerPoint p) -> !p.marker().capital()).thenComparing(p -> p.marker().city()));
+        for (MarkerPoint point:points) {
+            MapMarker cluster=null;
+            for (MapMarker existing:mapMarkers) if (Math.abs(point.x()-existing.point().x())<24
+                    && Math.abs(point.y()-existing.point().y())<17) { cluster=existing; break; }
+            if (cluster!=null) cluster.members().add(point);
+            else mapMarkers.add(new MapMarker(point,new ArrayList<>(List.of(point))));
+        }
         var occupied=new ArrayList<int[]>();
-        int px=(int)(ox+(playerX+0.5)*zoom),pz=(int)(oz+(playerZ+0.5)*zoom);
-        occupied.add(new int[]{px-(int)zoom,pz-(int)zoom,px+(int)zoom,pz+(int)zoom});
+        // Reserve the whole player chunk because the player can move inside it without a layout rebuild.
+        int px=(int)(ox+playerX*zoom),pz=(int)(oz+playerZ*zoom);
+        occupied.add(new int[]{px-6,pz-6,px+(int)zoom+7,pz+(int)zoom+7});
         occupied.add(new int[]{right-37,top,right,top+18});
-        for (Cell owner:legendEntries) {
-            int w=nameWidths.get(owner.owner());
-            for (Tile tile:groups.get(owner.owner())) {
-                Cell c=tile.cell(); int run=(int)Math.ceil(w/zoom); boolean fits=true;
-                for (int i=1;i<run;i++) if (!same(c,c.x()+i,c.z())) { fits=false; break; }
-                if (!fits) continue;
-                int l=tile.left(),t=(int)Math.floor(oz+(c.z()+0.5)*zoom)-6;
+        for (MapMarker marker:mapMarkers) {
+            var p=marker.point();
+            occupied.add(new int[]{p.x()-8,p.y()-8,p.x()+9+(marker.members().size()>1?8:0),p.y()+9});
+        }
+        if (zoom<10) return;
+        for (MapMarker marker:mapMarkers) {
+            var p=marker.point();
+            int w=font.width(p.cell().name())+8;
+            // Prefer beside the icon, then below/above. Suppress labels that do not fit.
+            int[][] positions={{p.x()+11,p.y()-6},{p.x()-w-11,p.y()-6},{p.x()-w/2,p.y()+11},{p.x()-w/2,p.y()-24},
+                    {px+(int)zoom+11,p.y()-6},{px-w-10,p.y()-6}};
+            for (int i=0;i<positions.length;i++) {
+                if (i>=4 && (p.marker().pos().getX()>>4!=playerX || p.marker().pos().getZ()>>4!=playerZ)) continue;
+                int[] position=positions[i];
+                int l=position[0],t=position[1];
                 if (l<12 || l+w>right-4 || t<top+4 || t+13>bottom-4) continue;
                 boolean overlaps=false;
-                for (int[] box:occupied) if (l<box[2]+3 && l+w+3>box[0] && t<box[3]+3 && t+16>box[1]) { overlaps=true; break; }
+                for (int[] box:occupied) if (l<box[2]+2 && l+w+2>box[0] && t<box[3]+2 && t+15>box[1]) { overlaps=true; break; }
                 if (overlaps) continue;
-                labels.add(new MapLabel(c.name(),l,t,w)); occupied.add(new int[]{l,t,l+w,t+13}); break;
+                labels.add(new MapLabel(p.cell().name(),l,t,w)); occupied.add(new int[]{l,t,l+w,t+13}); break;
             }
         }
     }
@@ -260,7 +300,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         g.fill(0,0,width,height,BACKGROUND);
         AtlasGraphics.folio(g,0,0,width,height);
         Component scale=text("scale",(int)Math.round(zoom));
-        int scaleX=width-MARGIN-font.width(scale),titleX=MARGIN+23;
+        int scaleX=width-MARGIN-CONTROL-GAP-font.width(scale),titleX=MARGIN+23;
         AtlasGraphics.mark(g,13,9,false);
         g.drawString(font,ellipsize(font,title,scaleX-GAP-titleX),titleX,10,AtlasGraphics.LIGHT,false);
         AtlasGraphics.divider(g,MARGIN+4,top-MARGIN,width-(MARGIN+4)*2);
@@ -272,7 +312,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         prepareLayout(pos.x,pos.z);
         double ox=originX(),oz=originZ();
         g.enableScissor(8,top,right,bottom);
-        g.fill(8,top,right,bottom,UNKNOWN);
+        AtlasGraphics.mapFog(g,8,top,right,bottom);
         if (layer==1 && snapshot!=null && snapshot.status()==0) {
             g.fill((int)Math.floor(ox+(snapshot.centerX()-snapshot.radius())*zoom),
                     (int)Math.floor(oz+(snapshot.centerZ()-snapshot.radius())*zoom),
@@ -286,7 +326,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
             for (double z=oz+Math.ceil((top-oz)/zoom)*zoom;z<bottom;z+=zoom) g.fill(8,(int)Math.floor(z),right,(int)Math.floor(z)+1,GRID);
         }
         if (layer!=2) for (Tile tile:tiles) g.fill(tile.left(),tile.top(),tile.right(),tile.bottom(),
-                layer==1?subdued(tile.cell().color()):(tile.cell().color()&0x00ffffff)|0x33000000);
+                layer==1?subdued(tile.cell().color()):(tile.cell().color()&0x00ffffff)|0x40000000);
         if (layer!=2) for (Tile tile:tiles) {
             int l=tile.left(),t=tile.top(),r=tile.right(),b=tile.bottom();
             // Fine city boundaries remain visible within a realm; sovereignty has a stronger contour.
@@ -294,38 +334,44 @@ public final class PoliticalMapScreen extends RoyalScreen {
             if ((tile.borders()&2)!=0) g.fill(r-1,t,r,b,AtlasGraphics.RULE);
             if ((tile.borders()&4)!=0) g.fill(l,t,r,t+1,AtlasGraphics.RULE);
             if ((tile.borders()&8)!=0) g.fill(l,b-1,r,b,AtlasGraphics.RULE);
-            int edge=zoom>=12?2:1;
-            if ((tile.politicalBorders()&1)!=0) g.fill(l,t,l+edge,b,AtlasGraphics.LIGHT);
-            if ((tile.politicalBorders()&2)!=0) g.fill(r-edge,t,r,b,AtlasGraphics.LIGHT);
-            if ((tile.politicalBorders()&4)!=0) g.fill(l,t,r,t+edge,AtlasGraphics.LIGHT);
-            if ((tile.politicalBorders()&8)!=0) g.fill(l,b-edge,r,b,AtlasGraphics.LIGHT);
+            int edge=2;
+            if ((tile.politicalBorders()&1)!=0) g.fill(l,t,l+edge,b,AtlasGraphics.SHADOW);
+            if ((tile.politicalBorders()&2)!=0) g.fill(r-edge,t,r,b,AtlasGraphics.SHADOW);
+            if ((tile.politicalBorders()&4)!=0) g.fill(l,t,r,t+edge,AtlasGraphics.SHADOW);
+            if ((tile.politicalBorders()&8)!=0) g.fill(l,b-edge,r,b,AtlasGraphics.SHADOW);
+            int color=tile.cell().color()|0xff000000;
+            if ((tile.politicalBorders()&1)!=0) g.fill(l,t,l+1,b,color);
+            if ((tile.politicalBorders()&2)!=0) g.fill(r-1,t,r,b,color);
+            if ((tile.politicalBorders()&4)!=0) g.fill(l,t,r,t+1,color);
+            if ((tile.politicalBorders()&8)!=0) g.fill(l,b-1,r,b,color);
             if (tile.cell().owner().equals(ownSettlement)) {
                 g.fill(l+1,t+1,Math.min(r-1,l+5),t+2,GOLD);
                 g.fill(l+1,t+1,l+2,Math.min(b-1,t+5),GOLD);
             }
-        }
-        if (layer!=2) for (MapLabel label:labels) {
-            g.fill(label.x(),label.y(),label.x()+label.width(),label.y()+13,LABEL_BACK);
-            g.drawString(font,label.name(),label.x()+4,label.y()+3,INK,false);
-        }
-        if (layer!=2) for (AtlasPayloads.CityMarker marker:cityMarkers) {
-            int x=(int)Math.floor(ox+(marker.pos().getX()+0.5)/16*zoom);
-            int z=(int)Math.floor(oz+(marker.pos().getZ()+0.5)/16*zoom);
-            g.fill(x-4,z-4,x+5,z+5,LABEL_BACK);
-            outline(g,x-3,z-3,x+4,z+4,marker.capital()?GOLD:AtlasGraphics.LIGHT);
-            g.fill(x-1,z-1,x+2,z+2,marker.capital()?GOLD:AtlasGraphics.LIGHT);
-            if (marker.capital()) g.fill(x-2,z-6,x+3,z-4,GOLD);
         }
         int currentL=(int)Math.floor(ox+pos.x*zoom),currentT=(int)Math.floor(oz+pos.z*zoom);
         outline(g,currentL,currentT,(int)Math.floor(ox+(pos.x+1)*zoom),(int)Math.floor(oz+(pos.z+1)*zoom),GOLD);
         if (selected && selectedDimension.equals(minecraft.level.dimension().location())) {
             int l=(int)Math.floor(ox+selectedX*zoom),t=(int)Math.floor(oz+selectedZ*zoom);
             int r=(int)Math.floor(ox+(selectedX+1)*zoom),b=(int)Math.floor(oz+(selectedZ+1)*zoom);
-            outline(g,l,t,r,b,BACKGROUND); outline(g,l+1,t+1,r-1,b-1,SELECTED);
+            g.fill(l,t,r,b,0x18fff1cb);
+            outline(g,l,t,r,b,AtlasGraphics.SHADOW,1);
+            outline(g,l+1,t+1,r-1,b-1,SELECTED,1);
+        }
+        if (layer!=2) for (MapLabel label:labels) {
+            g.fill(label.x(),label.y(),label.x()+label.width(),label.y()+13,LABEL_BACK);
+            g.drawString(font,label.name(),label.x()+4,label.y()+3,INK,false);
+        }
+        if (layer!=2) for (MapMarker marker:mapMarkers) {
+            var p=marker.point();
+            AtlasGraphics.mapSettlement(g,p.x(),p.y(),p.marker().capital(),p.cell().color());
+            if (marker.members().size()>1) {
+                g.fill(p.x()+6,p.y()-8,p.x()+14,p.y()+2,LABEL_BACK);
+                g.drawString(font,"+",p.x()+7,p.y()-7,AtlasGraphics.LIGHT,false);
+            }
         }
         int px=(int)Math.floor(ox+minecraft.player.getX()/16*zoom),pz=(int)Math.floor(oz+minecraft.player.getZ()/16*zoom);
-        g.fill(px-5,pz-2,px+6,pz+3,BACKGROUND); g.fill(px-2,pz-5,px+3,pz+6,BACKGROUND);
-        g.fill(px-4,pz,px+5,pz+1,GOLD); g.fill(px,pz-4,px+1,pz+5,GOLD); g.fill(px-1,pz-1,px+2,pz+2,INK);
+        AtlasGraphics.mapPlayer(g,px,pz,minecraft.player.getYRot());
         if (!state.equals("ready")) {
             String status=ellipsize(font,text(state),right-24);
             g.fill(10,bottom-14,Math.min(right-2,16+font.width(status)),bottom-2,LABEL_BACK);
@@ -353,14 +399,46 @@ public final class PoliticalMapScreen extends RoyalScreen {
         for (int i=0;i<LEGEND_KEYS.length;i++) {
             int keyY=legendKeyY+i*(LINE+2);
             g.fill(legendX,keyY,legendX+8,keyY+8,i==0?GOLD:i==1?SELECTED:BORDER);
-            g.fill(legendX+1,keyY+1,legendX+7,keyY+7,i==2?UNKNOWN:RECESS);
+            g.fill(legendX+1,keyY+1,legendX+7,keyY+7,i==2?0xff303936:RECESS);
             g.drawString(font,ellipsize(font,KingdomUi.text(LEGEND_KEYS[i]),legendWidth-13),legendX+13,keyY,MUTED,false);
         }
         renderSelection(g);
         g.drawString(font,scale,scaleX,10,MUTED,false);
         super.render(g,mx,my,delta);
+        if (!panning && inside(mx,my)) {
+            if (layer!=2) for (MapMarker marker:mapMarkers) {
+                var p=marker.point();
+                if (mx>=p.x()-8 && mx<=p.x()+(marker.members().size()>1?14:8) && Math.abs(my-p.y())<=8) {
+                    Component tip=Component.empty();
+                    for (int i=0;i<Math.min(3,marker.members().size());i++) {
+                        var member=marker.members().get(i);
+                        if (i>0) tip=tip.copy().append("\n\n");
+                        tip=tip.copy().append(text(member.marker().capital()?"capital_marker":"city_marker",member.cell().name()))
+                                .append("\n").append(ownership(member.cell()))
+                                .append("\n").append(text("position",member.marker().pos().getX()>>4,member.marker().pos().getZ()>>4));
+                    }
+                    if (marker.members().size()>3) tip=tip.copy().append("\n").append(text("marker_more",marker.members().size()-3));
+                    if (marker.members().size()>1) tip=tip.copy().append("\n").append(text("marker_hint"));
+                    atlasTooltip(g,tip,mx,my); return;
+                }
+            }
+            if (Math.abs(mx-px)<=6 && Math.abs(my-pz)<=6) atlasTooltip(g,text("you"),mx,my);
+        }
+        if (mx>=MARGIN && mx<width-MARGIN && my>=inspectorY && my<toolbarY && (!manageMode || mx<territoryAction.getX())) {
+            atlasTooltip(g,inspectorTooltip(),mx,my);
+        }
+        if (mx>=legendX && mx<width-MARGIN && my>=legendListY && my<legendListY+capacity*LEGEND_ROW) {
+            int index=legendOffset+(my-legendListY)/LEGEND_ROW;
+            if (index<legendEntries.size()) {
+                Cell cell=legendEntries.get(index);
+                atlasTooltip(g,Component.literal(cell.name()).append("\n").append(ownership(cell)),mx,my);
+            }
+        }
         if (legendEntries.size()>capacity&&mx>=legendX&&mx<width-MARGIN&&my>=top+GAP&&my<legendListY)
-            tooltip(g,font,text("legend_hint"),mx,my);
+            atlasTooltip(g,text("legend_hint"),mx,my);
+    }
+    private void atlasTooltip(GuiGraphics g,Component value,int mx,int my) {
+        KingdomUi.tooltip(g,font,font.split(value,Math.max(40,Math.min(260,width-24))),mx,my,(height-20)/LINE);
     }
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical) {
         if (x > right+7 && x < width-8 && y >= top && y < bottom) {
@@ -393,7 +471,12 @@ public final class PoliticalMapScreen extends RoyalScreen {
         return super.mouseDragged(x,y,button,dx,dy);
     }
     private static void outline(GuiGraphics g,int l,int t,int r,int b,int color) {
-        g.fill(l,t,r,t+2,color); g.fill(l,b-2,r,b,color); g.fill(l,t,l+2,b,color); g.fill(r-2,t,r,b,color);
+        outline(g,l,t,r,b,color,2);
+    }
+    private static void outline(GuiGraphics g,int l,int t,int r,int b,int color,int edge) {
+        if (r<=l || b<=t) return;
+        edge=Math.min(edge,Math.min(r-l,b-t));
+        g.fill(l,t,r,t+edge,color); g.fill(l,b-edge,r,b,color); g.fill(l,t,l+edge,b,color); g.fill(r-edge,t,r,b,color);
     }
     private boolean standingInSelection() {
         return selected && minecraft.player != null && minecraft.level != null && selectedDimension.equals(minecraft.level.dimension().location())
@@ -446,7 +529,8 @@ public final class PoliticalMapScreen extends RoyalScreen {
                 && detailsRequested == 0 && !needsDetails && standingInSelection() && snapshot != null
                 && snapshot.status() != 2 && !state.equals("stale");
         territoryAction.active = ready && (releasing() ? details.unclaimReason() : details.claimReason()).isEmpty();
-        Component hint=territoryAction.active&&releasing()?KingdomUi.text("release_hint"):Component.empty();
+        Component hint=selectionMessage();
+        if (territoryAction.active&&releasing()) hint=hint.copy().append("\n").append(KingdomUi.text("release_hint"));
         if (!hint.equals(actionHint)) { actionHint=hint; territoryAction.setTooltip(hint.getString().isEmpty()?null:Tooltip.create(hint)); }
     }
     /** One message owns action feedback: no parallel claim/unclaim reasons or repeated restrictions. */
@@ -463,25 +547,33 @@ public final class PoliticalMapScreen extends RoyalScreen {
         String reason = releasing() ? details.unclaimReason() : details.claimReason();
         return reason.isEmpty() ? KingdomUi.text(releasing() ? "unclaim_ready" : "claim_ready") : Component.translatable(reason);
     }
+    private static Component ownership(Cell cell) {
+        return cell.sovereign()==null?KingdomUi.text("independent_city"):KingdomUi.text("sovereign_kingdom",cell.politicalName());
+    }
+    private Component selectedOwner() {
+        return details==null?KingdomUi.text(needsDetails || detailsRequested!=0?"loading":"details_error")
+                :details.owner().isEmpty()?Component.translatable("message.regnum-nations.territory.wilderness"):Component.literal(details.owner());
+    }
+    private Component inspectorTooltip() {
+        Component line=selected?KingdomUi.text("chunk_owner",selectedX,selectedZ,selectedOwner()):KingdomUi.text("select_chunk");
+        if (details!=null) {
+            if (!details.owner().isEmpty()) line=line.copy().append("\n").append(details.sovereign()==null?KingdomUi.text("independent_city"):KingdomUi.text("sovereign_kingdom",details.politicalName()));
+            line=line.copy().append("\n").append(KingdomUi.text("adjacency",KingdomUi.text(details.adjacent()?"yes":"no")));
+        }
+        return line.copy().append("\n").append(selectionMessage()).append("\n\n").append(KingdomUi.text("map_keyboard"));
+    }
     private void renderSelection(GuiGraphics g) {
         int inspectorX=MARGIN+GAP;
         AtlasGraphics.divider(g,MARGIN+4,inspectorY-4,width-(MARGIN+4)*2);
-        Component owner = details == null ? KingdomUi.text(needsDetails || detailsRequested != 0 ? "loading" : "details_error") : details.owner().isEmpty()
-                ? Component.translatable("message.regnum-nations.territory.wilderness") : Component.literal(details.owner());
-        Component line = selected ? KingdomUi.text("chunk_owner",selectedX,selectedZ,owner) : KingdomUi.text("select_chunk");
-        int lineWidth=manageMode?territoryAction.getX()-GAP-inspectorX:width-inspectorX*2;
-        g.drawString(font,ellipsize(font,line,lineWidth),inspectorX,inspectorY+GAP,INK,false);
-        Component adjacent = details == null ? KingdomUi.text(needsDetails || detailsRequested != 0 ? "loading" : "details_error")
-                : KingdomUi.text("adjacency",KingdomUi.text(details.adjacent() ? "yes" : "no"));
-        Component political=details==null||details.owner().isEmpty()?adjacent:details.sovereign()==null?KingdomUi.text("independent_city"):
+        Component line=selected?KingdomUi.text("chunk_owner",selectedX,selectedZ,selectedOwner()):KingdomUi.text("select_chunk");
+        int lineWidth=manageMode?territoryAction.getX()-GAP-inspectorX:width-inspectorX*2-16;
+        g.drawString(font,ellipsize(font,line,lineWidth),inspectorX,inspectorY+4,INK,false);
+        Component political=details==null?selectedOwner():details.owner().isEmpty()?Component.empty():details.sovereign()==null?KingdomUi.text("independent_city"):
                 KingdomUi.text("sovereign_kingdom",details.politicalName());
-        g.drawString(font,ellipsize(font,political,lineWidth),inspectorX,inspectorY+GAP+LINE+2,MUTED,false);
-        Component message = selectionMessage();
-        if (!message.equals(cachedInspectorMessage)||cachedInspectorWidth!=width) {
-            cachedInspectorMessage=message; cachedInspectorWidth=width; inspectorLines=font.split(message,width-inspectorX*2);
-        }
-        var lines=inspectorLines;
-        for (int i=0;i<Math.min(2,lines.size());i++) g.drawString(font,lines.get(i),inspectorX,inspectorY+GAP+LINE*2+GAP+i*LINE,actionFailed?ERROR:GOLD,false);
+        // Feedback stays visible; instructions and action restrictions are available on hover and via narration.
+        boolean hasFeedback=!feedback.getString().isEmpty();
+        g.drawString(font,ellipsize(font,hasFeedback?feedback:political,lineWidth),inspectorX,inspectorY+4+LINE,hasFeedback?(actionFailed?ERROR:GOLD):MUTED,false);
+        if (!manageMode) g.drawString(font,"?",width-MARGIN-10,inspectorY+4,AtlasGraphics.BRASS,false);
     }
     private final class MapCanvas extends AbstractWidget {
         MapCanvas() { super(8,top,right-8,bottom-top,KingdomUi.text("map_keyboard")); }

@@ -26,6 +26,9 @@ The geometric heraldic charges deliberately describe identity, not gameplay powe
 | `(64, 48, 12, 12)` | Personal-land register grid mark |
 | `(80, 48, 12, 12)` | Capital gateway mark |
 | `(64, 64, 32, 56)`; then u=96,128,160 | Pale, chevron, bend, quartering masks |
+| `(128, 0, 15, 15)`; `(144, 0, 15, 15)` | Map house and separately tinted roof |
+| `(160, 0, 15, 15)`; `(176, 0, 15, 15)` | Map castle and separately tinted royal banner |
+| `(192, 0, 7, 7)` | Directional player arrow, rotated using player yaw |
 
 ## Generated surface
 
@@ -45,3 +48,8 @@ Both PNGs have `.png.mcmeta` with `blur: false` and `clamp: false`.
 AtlasGraphics renders the corners at 1:1, repeats edge strips with cropped end tiles,
 and draws the standard at integer 1× or 2×. Textures never supply text or hitboxes;
 native Minecraft widgets and localized fonts own interaction and language.
+Map settlement symbols stay at 15 logical pixels across zoom levels. Only their
+roof/cloth mask is tinted; ivory walls and dark outlines preserve contrast.
+The castle's royal banner denotes the authoritative capital/kingdom seat.
+Unknown map pixels expose a static slate parchment with sparse survey hatching,
+drawn beneath the existing transparent terrain tiles; no terrain is synthesized.

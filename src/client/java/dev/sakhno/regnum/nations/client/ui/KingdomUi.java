@@ -84,8 +84,10 @@ final class KingdomUi {
         tooltip(g,font,font.split(value,Math.max(40,Math.min(200,g.guiWidth()/2))),mx,my);
     }
     static void tooltip(GuiGraphics g,Font font,List<FormattedCharSequence> lines,int mx,int my) {
-        // Hints and shortened record values stay compact; full records remain in narration.
-        int max = Math.max(1,Math.min(3,(g.guiHeight()-16)/LINE));
+        tooltip(g,font,lines,mx,my,3);
+    }
+    static void tooltip(GuiGraphics g,Font font,List<FormattedCharSequence> lines,int mx,int my,int maxLines) {
+        int max = Math.max(1,Math.min(maxLines,(g.guiHeight()-16)/LINE));
         if (lines.size() > max) {
             var clipped = new java.util.ArrayList<>(lines.subList(0,Math.max(0,max-1)));
             clipped.add(Component.literal("…").getVisualOrderText()); lines = clipped;

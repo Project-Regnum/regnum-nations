@@ -33,6 +33,7 @@ public final class SettlementService {
     public void select(ServerPlayer player,BlockPos pos) throws FoundingException {
         kingdoms.forget(player.getUUID()); kingdoms.validatePlayer(player);
         if (data.byOwner(player.getUUID())!=null) throw new FoundingException(DOMAIN_LIMIT);
+        if (data.citizenCity(player.getUUID())!=null) throw new FoundingException(ALREADY_CITIZEN);
         KingdomService.checkDistance(player,pos);
         CityObeliskBlockEntity block=cityBlock(player,pos);
         if (block.getSettlementId()!=null||data.cityAt(player.level().dimension(),pos)!=null) throw new FoundingException(ALREADY_BOUND);
@@ -42,6 +43,7 @@ public final class SettlementService {
     public Settlement found(ServerPlayer player,UUID expected,String input,int color) throws FoundingException {
         kingdoms.data(); Pending selection=pending.remove(player.getUUID()); kingdoms.validatePlayer(player);
         if (data.byOwner(player.getUUID())!=null) throw new FoundingException(DOMAIN_LIMIT);
+        if (data.citizenCity(player.getUUID())!=null) throw new FoundingException(ALREADY_CITIZEN);
         if (selection==null||selection.player()!=player||!selection.obelisk().equals(expected)) throw new FoundingException(NO_SELECTION);
         long age=server.overworld().getGameTime()-selection.at();
         if (age<0||age>=KingdomService.SELECTION_TICKS) throw new FoundingException(EXPIRED);

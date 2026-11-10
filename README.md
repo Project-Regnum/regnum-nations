@@ -4,7 +4,7 @@ The nations and territorial management module of **Project Regnum**, a multiplay
 Fabric mod for Minecraft 1.21.1. Previously named Project Reigns. The first functional slice is
 the Kingdom Obelisk: a placeable capital with a persistent server UUID and explicit,
 server-authoritative kingdom founding. Kingdom records and capital bindings persist
-in world saved data. Basic chunk claims and founder-only building protection are implemented.
+in world saved data. Basic chunk claims and city membership protection are implemented.
 The v0.6.0 milestone adds independent city-states, personal settlement-owned land,
 sovereign kingdoms with chosen political colors, and confirmed safe dissolution.
 The v0.6.1 Royal Cartography milestone unifies the founding, management and map
@@ -16,8 +16,10 @@ composition and deterministic heraldry remain. Server rules and networking are
 unchanged. Rendered checks cover City, Found City and the independent Kingdom state;
 the remaining screens await manual visual review (see the design system).
 Use City and State Obelisks, the compact `/nations menu`, and M for the political map.
-One personal city/domain is enforced. Minimal city affiliation is implemented;
-full roles, diplomacy, economy and warfare are not.
+The v0.7.0 citizenship milestone adds owner-issued player invitations, persistent
+UUID membership and citizen building access. Use `/nations citizen` for help.
+One personal city/domain and membership in at most one city are enforced.
+City affiliation is implemented; full roles, diplomacy, economy and warfare are not.
 
 See [UI design system, Living Atlas reference and screenshot steps](docs/ui-design-system.md).
 
@@ -28,7 +30,7 @@ Diorama; no mapping mod is required. See the [assessment, cache behavior and
 verification instructions](docs/living-atlas-terrain.md) and
 [third-party attribution](THIRD_PARTY_NOTICES.md).
 
-See [v0.6.0 cities, migration, colors, safe deletion and manual checks](docs/cities-and-sovereignty.md).
+See [cities, v0.7.0 citizenship, migration, permissions and manual checks](docs/cities-and-sovereignty.md).
 
 See [v0.5.1 UX, administration, safety, and manual checks](docs/ux-and-administration.md).
 
@@ -46,7 +48,7 @@ World registry IDs, UUIDs, saved-data filenames, map configuration and the saved
 binding stay compatible. `/nations` is the preferred command; `/reigns` remains an
 alias. Presentation assets and Java packages now use the Regnum Nations name.
 See the [migration contract and upgrade steps](docs/rename-migration.md) before
-upgrading a player world. Build output is `build/libs/regnum-nations-0.6.3.jar`.
+upgrading a player world. Build output is `build/libs/regnum-nations-0.7.0.jar`.
 
 ## Development
 

@@ -37,6 +37,10 @@ loot-table paths can continue to target those paths. Historical validation recor
 in the gameplay documentation describe earlier builds and are not evidence that
 this rename received manual visual testing.
 
+The subsequent [v0.7.0 citizenship migration](cities-and-sovereignty.md#persistence-and-migration)
+adds schema-4 `Citizens` in the same saved-data file. All legacy identities and
+records remain. Rollback from schema 4 requires the pre-upgrade world backup.
+
 ## Upgrade and rollback
 
 1. Stop the server and back up the entire world and `config/` directory.

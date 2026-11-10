@@ -40,7 +40,8 @@ public final class ClaimService {
 		var owned=data.ownedSettlements(player.getUUID());
 		if (owned.size()>1) throw new FoundingException(DOMAIN_REPAIR);
 		Settlement kingdom = owned.isEmpty()?null:owned.getFirst();
-		if (kingdom == null) throw new FoundingException(NO_KINGDOM);
+		if (kingdom == null) throw new FoundingException(data.citizenCity(player.getUUID())==null?NO_KINGDOM:NOT_OWNER);
+		if (!CityPermissions.canManage(kingdom,player.getUUID())) throw new FoundingException(NOT_OWNER);
 		if (viewedKingdom != null && !kingdom.id().equals(viewedKingdom) && !viewedKingdom.equals(kingdom.sovereign())) throw new FoundingException(NOT_OWNER);
 		ClaimPos capital = ClaimPos.at(kingdom.dimension(), kingdom.obeliskPos());
 		if (!kingdom.id().equals(data.claimOwner(capital))) throw new FoundingException(CAPITAL_CONFLICT);
@@ -95,6 +96,6 @@ public final class ClaimService {
 		}
 		UUID ownerId=data.claimOwner(ClaimPos.at(level.dimension(),pos));
 		Settlement owner=data.settlement(ownerId);
-		return ownerId==null || (owner!=null && player!=null && owner.ownerId().equals(player.getUUID()));
+		return ownerId==null || CityPermissions.canBuild(data,owner,player==null?null:player.getUUID());
 	}
 }

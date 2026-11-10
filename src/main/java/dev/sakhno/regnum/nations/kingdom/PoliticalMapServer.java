@@ -3,6 +3,7 @@ package dev.sakhno.regnum.nations.kingdom;
 import dev.sakhno.regnum.nations.RegnumNations;
 import dev.sakhno.regnum.nations.networking.PoliticalMapPayloads.*;
 import dev.sakhno.regnum.nations.networking.PoliticalMapPayloads;
+import dev.sakhno.regnum.nations.networking.AtlasPayloads;
 import java.util.*;
 import java.nio.file.*;
 import net.fabricmc.loader.api.FabricLoader;
@@ -26,6 +27,12 @@ public final class PoliticalMapServer {
         } catch (Exception e) { RegnumNations.LOGGER.warn("Cannot read political map config; using radius 32", e); }
         PayloadTypeRegistry.playC2S().register(Request.TYPE, Request.CODEC);
         PayloadTypeRegistry.playS2C().register(Snapshot.TYPE, Snapshot.CODEC);
+        PayloadTypeRegistry.playS2C().register(AtlasPayloads.Session.TYPE, AtlasPayloads.Session.CODEC);
+        PayloadTypeRegistry.playS2C().register(AtlasPayloads.Markers.TYPE, AtlasPayloads.Markers.CODEC);
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            if (ServerPlayNetworking.canSend(handler.player, AtlasPayloads.Session.TYPE))
+                ServerPlayNetworking.send(handler.player, new AtlasPayloads.Session(AtlasWorldIdentity.get(server)));
+        });
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> LAST_REQUEST.clear());
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> LAST_REQUEST.remove(handler.player.getUUID()));
         ServerPlayNetworking.registerGlobalReceiver(Request.TYPE, (request, context) -> {
@@ -38,6 +45,7 @@ public final class PoliticalMapServer {
             var dimension = player.level().dimension();
             var center = player.chunkPosition();
             var cells = new ArrayList<Cell>();
+            var markers = new ArrayList<AtlasPayloads.CityMarker>();
             int status = 0;
             try {
                 var data = KingdomService.get(context.server()).data();
@@ -53,8 +61,21 @@ public final class PoliticalMapServer {
                         cells.add(cell); bytes+=PoliticalMapPayloads.cellBytes(cell);
                     }
                 }
+                // Only inspect owners already disclosed in this bounded political snapshot.
+                var marked = new HashSet<UUID>();
+                for (Cell cell : cells) {
+                    if (!marked.add(cell.owner())) continue;
+                    Settlement city = data.settlement(cell.owner());
+                    int cx = city.obeliskPos().getX() >> 4, cz = city.obeliskPos().getZ() >> 4;
+                    if (!city.dimension().equals(dimension) || Math.abs((long)cx-center.x)>radius || Math.abs((long)cz-center.z)>radius) continue;
+                    Kingdom sovereign = data.sovereign(city);
+                    markers.add(new AtlasPayloads.CityMarker(city.id(), city.obeliskPos(),
+                            sovereign != null && sovereign.capitalSettlementId().equals(city.id())));
+                }
             } catch (FoundingException e) { status = 2; }
             ServerPlayNetworking.send(player, new Snapshot(request.sequence(), dimension.location(), center.x, center.z, radius, status, List.copyOf(cells)));
+            if (ServerPlayNetworking.canSend(player, AtlasPayloads.Markers.TYPE))
+                ServerPlayNetworking.send(player, new AtlasPayloads.Markers(request.sequence(), dimension.location(), markers));
         });
     }
 }

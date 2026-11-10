@@ -1,6 +1,8 @@
 package dev.sakhno.regnum.nations.client.ui;
 
 import dev.sakhno.regnum.nations.networking.PoliticalMapPayloads.*;
+import dev.sakhno.regnum.nations.networking.AtlasPayloads;
+import dev.sakhno.regnum.nations.client.terrain.AtlasTerrain;
 import java.util.*;
 import dev.sakhno.regnum.nations.networking.KingdomManagementPayloads;
 import dev.sakhno.regnum.nations.networking.KingdomManagementPayloads.Action;
@@ -49,6 +51,8 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private final int top=MAP_TOP;
     private int legendOffset;
     private boolean panning;
+    private int layer; // 0: terrain + politics; 1: politics; 2: terrain
+    private List<AtlasPayloads.CityMarker> cityMarkers = List.of();
     private long requested;
     private String state = "loading";
     private int right,bottom,legendX,legendWidth,legendListY,legendKeyY,toolbarY,inspectorY,headerTextWidth;
@@ -89,7 +93,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         territoryAction.active = false; territoryAction.visible = manageMode;
         territoryAction.style(releasing()?ButtonStyle.DANGER:ButtonStyle.PRIMARY);
         int closeWidth=Math.max(CONTROL*3,font.width(text("close"))+PAD*2);
-        int[] tools=AtlasWidgets.rowWidths(font,width-MARGIN*2-closeWidth-GAP,CONTROL+4,text("refresh"),Component.literal("−"),Component.literal("+"),text("fit"));
+        int[] tools=AtlasWidgets.rowWidths(font,width-MARGIN*2-closeWidth-GAP,CONTROL+4,text("refresh"),Component.literal("−"),Component.literal("+"),text("fit"),text("layers"));
         int toolX=MARGIN;
         refreshButton = addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[0],text("refresh"),b -> { fitNextSnapshot = true; request(); needsDetails = true; feedback = Component.empty(); }));
         toolX+=tools[0]+GAP;
@@ -104,6 +108,12 @@ public final class PoliticalMapScreen extends RoyalScreen {
         in.setTooltip(Tooltip.create(KingdomUi.text("zoom_in")));
         toolX+=tools[2]+GAP;
         addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[3],text("fit"),b -> fitClaims()));
+        toolX+=tools[3]+GAP;
+        RoyalButton layers=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[4],text("layers"),b -> {
+            layer=(layer+1)%3;
+            b.setTooltip(Tooltip.create(text("layer_"+layer)));
+        }));
+        layers.setTooltip(Tooltip.create(text("layer_"+layer)));
         addRenderableWidget(new RoyalButton(width-MARGIN-closeWidth,toolbarY,closeWidth,text("close"),b -> onClose()));
         setInitialFocus(canvas);
         if (requested == 0) request();
@@ -116,7 +126,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         if (System.currentTimeMillis()-lastMapRequest < 550) { refreshDue = true; return; }
         refreshDue = false; lastMapRequest = System.currentTimeMillis();
         sequence = KingdomUi.nextSequence();
-        requested = System.currentTimeMillis(); state = "loading"; snapshot = null; cells.clear();
+        requested = System.currentTimeMillis(); state = "loading"; snapshot = null; cells.clear(); cityMarkers=List.of();
         if (fitNextSnapshot) {
             centerX = minecraft.player.getX() / 16; centerZ = minecraft.player.getZ() / 16;
             legendOffset = 0;
@@ -139,11 +149,20 @@ public final class PoliticalMapScreen extends RoyalScreen {
         fitNextSnapshot = true;
         state = data.status() == 2 ? "error" : data.cells().isEmpty() ? "empty" : data.status() == 1 ? "truncated" : "ready";
     }
+    public void acceptMarkers(AtlasPayloads.Markers data) {
+        if (data.sequence()!=sequence || snapshot==null || minecraft.level==null
+                || !data.dimension().equals(snapshot.dimension())
+                || !data.dimension().equals(minecraft.level.dimension().location())) return;
+        cityMarkers=data.cities().stream().filter(marker -> {
+            Cell cell=cells.get(key(marker.pos().getX()>>4,marker.pos().getZ()>>4));
+            return cell!=null && cell.owner().equals(marker.city());
+        }).toList();
+    }
     public void invalidate() {
         if (parent!=null) parent.invalidate();
         management=null; ownSettlement=null; details=null;
         detailsSequence=KingdomUi.nextSequence(); detailsRequested=0; actionPending=false; needsDetails=true;
-        sequence=KingdomUi.nextSequence(); snapshot=null; cells.clear(); nameWidths.clear();
+        sequence=KingdomUi.nextSequence(); snapshot=null; cells.clear(); nameWidths.clear(); cityMarkers=List.of();
         state="loading"; fitNextSnapshot=false; refreshDue=true;
         feedback=Component.empty(); actionFailed=false; updateActions();
     }
@@ -181,7 +200,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         refreshButton.active = !actionPending && !state.equals("loading") && System.currentTimeMillis()-lastMapRequest >= 550;
         updateActions();
         if (requested != 0 && state.equals("loading") && !refreshDue && System.currentTimeMillis() - requested > 10000) state = "error";
-        if (snapshot != null && minecraft.level != null && !snapshot.dimension().equals(minecraft.level.dimension().location())) { snapshot = null; cells.clear(); state = "stale"; details = null; needsDetails = false; }
+        if (snapshot != null && minecraft.level != null && !snapshot.dimension().equals(minecraft.level.dimension().location())) { snapshot = null; cells.clear(); cityMarkers=List.of(); state = "stale"; details = null; needsDetails = false; }
     }
     private record Tile(Cell cell,int left,int top,int right,int bottom,int borders,int politicalBorders) { }
     private record MapLabel(String name,int x,int y,int width) { }
@@ -254,19 +273,21 @@ public final class PoliticalMapScreen extends RoyalScreen {
         double ox=originX(),oz=originZ();
         g.enableScissor(8,top,right,bottom);
         g.fill(8,top,right,bottom,UNKNOWN);
-        if (snapshot!=null && snapshot.status()==0) {
+        if (layer==1 && snapshot!=null && snapshot.status()==0) {
             g.fill((int)Math.floor(ox+(snapshot.centerX()-snapshot.radius())*zoom),
                     (int)Math.floor(oz+(snapshot.centerZ()-snapshot.radius())*zoom),
                     (int)Math.floor(ox+(snapshot.centerX()+snapshot.radius()+1)*zoom),
                     (int)Math.floor(oz+(snapshot.centerZ()+snapshot.radius()+1)*zoom),WILDERNESS);
         }
-        // A faint surveying grid yields to continuous land fills and engraved political borders.
-        if (zoom>=8) {
+        if (layer!=1) AtlasTerrain.draw(g,8,top,right,bottom,ox,oz,zoom);
+        // The optional surveying grid is confined to the political-only layer.
+        if (layer==1 && zoom>=8) {
             for (double x=ox+Math.ceil((8-ox)/zoom)*zoom;x<right;x+=zoom) g.fill((int)Math.floor(x),top,(int)Math.floor(x)+1,bottom,GRID);
             for (double z=oz+Math.ceil((top-oz)/zoom)*zoom;z<bottom;z+=zoom) g.fill(8,(int)Math.floor(z),right,(int)Math.floor(z)+1,GRID);
         }
-        for (Tile tile:tiles) g.fill(tile.left(),tile.top(),tile.right(),tile.bottom(),subdued(tile.cell().color()));
-        for (Tile tile:tiles) {
+        if (layer!=2) for (Tile tile:tiles) g.fill(tile.left(),tile.top(),tile.right(),tile.bottom(),
+                layer==1?subdued(tile.cell().color()):(tile.cell().color()&0x00ffffff)|0x33000000);
+        if (layer!=2) for (Tile tile:tiles) {
             int l=tile.left(),t=tile.top(),r=tile.right(),b=tile.bottom();
             // Fine city boundaries remain visible within a realm; sovereignty has a stronger contour.
             if ((tile.borders()&1)!=0) g.fill(l,t,l+1,b,AtlasGraphics.RULE);
@@ -283,9 +304,17 @@ public final class PoliticalMapScreen extends RoyalScreen {
                 g.fill(l+1,t+1,l+2,Math.min(b-1,t+5),GOLD);
             }
         }
-        for (MapLabel label:labels) {
+        if (layer!=2) for (MapLabel label:labels) {
             g.fill(label.x(),label.y(),label.x()+label.width(),label.y()+13,LABEL_BACK);
             g.drawString(font,label.name(),label.x()+4,label.y()+3,INK,false);
+        }
+        if (layer!=2) for (AtlasPayloads.CityMarker marker:cityMarkers) {
+            int x=(int)Math.floor(ox+(marker.pos().getX()+0.5)/16*zoom);
+            int z=(int)Math.floor(oz+(marker.pos().getZ()+0.5)/16*zoom);
+            g.fill(x-4,z-4,x+5,z+5,LABEL_BACK);
+            outline(g,x-3,z-3,x+4,z+4,marker.capital()?GOLD:AtlasGraphics.LIGHT);
+            g.fill(x-1,z-1,x+2,z+2,marker.capital()?GOLD:AtlasGraphics.LIGHT);
+            if (marker.capital()) g.fill(x-2,z-6,x+3,z-4,GOLD);
         }
         int currentL=(int)Math.floor(ox+pos.x*zoom),currentT=(int)Math.floor(oz+pos.z*zoom);
         outline(g,currentL,currentT,(int)Math.floor(ox+(pos.x+1)*zoom),(int)Math.floor(oz+(pos.z+1)*zoom),GOLD);

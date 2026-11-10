@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "regnum-nations-atlas-test",
+  "version": "1.0.0",
+  "name": "Living Atlas Client Checks",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.sakhno.regnum.nations.kingdom.AtlasClientChecks"] },
+  "depends": { "regnum-nations": "*" }
+}

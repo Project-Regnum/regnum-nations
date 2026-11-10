@@ -15,6 +15,13 @@ import org.lwjgl.glfw.GLFW;
 
 public class RegnumNationsClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
+        dev.sakhno.regnum.nations.client.terrain.AtlasTerrain.initialize();
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.AtlasPayloads.Session.TYPE,
+                (payload, context) -> dev.sakhno.regnum.nations.client.terrain.diorama.MapSession.setWorld(payload.world()));
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.AtlasPayloads.Markers.TYPE,
+                (payload, context) -> {
+                    if (context.client().screen instanceof PoliticalMapScreen map) map.acceptMarkers(payload);
+                });
         var key = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.project-reigns.map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "category.project-reigns"));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while(key.consumeClick()) if(client.player != null && client.screen == null) client.setScreen(new PoliticalMapScreen());

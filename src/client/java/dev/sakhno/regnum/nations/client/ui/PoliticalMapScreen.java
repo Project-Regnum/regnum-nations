@@ -3,6 +3,7 @@ package dev.sakhno.regnum.nations.client.ui;
 import dev.sakhno.regnum.nations.networking.PoliticalMapPayloads.*;
 import dev.sakhno.regnum.nations.networking.AtlasPayloads;
 import dev.sakhno.regnum.nations.client.terrain.AtlasTerrain;
+import dev.sakhno.regnum.nations.client.ui.RoyalControlButton.Icon;
 import java.util.*;
 import dev.sakhno.regnum.nations.networking.KingdomManagementPayloads;
 import dev.sakhno.regnum.nations.networking.KingdomManagementPayloads.Action;
@@ -28,7 +29,8 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private UUID viewedCity;
     private RoyalButton territoryAction;
     private Button refreshButton;
-    private RoyalButton modeButton;
+    private RoyalControlButton modeButton;
+    private RoyalControlButton layersButton;
     private MapCanvas canvas;
     private Component actionHint=Component.empty();
     private boolean actionFailed;
@@ -74,50 +76,62 @@ public final class PoliticalMapScreen extends RoyalScreen {
         canvas=addRenderableWidget(new MapCanvas());
         Component back=KingdomUi.text("back_kingdom"),view=KingdomUi.text("mode_view"),manage=KingdomUi.text("mode_manage");
         int[] navigation=AtlasWidgets.rowWidths(font,(width-MARGIN*2)/2,CONTROL*2,back,font.width(manage)>font.width(view)?manage:view);
-        int navigationX=width-MARGIN-navigation[0]-GAP-navigation[1],navigationY=top-CONTROL-MARGIN;
+        int navigationX=width-MARGIN-CONTROL-GAP-navigation[0]-GAP-navigation[1],navigationY=top-CONTROL-MARGIN;
         headerTextWidth=navigationX-GAP-MARGIN*2;
-        addRenderableWidget(new RoyalButton(navigationX,navigationY,navigation[0],back,b -> showOverview()));
-        modeButton = addRenderableWidget(new RoyalButton(navigationX+navigation[0]+GAP,navigationY,navigation[1],KingdomUi.text(manageMode ? "mode_manage" : "mode_view"),b -> {
+        addRenderableWidget(new RoyalControlButton(navigationX,navigationY,navigation[0],back,Icon.NONE,false,b -> showOverview()))
+                .setTooltip(Tooltip.create(back));
+        modeButton = addRenderableWidget(new RoyalControlButton(navigationX+navigation[0]+GAP,navigationY,navigation[1],KingdomUi.text(manageMode ? "mode_manage" : "mode_view"),Icon.NONE,false,b -> {
             manageMode = !manageMode;
             modeButton.setMessage(KingdomUi.text(manageMode ? "mode_manage" : "mode_view"));
-            modeButton.selected(manageMode);
+            modeButton.selected(true);
             feedback = Component.empty(); updateActions();
         }));
-        modeButton.selected(manageMode);
+        modeButton.selected(true);
         modeButton.setTooltip(Tooltip.create(KingdomUi.text("mode_hint")));
         int actionWidth=Math.min((width-MARGIN*2)/3,Math.max(CONTROL*4,Math.max(font.width(KingdomUi.text("claim")),font.width(KingdomUi.text("unclaim")))+PAD*2));
-        territoryAction = addRenderableWidget(new RoyalButton(width-MARGIN-actionWidth,inspectorY+2,actionWidth,KingdomUi.text("claim"),
+        territoryAction = addRenderableWidget(new RoyalControlButton(width-MARGIN-actionWidth,inspectorY+2,actionWidth,KingdomUi.text("claim"),Icon.NONE,false,
                 b -> sendDetails(releasing() ? Action.UNCLAIM : Action.CLAIM)));
         territoryAction.active = false; territoryAction.visible = manageMode;
         territoryAction.style(releasing()?ButtonStyle.DANGER:ButtonStyle.PRIMARY);
-        int closeWidth=Math.max(CONTROL*3,font.width(text("close"))+PAD*2);
-        int[] tools=AtlasWidgets.rowWidths(font,width-MARGIN*2-closeWidth-GAP,CONTROL+4,text("refresh"),Component.literal("−"),Component.literal("+"),text("fit"),text("layers"));
+        // Keep the zoom tools close together, with wider space between functional groups.
+        int groupGap=GAP+2,zoomGap=2;
+        int flexibleWidth=width-MARGIN*2-CONTROL*3-groupGap*2-zoomGap*2;
+        int fitWidth=Math.min(Math.max(CONTROL*2,font.width(text("fit"))+16),flexibleWidth/2);
+        int layersWidth=Math.min(Math.max(CONTROL*3,font.width(text("layers"))+32),flexibleWidth-fitWidth);
         int toolX=MARGIN;
-        refreshButton = addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[0],text("refresh"),b -> { fitNextSnapshot = true; request(); needsDetails = true; feedback = Component.empty(); }));
-        toolX+=tools[0]+GAP;
-        Button out=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[1],Component.literal("−"),b -> zoom=Math.max(MIN_ZOOM,zoom/1.25)) {
-            @Override protected net.minecraft.network.chat.MutableComponent createNarrationMessage() { return KingdomUi.text("zoom_out").copy(); }
-        });
-        out.setTooltip(Tooltip.create(KingdomUi.text("zoom_out")));
-        toolX+=tools[1]+GAP;
-        Button in=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[2],Component.literal("+"),b -> zoom=Math.min(MAX_ZOOM,zoom*1.25)) {
-            @Override protected net.minecraft.network.chat.MutableComponent createNarrationMessage() { return KingdomUi.text("zoom_in").copy(); }
-        });
-        in.setTooltip(Tooltip.create(KingdomUi.text("zoom_in")));
-        toolX+=tools[2]+GAP;
-        addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[3],text("fit"),b -> fitClaims())).setTooltip(Tooltip.create(KingdomUi.text("map_keyboard")));
-        toolX+=tools[3]+GAP;
-        RoyalButton layers=addRenderableWidget(new RoyalButton(toolX,toolbarY,tools[4],text("layers"),b -> {
-            layer=(layer+1)%3;
-            b.setTooltip(Tooltip.create(text("layer_"+layer)));
+        refreshButton = addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,text("refresh"),Icon.REFRESH,true,b -> {
+            fitNextSnapshot = true; request(); needsDetails = true; feedback = Component.empty();
         }));
-        layers.setTooltip(Tooltip.create(text("layer_"+layer)));
-        addRenderableWidget(new RoyalButton(width-MARGIN-closeWidth,toolbarY,closeWidth,text("close"),b -> onClose()));
+        refreshButton.setTooltip(Tooltip.create(text("refresh")));
+        toolX+=CONTROL+groupGap;
+        Button out=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_out"),Icon.MINUS,true,
+                b -> zoom=Math.max(MIN_ZOOM,zoom/1.25)));
+        out.setTooltip(Tooltip.create(KingdomUi.text("zoom_out")));
+        toolX+=CONTROL+zoomGap;
+        Button in=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_in"),Icon.PLUS,true,
+                b -> zoom=Math.min(MAX_ZOOM,zoom*1.25)));
+        in.setTooltip(Tooltip.create(KingdomUi.text("zoom_in")));
+        toolX+=CONTROL+zoomGap;
+        addRenderableWidget(new RoyalControlButton(toolX,toolbarY,fitWidth,text("fit"),Icon.NONE,false,b -> fitClaims()))
+                .setTooltip(Tooltip.create(KingdomUi.text("map_keyboard")));
+        toolX+=fitWidth+groupGap;
+        layersButton=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,layersWidth,text("layers"),Icon.LAYERS,false,b -> {
+            layer=(layer+1)%3;
+            updateLayerButton();
+        }));
+        updateLayerButton();
+        addRenderableWidget(new RoyalControlButton(width-MARGIN-CONTROL,MARGIN,CONTROL,text("close"),Icon.CLOSE,true,b -> onClose()))
+                .setTooltip(Tooltip.create(text("close")));
         setInitialFocus(canvas);
         if (requested == 0) request();
         if (!selected && minecraft.player != null && minecraft.level != null) {
             var pos = minecraft.player.chunkPosition(); select(pos.x,pos.z);
         }
+    }
+    private void updateLayerButton() {
+        Component description=text("layer_"+layer);
+        layersButton.layerState(layer,description);
+        layersButton.setTooltip(Tooltip.create(text("layers").copy().append(": ").append(description)));
     }
     private void request() {
         if (minecraft.player == null) return;
@@ -286,7 +300,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         g.fill(0,0,width,height,BACKGROUND);
         AtlasGraphics.folio(g,0,0,width,height);
         Component scale=text("scale",(int)Math.round(zoom));
-        int scaleX=width-MARGIN-font.width(scale),titleX=MARGIN+23;
+        int scaleX=width-MARGIN-CONTROL-GAP-font.width(scale),titleX=MARGIN+23;
         AtlasGraphics.mark(g,13,9,false);
         g.drawString(font,ellipsize(font,title,scaleX-GAP-titleX),titleX,10,AtlasGraphics.LIGHT,false);
         AtlasGraphics.divider(g,MARGIN+4,top-MARGIN,width-(MARGIN+4)*2);

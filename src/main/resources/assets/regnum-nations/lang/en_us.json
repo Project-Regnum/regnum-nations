@@ -257,5 +257,9 @@
   "ui.regnum-nations.atlas_civic_seal": "Municipal tower seal",
   "ui.regnum-nations.atlas_founding_document": "CHARTER OF FOUNDATION",
   "map.regnum-nations.legend_hint": "Scroll to see more cities.",
-  "ui.regnum-nations.release_hint": "Release this chunk to unclaimed land."
+  "ui.regnum-nations.release_hint": "Release this chunk to unclaimed land.",
+  "map.regnum-nations.layers": "Layers",
+  "map.regnum-nations.layer_0": "Terrain + political territories",
+  "map.regnum-nations.layer_1": "Political territories",
+  "map.regnum-nations.layer_2": "Terrain"
 }

@@ -1,0 +1,386 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Dara Adedeji. Adapted from Diorama v0.2.1; see THIRD_PARTY_NOTICES.md.
+package dev.sakhno.regnum.nations.client.terrain.diorama;
+
+import dev.sakhno.regnum.nations.RegnumNations;
+
+import dev.sakhno.regnum.nations.client.terrain.diorama.bake.BlockLooks;
+import dev.sakhno.regnum.nations.client.terrain.diorama.bake.Overlays;
+import dev.sakhno.regnum.nations.client.terrain.diorama.bake.TileKey;
+import dev.sakhno.regnum.nations.client.terrain.diorama.data.ChunkSnapshot;
+import dev.sakhno.regnum.nations.client.terrain.diorama.render.MapLevel;
+import java.nio.file.Path;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+
+/**
+ * The map state for the world the client is in: which dimension's {@link MapLevel} is live,
+ * which chunks are waiting to be snapshotted, and whether the player is underground.
+ */
+public final class MapSession {
+	/** Chunk light usually lands a moment after the blocks, so new chunks wait this long. */
+	private static final long LOAD_DELAY_MS = 750;
+	private static final long CHANGE_DELAY_MS = 250;
+	private static final int SNAPSHOTS_PER_TICK = 2;
+
+	private static MapSession current;
+	private static final boolean DEBUG_CHANGES = false;
+	private static final Map<String, Integer> CHANGE_TALLY = new java.util.TreeMap<>();
+	private static long lastTallyLog;
+
+	private final ClientLevel level;
+	private final MapLevel map;
+	private final Map<Long, Pending> pending = new LinkedHashMap<>();
+	private final String worldKey;
+	private static String cacheWorld;
+	private static java.util.concurrent.CompletableFuture<Void> retiring = java.util.concurrent.CompletableFuture.completedFuture(null);
+	private MapStyle style = MapStyle.get();
+
+	private MapSession(ClientLevel level, String key) {
+		this.level = level;
+		this.worldKey = key;
+		// The Nether's roof: its sky view looks down from just under it.
+		int roof = level.dimensionType().hasCeiling() ? level.getMinBuildHeight() + level.dimensionType().logicalHeight() : MapLevel.NO_ROOF;
+		this.map = new MapLevel(level.getMinBuildHeight(), (level.getMaxBuildHeight() - 1) + 1, roof, mapFolder(level, key));
+	}
+
+	/** Separate disposable cache; hash dimension IDs so resource paths cannot escape it. */
+	private static Path mapFolder(ClientLevel level, String key) {
+		if (key == null) {
+			return null;
+		}
+		return net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("regnum-nations/atlas/v1").resolve(key)
+			.resolve(java.util.HexFormat.of().formatHex(com.google.common.hash.Hashing.sha256()
+				.hashString(level.dimension().location().toString(), java.nio.charset.StandardCharsets.UTF_8).asBytes()));
+	}
+
+	/** The server supplies an opaque persistent save ID, never a world seed. */
+	public static void setWorld(java.util.UUID world) {
+		cacheWorld = world.toString();
+	}
+
+	public static void awaitClosed() {
+		close();
+		retiring.join();
+	}
+
+	public static MapSession get() {
+		return current != null && current.level == mc().level && java.util.Objects.equals(current.worldKey, cacheWorld) ? current : null;
+	}
+
+	/**
+	 * The world seed, which places slime chunks. Only known in singleplayer, and slime chunks
+	 * only exist in the overworld.
+	 */
+	public Long slimeSeed() {
+		IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
+		if (server == null || this.level.dimension() != Level.OVERWORLD) {
+			return null;
+		}
+		return server.overworld().getSeed();
+	}
+
+	/** Saves and ends the session. For closing the game; leaving a world is noticed by {@link #tick}. */
+	public static void close() {
+		cacheWorld = null;
+		if (current != null) {
+			retiring = current.map.closeAsync();
+			current = null;
+		}
+	}
+
+	/** Keeps the session in step with the client's level. Call every client tick. */
+	public static void tick(Minecraft mc) {
+		MapSession session = forLevel(mc.level);
+		if (session == null) {
+			return;
+		}
+		if (BlockLooks.get() == null) {
+			BlockLooks.build();
+		} else if (session.style != MapStyle.get()) {
+			// Only a change the tiles show re-bakes them; the fog edge is drawn over them.
+			boolean rebake = !MapStyle.get().looksLike(session.style);
+			session.style = MapStyle.get();
+			if (rebake) {
+				session.map.colorsChanged();
+			}
+		} else if (BlockLooks.isStale()) {
+			BlockLooks.invalidate();
+			session.map.colorsChanged();
+			// Snapshots hold biome tints from the old colormaps. Retake every loaded chunk;
+			// chunks no longer loaded keep their old tints until you come back.
+			session.resnapshotLoaded();
+		}
+		session.tickSession(mc);
+	}
+
+	/**
+	 * The session for this level, starting a new one if the client moved to it. None while the
+	 * server may still name the world: its chunks are mapped once the folder is known.
+	 */
+	private static MapSession forLevel(ClientLevel level) {
+		if (current != null && (current.level != level || !java.util.Objects.equals(current.worldKey, cacheWorld))) {
+			retiring = current.map.closeAsync();
+			current = null;
+		}
+		if (level != null && current == null && retiring.isDone()) {
+			String key = cacheWorld;
+			if (key == null) {
+				return null;
+			}
+			current = new MapSession(level, key);
+			BlockLooks.invalidate();
+		}
+		return current;
+	}
+
+	public static void chunkLoaded(ClientLevel level, LevelChunk chunk) {
+		// Chunks can arrive before the first client tick of a new level, so this may start the session.
+		MapSession session = forLevel(level);
+		if (session == null) {
+			return;
+		}
+		int cx = chunk.getPos().x;
+		int cz = chunk.getPos().z;
+		session.schedule(cx, cz, LOAD_DELAY_MS, null);
+		// A neighbour snapshotted before this chunk loaded blended its tints along this edge against
+		// the game's fallback biome. Snapshot it again and re-bake that strip, as the game itself
+		// recolours its blocks there.
+		int reach = ChunkSnapshot.BIOME_REACH;
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dz = -1; dz <= 1; dz++) {
+				ChunkSnapshot around = session.map.chunk(cx + dx, cz + dz);
+				if ((dx == 0 && dz == 0) || around == null || around.hasBiomesAround(-dx, -dz)) {
+					continue;
+				}
+				int x0 = around.chunkX << 4;
+				int z0 = around.chunkZ << 4;
+				int[] strip = {
+					dx < 0 ? x0 + 16 - reach : x0, level.getMinBuildHeight(), dz < 0 ? z0 + 16 - reach : z0,
+					dx > 0 ? x0 + reach - 1 : x0 + 15, (level.getMaxBuildHeight() - 1), dz > 0 ? z0 + reach - 1 : z0 + 15,
+					MapLevel.CHANGED_SURFACE
+				};
+				session.schedule(around.chunkX, around.chunkZ, CHANGE_DELAY_MS, strip);
+			}
+		}
+	}
+
+	public static void blockChanged(ClientLevel level, BlockPos pos, BlockState oldState, BlockState newState) {
+		if (current == null || current.level != level) {
+			return;
+		}
+		BlockLooks looks = BlockLooks.get();
+		int oldId = Block.BLOCK_STATE_REGISTRY.getId(oldState);
+		int newId = Block.BLOCK_STATE_REGISTRY.getId(newState);
+		if (looks != null && oldId >= 0 && newId >= 0 && looks.sameLook(oldId, newId)) {
+			return;
+		}
+		if (DEBUG_CHANGES) {
+			CHANGE_TALLY.merge(oldState.getBlock() + " -> " + newState.getBlock(), 1, Integer::sum);
+			long now = System.currentTimeMillis();
+			if (now - lastTallyLog > 10_000) {
+				lastTallyLog = now;
+				RegnumNations.LOGGER.info("Visible block changes so far: {}", CHANGE_TALLY);
+			}
+		}
+		int cx = pos.getX() >> 4;
+		int cz = pos.getZ() >> 4;
+		int surface = current.visibleFromSky(pos) ? MapLevel.CHANGED_SURFACE : 0;
+		int[] box = {pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ(), surface};
+		current.schedule(cx, cz, CHANGE_DELAY_MS, box);
+		// A light source changing relights every neighbouring chunk, diagonals included. Other
+		// edits only reach a neighbour through shading that reads across the border.
+		boolean light = oldState.getLightEmission() != newState.getLightEmission();
+
+		int lx = pos.getX() & 15;
+		int lz = pos.getZ() & 15;
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dz = -1; dz <= 1; dz++) {
+				boolean touches = (dx == 0 || dx == -1 && lx == 0 || dx == 1 && lx == 15)
+					&& (dz == 0 || dz == -1 && lz == 0 || dz == 1 && lz == 15);
+				if ((dx != 0 || dz != 0) && (light || touches)) {
+					current.schedule(cx + dx, cz + dz, CHANGE_DELAY_MS, box);
+				}
+			}
+		}
+	}
+
+	/**
+	 * The server sent new light for a chunk. Cave slices draw light, and so do spawn spots, so the
+	 * surface re-bakes too while they're on.
+	 */
+	/**
+	 * The client's light engine changed a section's light, whether from a server packet or its
+	 * own work (a torch placed, a wall opened, a roof closed). Cave slices draw light, and so do
+	 * spawn spots, so the surface re-bakes too while they're on.
+	 */
+	public static void lightSectionChanged(ClientChunkCache source, SectionPos section) {
+		if (current != null && current.level.getChunkSource() == source) {
+			int x0 = section.minBlockX();
+			int y0 = section.minBlockY();
+			int z0 = section.minBlockZ();
+			int surface = current.map.spawnSpots() || current.map.roofless() ? MapLevel.CHANGED_SURFACE_LIGHT : 0;
+			current.schedule(section.x(), section.z(), CHANGE_DELAY_MS, new int[] {x0, y0, z0, x0 + 15, y0 + 15, z0 + 15, surface});
+		}
+	}
+
+	public static void lightUpdated(ClientLevel level, int chunkX, int chunkZ) {
+		if (current != null && current.level == level) {
+			int x0 = chunkX << 4;
+			int z0 = chunkZ << 4;
+			int surface = current.map.spawnSpots() || current.map.roofless() ? MapLevel.CHANGED_SURFACE_LIGHT : 0;
+			current.schedule(chunkX, chunkZ, CHANGE_DELAY_MS, new int[] {x0, level.getMinBuildHeight(), z0, x0 + 15, (level.getMaxBuildHeight() - 1), z0 + 15, surface});
+		}
+	}
+
+	/**
+	 * Whether a changed block can affect the sky view. A camera ray only reaches a block through
+	 * open air connected to the sky, and vanilla sky light already tracks exactly that space, so
+	 * a block counts if it or any neighbour has sky light. This is deliberately loose: a few
+	 * changes the camera can't see still count, but buried ones (water and lava settling in
+	 * sealed caves) don't. It misses only blocks more than 15 blocks under an overhang.
+	 */
+	private boolean visibleFromSky(BlockPos pos) {
+		if (!this.level.dimensionType().hasSkyLight()) {
+			return true;
+		}
+		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+		if (this.level.getBrightness(LightLayer.SKY, pos) > 0) {
+			return true;
+		}
+		for (Direction d : DIRECTIONS) {
+			if (this.level.getBrightness(LightLayer.SKY, p.setWithOffset(pos, d)) > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Queues a chunk for a fresh snapshot. {@code box} is the changed blocks as
+	 * {x0, y0, z0, x1, y1, z1, visibleFromSky}; null means the whole chunk is new.
+	 */
+	private void schedule(int chunkX, int chunkZ, long delayMs, int [] box) {
+		long key = ChunkSnapshot.key(chunkX, chunkZ);
+		long due = System.currentTimeMillis() + delayMs;
+		Pending p = this.pending.get(key);
+		if (p == null) {
+			if (this.pending.size() < 8192) this.pending.put(key, new Pending(due, box == null ? null : box.clone()));
+			return;
+		}
+		p.due = Math.min(p.due, due);
+		if (p.box == null || box == null) {
+			p.box = null;
+		} else {
+			for (int i = 0; i < 3; i++) {
+				p.box[i] = Math.min(p.box[i], box[i]);
+				p.box[i + 3] = Math.max(p.box[i + 3], box[i + 3]);
+			}
+			p.box[6] |= box[6];
+		}
+	}
+
+	private static final class Pending {
+		long due;
+		int [] box;
+
+		Pending(long due, int [] box) {
+			this.due = due;
+			this.box = box;
+		}
+	}
+
+	private int ticks;
+
+	/** Queues any loaded chunk the map hasn't seen, in case its load event was missed. */
+	private int sweepCursor;
+	private void sweepLoadedChunks(LocalPlayer player) {
+		int radius = Math.min(32, mc().options.renderDistance().get() + 2);
+		int side = radius * 2 + 1;
+		for (int i = 0; i < 32; i++) {
+			int cursor = this.sweepCursor++ % (side * side);
+			int cx = player.chunkPosition().x + cursor % side - radius;
+			int cz = player.chunkPosition().z + cursor / side - radius;
+			if (this.map.chunk(cx, cz) == null && !this.pending.containsKey(ChunkSnapshot.key(cx, cz))
+				&& this.level.getChunkSource().getChunk(cx, cz, ChunkStatus.FULL, false) != null)
+				this.schedule(cx, cz, 0, null);
+		}
+	}
+
+	private void resnapshotLoaded() {
+		LocalPlayer player = mc().player;
+		if (player == null) {
+			return;
+		}
+		int radius = mc().options.renderDistance().get() + 2;
+		int pcx = player.blockPosition().getX() >> 4;
+		int pcz = player.blockPosition().getZ() >> 4;
+		for (int cx = pcx - radius; cx <= pcx + radius; cx++) {
+			for (int cz = pcz - radius; cz <= pcz + radius; cz++) {
+				if (this.level.getChunkSource().getChunk(cx, cz, ChunkStatus.FULL, false) != null) {
+					this.schedule(cx, cz, 0, null);
+				}
+			}
+		}
+	}
+
+	private static Minecraft mc() {
+		return Minecraft.getInstance();
+	}
+
+	private void tickSession(Minecraft mc) {
+		LocalPlayer player = mc.player;
+		if (player != null && true) {
+			this.sweepLoadedChunks(player);
+		}
+		if (++this.ticks % 600 == 0) {
+			this.map.saveSeen();
+		}
+		int playerChunkX = player == null ? 0 : player.blockPosition().getX() >> 4;
+		int playerChunkZ = player == null ? 0 : player.blockPosition().getZ() >> 4;
+		long now = System.currentTimeMillis();
+		int budget = SNAPSHOTS_PER_TICK;
+		long deadline = System.nanoTime() + 2_000_000L;
+		Iterator<Map.Entry<Long, Pending>> it = this.pending.entrySet().iterator();
+		while (it.hasNext() && budget > 0 && System.nanoTime() < deadline) {
+			Map.Entry<Long, Pending> entry = it.next();
+			Pending p = entry.getValue();
+			if (p.due > now) {
+				continue;
+			}
+			it.remove();
+			long key = entry.getKey();
+			int cx = (int) (key >> 32);
+			int cz = (int) key;
+			if (this.level.getChunkSource().getChunk(cx, cz, ChunkStatus.FULL, false) instanceof LevelChunk chunk) {
+				boolean known = this.map.chunk(cx, cz) != null;
+				this.map.put(ChunkSnapshot.take(chunk, this.level), known ? p.box : null, playerChunkX, playerChunkZ);
+				budget--;
+			}
+		}
+		this.map.update();
+	}
+
+	private static final Direction[] DIRECTIONS = Direction.values();
+
+	public MapLevel map() {
+		return this.map;
+	}
+
+}

@@ -257,5 +257,9 @@
   "ui.regnum-nations.atlas_civic_seal": "Міська печатка з вежею",
   "ui.regnum-nations.atlas_founding_document": "УСТАНОВЧА ГРАМОТА",
   "map.regnum-nations.legend_hint": "Гортайте, щоб побачити інші міста.",
-  "ui.regnum-nations.release_hint": "Звільнити чанк — він стане нічийним."
+  "ui.regnum-nations.release_hint": "Звільнити чанк — він стане нічийним.",
+  "map.regnum-nations.layers": "Шари",
+  "map.regnum-nations.layer_0": "Місцевість і політичні території",
+  "map.regnum-nations.layer_1": "Політичні території",
+  "map.regnum-nations.layer_2": "Місцевість"
 }

@@ -30,6 +30,13 @@ def verify(path):
         assert metadata['id'] == 'regnum-nations' and metadata['name'] == 'Regnum Nations'
         assert 'project-reigns' in metadata['provides']
         assert '${version}' not in metadata['version']
+        assert set(metadata['license']) == {'CC0-1.0', 'MIT'}
+        assert set(metadata['depends']) == {'fabricloader', 'minecraft', 'java', 'fabric-api'}
+        require('META-INF/licenses/diorama/LICENSE')
+        assert 'Copyright (c) 2026 Dara Adedeji' in jar.read('META-INF/licenses/diorama/LICENSE').decode()
+        require('THIRD_PARTY_NOTICES.md')
+        require('dev/sakhno/regnum/nations/client/terrain/diorama/bake/TileBaker.class')
+        assert 'dev/sakhno/regnum/nations/kingdom/AtlasClientChecks.class' not in names
         require(metadata['icon'])
         for entrypoints in metadata['entrypoints'].values():
             for entrypoint in entrypoints:
@@ -51,6 +58,8 @@ def verify(path):
                 assert key in language, f'Missing compatibility translation: {key}'
         for source_set in ('main', 'client'):
             for source in (ROOT / 'src' / source_set / 'java').rglob('*.java'):
+                if source_set == 'main':
+                    assert 'net.minecraft.client.' not in source.read_text(), f'Client import in common code: {source}'
                 keys = re.findall(r'"((?:message|ui|admin|city|map)\.regnum-nations\.[a-z0-9_.]+)"', source.read_text())
                 for key in keys:
                     if not key.endswith('.'):
@@ -75,7 +84,7 @@ def verify(path):
                 for texture in model.get('textures', {}).values():
                     if not texture.startswith('#'):
                         resource(texture, 'textures', '.png')
-    print(f'Verified packaged mod identity, classes, locales, Living Atlas and legacy resource adapters: {path.name}')
+    print(f'Verified mod identity, client isolation, licenses, dependency set, locales, Living Atlas and legacy resource adapters: {path.name}')
 
 
 if __name__ == '__main__':

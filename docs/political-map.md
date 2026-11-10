@@ -1,5 +1,8 @@
 # Political map (v0.4.0)
 
+For the current terrain background and layer controls, see
+[Living Atlas terrain](living-atlas-terrain.md). The details below are historical.
+
 For the current founding GUI, kingdom menu and interactive map controls, see
 [kingdom management v0.5.0](kingdom-management.md). This document retains the
 earlier milestone behavior and verification history.

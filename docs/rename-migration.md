@@ -25,6 +25,12 @@ Minecraft 1.21.1, Java 21 bytecode, gameplay rules, persistence schema 3 and ver
 the retained registry and wire identifiers. Do not replace compatibility literals
 as part of future branding cleanups.
 
+The subsequent [terrain integration](living-atlas-terrain.md) adds new
+`regnum-nations:atlas_session` and `regnum-nations:atlas_markers` channels without
+changing existing codecs. Its separate `regnum-nations-atlas-world.dat` contains
+only a cache UUID; deleting it invalidates exploration caches without changing the
+retained kingdom registry, its schema or gameplay identities.
+
 Resource packs replacing presentation files or translation keys must update their
 namespace to `regnum-nations`. Packs using the retained blockstate/item adapters or
 loot-table paths can continue to target those paths. Historical validation records

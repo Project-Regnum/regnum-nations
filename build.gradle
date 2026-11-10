@@ -79,6 +79,29 @@ java {
 	targetCompatibility = JavaVersion.VERSION_21
 }
 
+// Opt-in client verification in a disposable game directory, without adding a test library.
+sourceSets {
+	atlasTest {
+		compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output + sourceSets.main.output
+		runtimeClasspath += sourceSets.client.runtimeClasspath + sourceSets.client.output + sourceSets.main.output
+	}
+}
+loom {
+	mods {
+		"regnum-nations-atlas-test" { sourceSet sourceSets.atlasTest }
+	}
+	runs {
+		atlasTest {
+			client()
+			name 'Living Atlas client checks'
+			source sourceSets.atlasTest
+			runDir 'build/run/atlasTest'
+			vmArg '-Dregnum.atlasTest=true'
+			programArgs '--width', '1100', '--height', '760'
+		}
+	}
+}
+
 // Pure rule checks without adding a test-library dependency. Server integration stays in GameTests.
 sourceSets {
 	rulesTest {
@@ -106,6 +129,13 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_$projectName"}
 	}
+	from('third_party/diorama/LICENSE') { into 'META-INF/licenses/diorama' }
+	from('THIRD_PARTY_NOTICES.md')
+}
+
+tasks.named('sourcesJar') {
+	from('third_party/diorama') { into 'third_party/diorama' }
+	from('THIRD_PARTY_NOTICES.md')
 }
 
 // configure the maven publication

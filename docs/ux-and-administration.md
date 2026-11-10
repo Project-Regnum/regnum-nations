@@ -42,7 +42,7 @@ authoritative map/overview data while preserving the viewport.
 
 ## Administration
 
-All commands start with `/reigns admin`. They require Minecraft command permission
+All commands start with `/nations admin`. They require Minecraft command permission
 level **3 or higher**, including console/execution contexts. Command-tree gating
 hides administration from lower-permission players. Every handler checks permission,
 and mutation services independently check it again on the server thread. There are
@@ -65,11 +65,11 @@ with spaces or enclosed in double quotes.
 Examples:
 
 ```text
-/reigns admin list 1
-/reigns admin info "Golden Vale"
-/reigns admin rename "Golden Vale" "Золота Долина"
-/reigns admin tp "Золота Долина"
-/reigns admin unclaim "Золота Долина" 12 -4 minecraft:overworld
+/nations admin list 1
+/nations admin info "Golden Vale"
+/nations admin rename "Golden Vale" "Золота Долина"
+/nations admin tp "Золота Долина"
+/nations admin unclaim "Золота Долина" 12 -4 minecraft:overworld
 ```
 
 For precise identification, replace the quoted name with its UUID from `list`.
@@ -114,7 +114,7 @@ No new broadcasts, periodic polling, roles or gameplay systems were added.
 
 Singleplayer (`./gradlew runClient`, disposable Creative world):
 
-1. Found through an unbound obelisk. Open `/reigns menu` and verify the centered
+1. Found through an unbound obelisk. Open `/nations menu` and verify the centered
    window, sidebar, concise rows and functional Territories/Open Map action.
 2. In M, inspect chunks in View, switch to Manage, stand in a cardinal neighbor,
    Claim and Unclaim. Check one contextual button/reason, capital refusal, unchanged
@@ -129,8 +129,8 @@ Singleplayer (`./gradlew runClient`, disposable Creative world):
    unclaim and capital refusal. Teleport to a safe capital, obstruct it and check
    a safe nearby location or clear rejection. Inspect server mutation audit logs.
 6. Rename, record UUID/capital/claim count, save and restart. Confirm they persist
-   and `/reigns found`, `/reigns kingdom`, `/reigns claim`, `/reigns unclaim` and
-   `/reigns territory` still work with the existing restrictions.
+   and `/nations found`, `/nations kingdom`, `/nations claim`, `/nations unclaim` and
+   `/nations territory` still work with the existing restrictions.
 
 Two-player dedicated server (matching clients, disposable world):
 
@@ -190,15 +190,15 @@ checks. Existing protection exclusions and crash consistency limits still apply.
 - [docs/kingdom-management.md](kingdom-management.md)
 - [docs/ux-and-administration.md](ux-and-administration.md)
 - [gradle.properties](../gradle.properties)
-- [src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/PoliticalMapScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/PoliticalMapScreen.java)
-- [src/gametest/java/dev/sakhno/reigns/kingdom/KingdomAdminTests.java](../src/gametest/java/dev/sakhno/reigns/kingdom/KingdomAdminTests.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/PoliticalMapScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/PoliticalMapScreen.java)
+- [src/gametest/java/dev/sakhno/regnum/nations/kingdom/KingdomAdminTests.java](../src/gametest/java/dev/sakhno/regnum/nations/kingdom/KingdomAdminTests.java)
 - [src/gametest/resources/fabric.mod.json](../src/gametest/resources/fabric.mod.json)
-- [src/main/java/dev/sakhno/reigns/kingdom/ClaimService.java](../src/main/java/dev/sakhno/reigns/kingdom/ClaimService.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/Kingdom.java](../src/main/java/dev/sakhno/reigns/kingdom/Kingdom.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomAdminCommands.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomAdminCommands.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomCommands.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomCommands.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomSavedData.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomSavedData.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomService.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomService.java)
-- [src/main/resources/assets/project-reigns/lang/en_us.json](../src/main/resources/assets/project-reigns/lang/en_us.json)
-- [src/main/resources/assets/project-reigns/lang/uk_ua.json](../src/main/resources/assets/project-reigns/lang/uk_ua.json)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/ClaimService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/ClaimService.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/Kingdom.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/Kingdom.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomAdminCommands.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomAdminCommands.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomCommands.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomCommands.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomSavedData.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomSavedData.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomService.java)
+- [src/main/resources/assets/regnum-nations/lang/en_us.json](../src/main/resources/assets/regnum-nations/lang/en_us.json)
+- [src/main/resources/assets/regnum-nations/lang/uk_ua.json](../src/main/resources/assets/regnum-nations/lang/uk_ua.json)

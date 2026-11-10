@@ -12,7 +12,7 @@ Implementation architecture:
    retaining all claim identifiers. Native city/kingdom identities are independent.
 3. City obelisks found independent city-states. A directly adjacent state obelisk
    in the same chunk elevates an existing city without another domain slot.
-   The old /reigns found path remains a combined city/kingdom compatibility flow.
+   The old /nations found path remains a combined city/kingdom compatibility flow.
 4. Claim management/build rights follow personal settlement ownership. Sovereignty
    supplies political color/identity only. Invitations and explicit acceptance are
    the minimal mechanism for different owners to affiliate their cities.
@@ -45,13 +45,13 @@ The city uses a distinct dark-prismarine appearance. Drops do not retain binding
    neighbor works; two blocks never occupy one BlockPos. Right-click the state
    anchor, choose a kingdom name and political color, and confirm. The original
    city UUID/claims/owner remain; it becomes the capital settlement.
-4. `/reigns found <name>` remains the original state-founding confirmation command,
+4. `/nations found <name>` remains the original state-founding confirmation command,
    using a deterministic default palette choice. For compatibility, selecting a
    State Obelisk without already owning a city allows the original combined
    city-and-kingdom founding flow (including its GUI); it creates exactly one
    capital city/domain. New players are encouraged to start with a City Obelisk.
-5. A kingdom leader can `/reigns invite <player>` to invite an independent city
-   owner. The recipient explicitly accepts with `/reigns join <kingdomUUID>`
+5. A kingdom leader can `/nations invite <player>` to invite an independent city
+   owner. The recipient explicitly accepts with `/nations join <kingdomUUID>`
    within 30 seconds. No ownership/claim UUID changes; the city adopts the kingdom
    color while preserving its original independent color. Invitations are temporary,
    recipient-session-bound and consumed on acceptance attempts. No join without
@@ -106,7 +106,7 @@ Historical multiple kingdoms/domains for one founder are all retained, with stab
 IDs and affiliations. All extra historical holdings remain protected for that
 owner, but new founding and claim management are blocked for the ambiguous owner.
 This is an explicit grandfathered repair case, not permission to create a second
-new domain. `/reigns admin settlements` and `settlement <UUID>` identify the records.
+new domain. `/nations admin settlements` and `settlement <UUID>` identify the records.
 Conflicting capitals and historical duplicate owners require deliberate expert
 administrative repair of a **whole-world backup**, or a future transfer/relocation
 feature. This milestone does not guess a new owner, delete the extra city, move an
@@ -132,7 +132,7 @@ The compact menu provides City, Kingdom, Territories and a functional Map entry.
 City displays personal ownership/claims/status and separate sovereignty; independent
 cities have a valid city-state view. Kingdom displays the distinct ruler, state
 anchor and aggregate city claims. Territories summarizes the selected city and
-opens the single full-size View/Manage map. `/reigns menu`, `/reigns city`, obelisk
+opens the single full-size View/Manage map. `/nations menu`, `/nations city`, obelisk
 interaction and M remain available, including visitor inspection.
 
 Map cells/borders identify settlement UUIDs and names. Their fill derives from the
@@ -154,7 +154,7 @@ No periodic server polling, chunk scans or per-tick gameplay tasks are added.
 
 ## Safe administration
 
-All previous `/reigns admin list [page]`, `info <kingdom>`, `tp <kingdom>`,
+All previous `/nations admin list [page]`, `info <kingdom>`, `tp <kingdom>`,
 `unclaim <kingdom> <chunkX> <chunkZ> [dimension]`, `rename <kingdom> <newName>` and
 `help` remain permission-level-3+ operations. Unclaim now validates the actual
 settlement owner is affiliated with the specified kingdom, while preserving **all**
@@ -163,15 +163,15 @@ capital reservations. Rename changes only the political name, not city names/IDs
 New read-only troubleshooting:
 
 ```text
-/reigns admin settlements [page]
-/reigns admin settlement <exact-settlementUUID>
+/nations admin settlements [page]
+/nations admin settlement <exact-settlementUUID>
 ```
 
 New deliberate kingdom deletion:
 
 ```text
-/reigns admin delete <kingdomUUID-or-full-quoted-name>
-/reigns admin delete <same-kingdomUUID> confirm <server-issued-token>
+/nations admin delete <kingdomUUID-or-full-quoted-name>
+/nations admin delete <same-kingdomUUID> confirm <server-issued-token>
 ```
 
 The first command prints an explicit consequence summary, clickable Confirm/Cancel
@@ -179,7 +179,7 @@ actions and secondary textual commands. The token lasts 30 server seconds, is
 executor/session/kingdom-bound, is consumed on service confirmation attempts, and
 is not saved. In v0.6.1 a repeated request for the same target retains the token and
 original deadline with clear feedback; another target requires cancel/expiry first.
-`/reigns admin delete <kingdomUUID> cancel <token>` invalidates that exact pending
+`/nations admin delete <kingdomUUID> cancel <token>` invalidates that exact pending
 request on the server. Stale Cancel links cannot invalidate newer requests. Confirmation checks permission level 3 again, current identity, token,
 actor and expiry on the server thread. Disconnect/server stop invalidates pending
 player confirmations. Wrong, expired, reused or revoked-permission confirmations
@@ -234,9 +234,9 @@ Singleplayer, disposable Creative world (`./gradlew runClient`):
 4. Place a State Obelisk face-adjacent to the city within the same chunk. Select a
    different kingdom color and found. Verify the city UUID/owner/domain count is
    unchanged; Kingdom and the map use the new persisted political color.
-5. Use the original `/reigns found <name>` on a selected state anchor in a fresh
-   world to verify combined-founding compatibility. Test `/reigns kingdom`,
-   `/reigns territory`, `/reigns claim`, `/reigns unclaim`, menu and obelisk views.
+5. Use the original `/nations found <name>` on a selected state anchor in a fresh
+   world to verify combined-founding compatibility. Test `/nations kingdom`,
+   `/nations territory`, `/nations claim`, `/nations unclaim`, menu and obelisk views.
 6. Copy a v0.5.1 world, record kingdoms/anchors/claims, upgrade, save/restart twice
    and compare all IDs/names/claims. Check missing capitals, ordinary chunk unload
    and reload, capital destruction/replacement, and migration conflict diagnostics.
@@ -318,36 +318,36 @@ those behaviors visually or across real client connections.
 - [docs/cities-and-sovereignty.md](cities-and-sovereignty.md)
 - [docs/ux-and-administration.md](ux-and-administration.md)
 - [gradle.properties](../gradle.properties)
-- [src/client/java/dev/sakhno/reigns/client/ProjectReignsClient.java](../src/client/java/dev/sakhno/reigns/client/ProjectReignsClient.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/KingdomFoundingScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/KingdomFoundingScreen.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/PoliticalMapScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/PoliticalMapScreen.java)
-- [src/gametest/java/dev/sakhno/reigns/kingdom/SovereigntyTests.java](../src/gametest/java/dev/sakhno/reigns/kingdom/SovereigntyTests.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/RegnumNationsClient.java](../src/client/java/dev/sakhno/regnum/nations/client/RegnumNationsClient.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomFoundingScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomFoundingScreen.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/PoliticalMapScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/PoliticalMapScreen.java)
+- [src/gametest/java/dev/sakhno/regnum/nations/kingdom/SovereigntyTests.java](../src/gametest/java/dev/sakhno/regnum/nations/kingdom/SovereigntyTests.java)
 - [src/gametest/resources/fabric.mod.json](../src/gametest/resources/fabric.mod.json)
-- [src/main/java/dev/sakhno/reigns/block/CityObeliskBlock.java](../src/main/java/dev/sakhno/reigns/block/CityObeliskBlock.java)
-- [src/main/java/dev/sakhno/reigns/block/CityObeliskBlockEntity.java](../src/main/java/dev/sakhno/reigns/block/CityObeliskBlockEntity.java)
-- [src/main/java/dev/sakhno/reigns/block/KingdomObeliskBlock.java](../src/main/java/dev/sakhno/reigns/block/KingdomObeliskBlock.java)
-- [src/main/java/dev/sakhno/reigns/block/KingdomObeliskBlockEntity.java](../src/main/java/dev/sakhno/reigns/block/KingdomObeliskBlockEntity.java)
-- [src/main/java/dev/sakhno/reigns/block/ModBlocks.java](../src/main/java/dev/sakhno/reigns/block/ModBlocks.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/ClaimService.java](../src/main/java/dev/sakhno/reigns/kingdom/ClaimService.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/FoundingException.java](../src/main/java/dev/sakhno/reigns/kingdom/FoundingException.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/Kingdom.java](../src/main/java/dev/sakhno/reigns/kingdom/Kingdom.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomAdminCommands.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomAdminCommands.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomCommands.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomCommands.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomManagementServer.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomManagementServer.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomSavedData.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomSavedData.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomService.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomService.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/PoliticalColors.java](../src/main/java/dev/sakhno/reigns/kingdom/PoliticalColors.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/PoliticalMapServer.java](../src/main/java/dev/sakhno/reigns/kingdom/PoliticalMapServer.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/Settlement.java](../src/main/java/dev/sakhno/reigns/kingdom/Settlement.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/SettlementService.java](../src/main/java/dev/sakhno/reigns/kingdom/SettlementService.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/TerritoryProtection.java](../src/main/java/dev/sakhno/reigns/kingdom/TerritoryProtection.java)
-- [src/main/java/dev/sakhno/reigns/networking/KingdomManagementPayloads.java](../src/main/java/dev/sakhno/reigns/networking/KingdomManagementPayloads.java)
-- [src/main/java/dev/sakhno/reigns/networking/PoliticalMapPayloads.java](../src/main/java/dev/sakhno/reigns/networking/PoliticalMapPayloads.java)
+- [src/main/java/dev/sakhno/regnum/nations/block/CityObeliskBlock.java](../src/main/java/dev/sakhno/regnum/nations/block/CityObeliskBlock.java)
+- [src/main/java/dev/sakhno/regnum/nations/block/CityObeliskBlockEntity.java](../src/main/java/dev/sakhno/regnum/nations/block/CityObeliskBlockEntity.java)
+- [src/main/java/dev/sakhno/regnum/nations/block/KingdomObeliskBlock.java](../src/main/java/dev/sakhno/regnum/nations/block/KingdomObeliskBlock.java)
+- [src/main/java/dev/sakhno/regnum/nations/block/KingdomObeliskBlockEntity.java](../src/main/java/dev/sakhno/regnum/nations/block/KingdomObeliskBlockEntity.java)
+- [src/main/java/dev/sakhno/regnum/nations/block/ModBlocks.java](../src/main/java/dev/sakhno/regnum/nations/block/ModBlocks.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/ClaimService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/ClaimService.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/FoundingException.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/FoundingException.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/Kingdom.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/Kingdom.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomAdminCommands.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomAdminCommands.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomCommands.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomCommands.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomManagementServer.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomManagementServer.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomSavedData.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomSavedData.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomService.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/PoliticalColors.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/PoliticalColors.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/PoliticalMapServer.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/PoliticalMapServer.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/Settlement.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/Settlement.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/SettlementService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/SettlementService.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/TerritoryProtection.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/TerritoryProtection.java)
+- [src/main/java/dev/sakhno/regnum/nations/networking/KingdomManagementPayloads.java](../src/main/java/dev/sakhno/regnum/nations/networking/KingdomManagementPayloads.java)
+- [src/main/java/dev/sakhno/regnum/nations/networking/PoliticalMapPayloads.java](../src/main/java/dev/sakhno/regnum/nations/networking/PoliticalMapPayloads.java)
 - [src/main/resources/assets/project-reigns/blockstates/city_obelisk.json](../src/main/resources/assets/project-reigns/blockstates/city_obelisk.json)
-- [src/main/resources/assets/project-reigns/lang/en_us.json](../src/main/resources/assets/project-reigns/lang/en_us.json)
-- [src/main/resources/assets/project-reigns/lang/uk_ua.json](../src/main/resources/assets/project-reigns/lang/uk_ua.json)
-- [src/main/resources/assets/project-reigns/models/block/city_obelisk.json](../src/main/resources/assets/project-reigns/models/block/city_obelisk.json)
+- [src/main/resources/assets/regnum-nations/lang/en_us.json](../src/main/resources/assets/regnum-nations/lang/en_us.json)
+- [src/main/resources/assets/regnum-nations/lang/uk_ua.json](../src/main/resources/assets/regnum-nations/lang/uk_ua.json)
+- [src/main/resources/assets/regnum-nations/models/block/city_obelisk.json](../src/main/resources/assets/regnum-nations/models/block/city_obelisk.json)
 - [src/main/resources/assets/project-reigns/models/item/city_obelisk.json](../src/main/resources/assets/project-reigns/models/item/city_obelisk.json)
 - [src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json](../src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json)
 - [src/main/resources/data/project-reigns/loot_table/blocks/city_obelisk.json](../src/main/resources/data/project-reigns/loot_table/blocks/city_obelisk.json)

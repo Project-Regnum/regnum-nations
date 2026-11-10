@@ -1,9 +1,9 @@
-# Project Reigns UI design system
+# Regnum Nations UI design system
 
 ## v0.6.3 — The Living Atlas standard
 
 The user-approved v0.6.2 **Kingdom Administration** folio is the visual standard
-for every Project Reigns client screen. Its engraved charcoal parchment, brass
+for every Regnum Nations client screen. Its engraved charcoal parchment, brass
 binding, pixel ornaments, heraldic identity, compact manuscript tabs and clear
 native typography establish the direction. Future screens must extend this
 language with a composition suited to their purpose. Avoid modern dashboard
@@ -47,7 +47,7 @@ Small warning text remains readable pink `#EFA9B3`; burgundy `#834751` is an
 accent, not body text. Focus and selection also use ivory rules/checks and words.
 
 Reuse these v0.6.2 resources under
-`src/client/resources/assets/project-reigns/textures/gui/atlas/`:
+`src/client/resources/assets/regnum-nations/textures/gui/atlas/`:
 
 | Texture | Size | Rendering |
 | --- | --- | --- |
@@ -247,7 +247,7 @@ immediately before this build.
    client areas of 1280×800 (16:10), 1280×720 (16:9), 1280×960 (4:3), and 640×480
    (320×240 logical). Move the pointer to an outer margin and press **F2**; keep the
    original Minecraft image in `<game directory>/screenshots/`.
-2. Use `/reigns city` for City, `/reigns menu` for Kingdom, the Territories index
+2. Use `/nations city` for City, `/nations menu` for Kingdom, the Territories index
    tab for the personal-domain register, and **M** or Map for cartography. Capture
    City and Kingdom with the technical record both collapsed and expanded. Scroll
    the rows and territory rules, checking their full hover text and keyboard focus.
@@ -358,7 +358,7 @@ Interface chrome is not recolored to match the kingdom.
 ### Texture usage and source
 
 Resources are under
-`src/client/resources/assets/project-reigns/textures/gui/atlas/`:
+`src/client/resources/assets/regnum-nations/textures/gui/atlas/`:
 
 | Texture | Native size | Use |
 | --- | --- | --- |
@@ -461,15 +461,15 @@ gradle.properties
 docs/ui-design-system.md
 docs/images/living-atlas-wide-en.png
 docs/images/living-atlas-small-en.png
-src/client/java/dev/sakhno/reigns/client/ui/AtlasGraphics.java
-src/client/java/dev/sakhno/reigns/client/ui/KingdomAtlasView.java
-src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java
-src/client/resources/assets/project-reigns/textures/gui/atlas/ornaments.png
-src/client/resources/assets/project-reigns/textures/gui/atlas/ornaments.png.mcmeta
-src/client/resources/assets/project-reigns/textures/gui/atlas/folio_tile.png
-src/client/resources/assets/project-reigns/textures/gui/atlas/folio_tile.png.mcmeta
-src/main/resources/assets/project-reigns/lang/en_us.json
-src/main/resources/assets/project-reigns/lang/uk_ua.json
+src/client/java/dev/sakhno/regnum/nations/client/ui/AtlasGraphics.java
+src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomAtlasView.java
+src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java
+src/client/resources/assets/regnum-nations/textures/gui/atlas/ornaments.png
+src/client/resources/assets/regnum-nations/textures/gui/atlas/ornaments.png.mcmeta
+src/client/resources/assets/regnum-nations/textures/gui/atlas/folio_tile.png
+src/client/resources/assets/regnum-nations/textures/gui/atlas/folio_tile.png.mcmeta
+src/main/resources/assets/regnum-nations/lang/en_us.json
+src/main/resources/assets/regnum-nations/lang/uk_ua.json
 tools/generate_atlas_assets.py
 tools/atlas-assets.md
 ```
@@ -481,7 +481,7 @@ request to stop testing.
 
 1. Run `./gradlew runClient` and use a disposable Creative world with commands
    enabled. Found a city and elevate it with a neighboring State Obelisk, or open
-   an existing realm. Use `/reigns menu` and select **Kingdom**.
+   an existing realm. Use `/nations menu` and select **Kingdom**.
 2. In Video Settings choose GUI scale **2**. Use actual client areas of 1280×800
    (16:10), 1280×720 (16:9), 1280×960 (4:3), and 640×480 (minimum logical 320×240).
    Window borders/title bars do not count toward client-area dimensions.
@@ -514,7 +514,7 @@ composition review. None of those adaptations is implemented in v0.6.2.
 The following sections retain the v0.6.1 foundation and verification history.
 The Kingdom layout above supersedes only the older Kingdom presentation.
 
-## Royal Cartography — Project Reigns v0.6.1 (foundation and history)
+## Royal Cartography — Regnum Nations v0.6.1 (foundation and history)
 
 ## Philosophy and boundaries
 
@@ -530,7 +530,7 @@ selection expiry, migration and administration remain server responsibilities.
 
 ## Tokens and implementation
 
-`src/client/java/dev/sakhno/reigns/client/ui/KingdomUi.java` owns tokens and small
+`src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomUi.java` owns tokens and small
 rendering/widget primitives. `RoyalScreen` owns the shared non-pausing, sharp
 background and initial-focus policy; screens compose ordinary native widgets.
 
@@ -667,7 +667,7 @@ stay in bounds. View/Manage switching and mutation refresh retain pan/zoom.
 
 ### Administrative dissolution
 
-`/reigns admin delete <exact UUID or full quoted name>` prints the server-resolved
+`/nations admin delete <exact UUID or full quoted name>` prints the server-resolved
 name, consequence summary and red, bold, underlined **[CONFIRM DISSOLUTION]** alongside
 **[CANCEL]**. `ClickEvent.Action.RUN_COMMAND` executes the exact server-issued UUID/token
 command; it never accepts a display name as authority. Chat uses Minecraft's native
@@ -678,8 +678,8 @@ console and unsupported chat interaction; `SUGGEST_COMMAND` can populate the cha
 The token is not the primary control. Old textual confirmation remains supported:
 
 ```text
-/reigns admin delete <kingdomUUID> confirm <token>
-/reigns admin delete <kingdomUUID> cancel <token>
+/nations admin delete <kingdomUUID> confirm <token>
+/nations admin delete <kingdomUUID> cancel <token>
 ```
 
 The 30-second server-tick deadline, level-3 permission rechecks, executor/session and

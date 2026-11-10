@@ -19,12 +19,12 @@ founding commands require no operator permission.
 2. Right-click it without sneaking. The server sends one private localized message
    with the existing obelisk UUID and a founding prompt.
 3. Within 600 server ticks (30 seconds at 20 TPS), stay in that dimension and within
-   6 blocks of the block's center, then enter `/reigns found Golden Vale`.
+   6 blocks of the block's center, then enter `/nations found Golden Vale`.
    The entire remaining argument is the name: use spaces **without quotes**.
 4. The server validates everything before inserting the kingdom record and binding
    the block entity. Success reports the kingdom name and its new kingdom UUID.
-5. `/reigns kingdom` shows your kingdom UUID, capital dimension, coordinates, and
-   current capital status. `/reigns` and `/reigns found` show founding help.
+5. `/nations kingdom` shows your kingdom UUID, capital dimension, coordinates, and
+   current capital status. `/nations` and `/nations found` show founding help.
 
 Every attempted confirmation consumes the selection, including failures. Click
 again to retry. Clicking another capital replaces/clears the previous selection.
@@ -83,7 +83,7 @@ to the founding command. No custom packets or client screens are involved.
   A newly placed obelisk receives a new identity and cannot inherit that capital.
   The old capital location remains reserved pending a future recovery/relocation
   design. This is provisional gameplay policy, not territory protection.
-- **Resolution is on demand.** `/reigns kingdom` and capital interaction check
+- **Resolution is on demand.** `/nations kingdom` and capital interaction check
   loaded chunks only. An unloaded chunk or unavailable dimension is `UNRESOLVED`;
   an absent/replaced/conflicting block in a loaded chunk is `MISSING`. Saved
   `PRESENT` flags become `UNRESOLVED` on registry reload until checked again.
@@ -149,15 +149,15 @@ dedicated server or test rendered client behavior.
    Verify placement alone creates no binding (`KingdomId` is absent from `/data get
    block X Y Z`, if cheats are enabled). Rendering/mining checks remain in
    [the obelisk guide](kingdom-obelisk.md).
-2. Run `/reigns`, then `/reigns found Golden Vale` before clicking: expect selection
+2. Run `/nations`, then `/nations found Golden Vale` before clicking: expect selection
    instructions. Click a block, then confirm with the command. Expect success,
-   different obelisk/kingdom UUIDs, and matching `KingdomId` and `/reigns kingdom`.
+   different obelisk/kingdom UUIDs, and matching `KingdomId` and `/nations kingdom`.
 3. Click the bound block: expect capital status and no new founding selection.
    Try founding again or selecting the second block: expect the one-founder error.
-4. Save and quit, reopen, and compare both UUIDs and `/reigns kingdom` against your
+4. Save and quit, reopen, and compare both UUIDs and `/nations kingdom` against your
    recorded values. Leave far enough for chunks to unload, inspect status while
    away (`UNRESOLVED`), return, and inspect again (`PRESENT`).
-5. Break the capital. Expect `/reigns kingdom` to retain its UUID/name/coordinates
+5. Break the capital. Expect `/nations kingdom` to retain its UUID/name/coordinates
    and report `MISSING`. Replace the block: expect a fresh obelisk UUID, no inherited
    kingdom binding, and the original record still missing. The founder cannot found
    again. Check this behavior again after saving/reopening.
@@ -180,7 +180,7 @@ dedicated server or test rendered client behavior.
 3. The loser selects a different obelisk. Confirm the winner's name with different
    case/repeated spaces: expect a duplicate-name error and no binding. Select again
    and use a unique name: expect success. Each player can inspect only their own
-   kingdom through `/reigns kingdom` and cannot found a second.
+   kingdom through `/nations kingdom` and cannot found a second.
 4. Test selection followed by disconnect/reconnect: confirmation must fail until
    the player selects again. For a player who has not founded, also select before
    stopping the server and verify that selection does not survive restart.

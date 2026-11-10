@@ -15,7 +15,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"project-reigns" {
+		"regnum-nations" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
@@ -25,13 +25,13 @@ loom {
 fabricApi {
 	configureDataGeneration {
 		client = true
-		modId = "project-reigns"
+		modId = "regnum-nations"
 	}
 
 	// Exercise persistence in a real server world using the existing Fabric API.
 	configureTests {
 		createSourceSet = true
-		modId = "project-reigns-test"
+		modId = "regnum-nations-test"
 		enableClientGameTests = false
 	}
 }
@@ -92,7 +92,7 @@ tasks.register('testKingdomNames', JavaExec) {
 	description = 'Checks kingdom display-name and uniqueness rules without Minecraft startup.'
 	dependsOn tasks.named('rulesTestClasses')
 	classpath = sourceSets.rulesTest.runtimeClasspath
-	mainClass = 'dev.sakhno.reigns.kingdom.KingdomNameTest'
+	mainClass = 'dev.sakhno.regnum.nations.kingdom.KingdomNameTest'
 }
 
 tasks.named('check') {

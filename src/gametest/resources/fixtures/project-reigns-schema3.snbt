@@ -1,0 +1,29 @@
+{
+  Version: 3,
+  Kingdoms: [{
+    Id: [I;0,0,0,1], Name: "Legacy Kingdom", Founder: [I;0,0,0,2],
+    Dimension: "minecraft:overworld", Position: 274877907008L,
+    Obelisk: [I;0,0,0,4], CreatedAt: 100L, CapitalStatus: "UNRESOLVED",
+    CapitalSettlement: [I;0,0,0,3], Color: 1, Government: "unspecified"
+  }],
+  Settlements: [{
+    Id: [I;0,0,0,3], Name: "Legacy Capital", Founder: [I;0,0,0,2], Owner: [I;0,0,0,2],
+    Dimension: "minecraft:overworld", Position: 64L,
+    Obelisk: [I;0,0,0,5], CreatedAt: 90L, CapitalStatus: "UNRESOLVED",
+    Sovereign: [I;0,0,0,1], Color: 2, LegacyAnchor: 0b
+  }, {
+    Id: [I;0,0,0,6], Name: "Independent City", Founder: [I;0,0,0,7], Owner: [I;0,0,0,7],
+    Dimension: "minecraft:overworld", Position: 8796093022272L,
+    Obelisk: [I;0,0,0,8], CreatedAt: 110L, CapitalStatus: "UNRESOLVED",
+    Color: 3, LegacyAnchor: 0b
+  }],
+  Claims: [
+    {Dimension: "minecraft:overworld", X: 0, Z: 0, Settlement: [I;0,0,0,3]},
+    {Dimension: "minecraft:overworld", X: 1, Z: 0, Settlement: [I;0,0,0,3]},
+    {Dimension: "minecraft:overworld", X: 2, Z: 0, Settlement: [I;0,0,0,6]}
+  ],
+  DeletedStateAnchors: [{
+    Id: [I;0,0,0,9], Dimension: "minecraft:overworld", Position: 17592186044480L,
+    Obelisk: [I;0,0,0,10]
+  }]
+}

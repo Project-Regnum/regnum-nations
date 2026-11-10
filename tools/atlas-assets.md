@@ -1,7 +1,7 @@
 # Living Atlas artwork source
 
 The original assets live under
-`src/client/resources/assets/project-reigns/textures/gui/atlas/`.
+`src/client/resources/assets/regnum-nations/textures/gui/atlas/`.
 No proprietary artwork, external texture pack or new runtime dependency is used.
 
 ## Pixel ornaments

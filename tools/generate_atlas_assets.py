@@ -9,7 +9,7 @@ import struct
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-DEST = ROOT / 'src/client/resources/assets/project-reigns/textures/gui/atlas'
+DEST = ROOT / 'src/client/resources/assets/regnum-nations/textures/gui/atlas'
 W, H = 256, 128
 pixels = [[(0, 0, 0, 0) for _ in range(W)] for _ in range(H)]
 GOLD = (170, 143, 94, 255)

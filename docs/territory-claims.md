@@ -1,4 +1,4 @@
-# Project Reigns v0.3 — Basic territory claims
+# Regnum Nations v0.3 — Basic territory claims
 
 For the current founding GUI, kingdom menu and interactive map controls, see
 [kingdom management v0.5.0](kingdom-management.md). This document retains the
@@ -10,12 +10,12 @@ founder. Each chunk has one owner. Negative coordinates use floor-based chunk co
 
 ## Commands
 
-- `/reigns claim`: claim your current chunk as your founded kingdom. It must be
+- `/nations claim`: claim your current chunk as your founded kingdom. It must be
   unclaimed and share a cardinal edge with an existing claim in the same dimension.
-- `/reigns unclaim`: release your current owned non-capital chunk.
-- `/reigns territory`: inspect dimension, chunk coordinates, owner name/UUID, and
+- `/nations unclaim`: release your current owned non-capital chunk.
+- `/nations territory`: inspect dimension, chunk coordinates, owner name/UUID, and
   that owner's total claim count. Anyone can inspect; only founders manage land.
-- `/reigns`: discover founding and territory commands.
+- `/nations`: discover founding and territory commands.
 
 All operations use the actual server player's position, dimension, identity, and
 current saved data. Management rejects dead, removed, and spectator players. OP
@@ -70,8 +70,8 @@ preserve their NBT and fail closed for claim management/build permission checks.
 
 Singleplayer (`./gradlew runClient`, disposable Creative world):
 
-1. Obtain an obelisk, place and select it, then `/reigns found Golden Vale`.
-   `/reigns territory` must show its kingdom as owner of the capital chunk.
+1. Obtain an obelisk, place and select it, then `/nations found Golden Vale`.
+   `/nations territory` must show its kingdom as owner of the capital chunk.
 2. Use F3+G to see chunk boundaries. Claim a cardinal neighbor. Try a remote or
    diagonal-only chunk (reject), repeat the existing claim (reject), and try to
    unclaim the capital (reject). Release the neighbor and inspect wilderness.

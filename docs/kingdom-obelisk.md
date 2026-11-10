@@ -5,7 +5,7 @@ For the current founding GUI, kingdom menu and interactive map controls, see
 earlier milestone behavior and verification history.
 
 The obelisk now serves as the physical founding capital. Right-click selects an
-unbound capital; `/reigns found <name>` explicitly confirms creation. See
+unbound capital; `/nations found <name>` explicitly confirms creation. See
 [kingdom foundation](kingdom-foundation.md) for workflow, persistence, provisional
 policies, verification, and updated singleplayer/dedicated-server checks. The
 baseline block mechanics and six tests described below are retained.

@@ -1,5 +1,5 @@
 {
   "variants": {
-    "": { "model": "project-reigns:block/kingdom_obelisk" }
+    "": { "model": "regnum-nations:block/kingdom_obelisk" }
   }
 }

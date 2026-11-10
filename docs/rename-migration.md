@@ -1,0 +1,51 @@
+# Project Reigns → Regnum Nations
+
+Regnum Nations is the nations and territorial management module of Project Regnum.
+This rename changes branding, Java packages and presentation resources. It keeps
+Minecraft 1.21.1, Java 21 bytecode, gameplay rules, persistence schema 3 and version
+0.6.3. Existing schema 1/2 readers and migrations are unchanged.
+
+## Compatibility contract
+
+| Identifier | Decision and reason |
+| --- | --- |
+| Fabric mod ID | `regnum-nations`; provides `project-reigns` for existing mod dependencies. This alias does not migrate Minecraft registry IDs. |
+| Java packages / entrypoints | `dev.sakhno.regnum.nations` / `RegnumNations*`. Integrations importing old classes or mixin paths must update. |
+| Gradle coordinates / JAR | `dev.sakhno.regnum.nations:regnum-nations:0.6.3`; install `regnum-nations-0.6.3.jar`. |
+| Block, item and block entity IDs | Keep `project-reigns:kingdom_obelisk` and `project-reigns:city_obelisk`. Changing these would orphan placed blocks, block entities and inventory items. No duplicate registrations or automatic world conversion. |
+| Saved data | Keep `<world>/data/project-reigns-kingdoms.dat`, NBT keys, schema version, UUIDs, ownership, affiliations, claims, colors and deletion tombstones. Renaming the file would silently create an empty registry. |
+| Political map configuration | Keep `config/project-reigns-map.properties` and `radiusChunks`, so server settings survive. |
+| Network payload IDs and codecs | Keep the `project-reigns:*` channels and layouts. Install matching Regnum Nations versions on clients and servers; mixed-version play has not been validated. |
+| Key binding | Keep `key.project-reigns.map` and `category.project-reigns` to preserve saved controls. |
+| Commands | `/nations` is preferred; `/reigns` remains an alias with the same execution and permission checks. Old scripts and saved command blocks continue to work. |
+| Presentation resources | Move language files, block models, textures, icon and Living Atlas assets to `assets/regnum-nations/`. Keep blockstates and item model adapters in `assets/project-reigns/`, pointing to the new models. Keep the old block-name and key-binding translation keys. |
+| Data pack resources | Keep obelisk loot tables under `data/project-reigns/` and legacy item references in loot tables and mining tags because their IDs follow the retained registry IDs. |
+
+`RegnumNations.id` builds new presentation identifiers. `legacyId` is reserved for
+the retained registry and wire identifiers. Do not replace compatibility literals
+as part of future branding cleanups.
+
+Resource packs replacing presentation files or translation keys must update their
+namespace to `regnum-nations`. Packs using the retained blockstate/item adapters or
+loot-table paths can continue to target those paths. Historical validation records
+in the gameplay documentation describe earlier builds and are not evidence that
+this rename received manual visual testing.
+
+## Upgrade and rollback
+
+1. Stop the server and back up the entire world and `config/` directory.
+2. Replace the old Project Reigns JAR with the Regnum Nations JAR on the server
+   and all clients. Remove the old JAR; do not install both together.
+3. Keep world files and the map configuration at their existing paths. Do not
+   rename or delete `project-reigns-kingdoms.dat` or change NBT/registry IDs.
+4. On a copy of the world, inspect existing city/state obelisks, inventories,
+   kingdom and city records, claim protection, political colors and maps. Confirm
+   the saved M binding and Living Atlas screens before using the production save.
+5. For rollback, stop the server, restore the pre-upgrade world/config backup and
+   reinstall the matching old JARs. Older releases may not understand newer schemas;
+   restoring the backup is safer than assuming backwards compatibility.
+
+Automated checks cover literal legacy registry identifiers, block entity and item
+NBT, loading the old saved-data filename from disk, stable record/claim identities,
+mod metadata and the command alias, alongside existing gameplay tests. A real
+player-world upgrade and interactive client visual checks still require manual review.

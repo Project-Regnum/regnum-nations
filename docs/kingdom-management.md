@@ -28,8 +28,8 @@ new persistence fields for those concepts are introduced here.
 - Right-click an unbound capital to enter its name and explicitly found a kingdom.
   The original 30-second selection, six-block distance and consumed-attempt policy
   still apply. Failed founding requires closing and clicking the obelisk again.
-  `/reigns found <name>` remains available after closing the dialog.
-- `/reigns menu` opens your kingdom. Bound capital interaction opens that capital's
+  `/nations found <name>` remains available after closing the dialog.
+- `/nations menu` opens your kingdom. Bound capital interaction opens that capital's
   kingdom, including for visitors. Visitors have no management rights. A verified
   capital permits ordinary public interaction; sneaking and building still use
   the original protection policy.
@@ -87,14 +87,14 @@ Singleplayer, disposable Creative world, using `./gradlew runClient`:
 2. Before founding in a fresh world, try Cancel, Escape, an invalid/duplicate name,
    waiting over 30 seconds, moving over six blocks, replacing the obelisk, and
    double-clicking confirmation. Rejections must leave no extra kingdom/claim.
-   Close the dialog and verify `/reigns found <name>` still works after selection.
-3. Run `/reigns menu`; visit all three tabs and M. Click remote chunks: inspect
+   Close the dialog and verify `/nations found <name>` still works after selection.
+3. Run `/nations menu`; visit all three tabs and M. Click remote chunks: inspect
    owner/adjacency, with Claim/Unclaim disabled and the standing restriction shown.
    Close, walk into a cardinal neighbor, reopen M, select that chunk and Claim.
    Verify confirmation, gold land, unchanged map transform, and overview count two.
    Release it through Unclaim; verify map/count return to wilderness/one.
 4. Verify capital release is unavailable, diagonal-only expansion fails, and
-   `/reigns claim`, `/reigns unclaim`, `/reigns territory`, `/reigns kingdom` work.
+   `/nations claim`, `/nations unclaim`, `/nations territory`, `/nations kingdom` work.
    Check Fit, zoom anchoring, dragging beyond viewport and release, legend scroll,
    long-name tooltips, negative coordinates and dimension changes.
 5. Switch English/Ukrainian, resize (including logical 320×240), change GUI scale,
@@ -112,7 +112,7 @@ Two players on a disposable Fabric dedicated server with matching mod versions:
 2. Player B right-clicks A's bound capital without sneaking: A's kingdom opens as
    Visitor, and both mutations remain unavailable. A still manages their own land.
    B must still fail block break/place, container/tool/bucket and sneaking use in
-   A's land. Verify both players' own `/reigns menu` and M views.
+   A's land. Verify both players' own `/nations menu` and M views.
 3. Have A inspect a chunk while B changes ownership nearby. Refresh must show the
    new owner; stale attempts must be rejected rather than changing foreign land.
    Rapidly click actions, reopen screens, teleport/change dimensions, disconnect
@@ -170,22 +170,22 @@ protection exclusions remain unchanged; see the foundation/territory guides.
 - [docs/political-map.md](political-map.md)
 - [docs/territory-claims.md](territory-claims.md)
 - [gradle.properties](../gradle.properties)
-- [src/client/java/dev/sakhno/reigns/client/ProjectReignsClient.java](../src/client/java/dev/sakhno/reigns/client/ProjectReignsClient.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/KingdomFoundingScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/KingdomFoundingScreen.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/KingdomManagementScreen.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/KingdomUi.java](../src/client/java/dev/sakhno/reigns/client/ui/KingdomUi.java)
-- [src/client/java/dev/sakhno/reigns/client/ui/PoliticalMapScreen.java](../src/client/java/dev/sakhno/reigns/client/ui/PoliticalMapScreen.java)
-- [src/gametest/java/dev/sakhno/reigns/kingdom/KingdomManagementTests.java](../src/gametest/java/dev/sakhno/reigns/kingdom/KingdomManagementTests.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/RegnumNationsClient.java](../src/client/java/dev/sakhno/regnum/nations/client/RegnumNationsClient.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomFoundingScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomFoundingScreen.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomManagementScreen.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomUi.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/KingdomUi.java)
+- [src/client/java/dev/sakhno/regnum/nations/client/ui/PoliticalMapScreen.java](../src/client/java/dev/sakhno/regnum/nations/client/ui/PoliticalMapScreen.java)
+- [src/gametest/java/dev/sakhno/regnum/nations/kingdom/KingdomManagementTests.java](../src/gametest/java/dev/sakhno/regnum/nations/kingdom/KingdomManagementTests.java)
 - [src/gametest/resources/fabric.mod.json](../src/gametest/resources/fabric.mod.json)
-- [src/main/java/dev/sakhno/reigns/ProjectReigns.java](../src/main/java/dev/sakhno/reigns/ProjectReigns.java)
-- [src/main/java/dev/sakhno/reigns/block/KingdomObeliskBlock.java](../src/main/java/dev/sakhno/reigns/block/KingdomObeliskBlock.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/ClaimService.java](../src/main/java/dev/sakhno/reigns/kingdom/ClaimService.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/FoundingException.java](../src/main/java/dev/sakhno/reigns/kingdom/FoundingException.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomCommands.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomCommands.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomManagementServer.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomManagementServer.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/KingdomService.java](../src/main/java/dev/sakhno/reigns/kingdom/KingdomService.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/PoliticalMapServer.java](../src/main/java/dev/sakhno/reigns/kingdom/PoliticalMapServer.java)
-- [src/main/java/dev/sakhno/reigns/kingdom/TerritoryProtection.java](../src/main/java/dev/sakhno/reigns/kingdom/TerritoryProtection.java)
-- [src/main/java/dev/sakhno/reigns/networking/KingdomManagementPayloads.java](../src/main/java/dev/sakhno/reigns/networking/KingdomManagementPayloads.java)
-- [src/main/resources/assets/project-reigns/lang/en_us.json](../src/main/resources/assets/project-reigns/lang/en_us.json)
-- [src/main/resources/assets/project-reigns/lang/uk_ua.json](../src/main/resources/assets/project-reigns/lang/uk_ua.json)
+- [src/main/java/dev/sakhno/regnum/nations/RegnumNations.java](../src/main/java/dev/sakhno/regnum/nations/RegnumNations.java)
+- [src/main/java/dev/sakhno/regnum/nations/block/KingdomObeliskBlock.java](../src/main/java/dev/sakhno/regnum/nations/block/KingdomObeliskBlock.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/ClaimService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/ClaimService.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/FoundingException.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/FoundingException.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomCommands.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomCommands.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomManagementServer.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomManagementServer.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomService.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/KingdomService.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/PoliticalMapServer.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/PoliticalMapServer.java)
+- [src/main/java/dev/sakhno/regnum/nations/kingdom/TerritoryProtection.java](../src/main/java/dev/sakhno/regnum/nations/kingdom/TerritoryProtection.java)
+- [src/main/java/dev/sakhno/regnum/nations/networking/KingdomManagementPayloads.java](../src/main/java/dev/sakhno/regnum/nations/networking/KingdomManagementPayloads.java)
+- [src/main/resources/assets/regnum-nations/lang/en_us.json](../src/main/resources/assets/regnum-nations/lang/en_us.json)
+- [src/main/resources/assets/regnum-nations/lang/uk_ua.json](../src/main/resources/assets/regnum-nations/lang/uk_ua.json)

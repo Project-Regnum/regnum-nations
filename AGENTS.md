@@ -1,8 +1,8 @@
 
-# Project Reigns — Agent Engineering Guide
+# Regnum Nations — Agent Engineering Guide
 
 ## Project identity
-Project Reigns is a multiplayer-focused Minecraft mod for kingdoms, settlements, territorial control, diplomacy, economics, and warfare.
+Regnum Nations is a multiplayer-focused Minecraft mod for kingdoms, settlements, territorial control, diplomacy, economics, and warfare.
 
 Technology:
 - Minecraft 1.21.1
@@ -22,6 +22,16 @@ The project is in early development. Do not assume that proposed gameplay mechan
 6. Do not introduce third-party libraries without a demonstrated need.
 7. Design persistence explicitly. Never treat client state as persistent truth.
 8. Avoid unnecessary ticking, global scans, and excessive network traffic.
+
+## Rename compatibility
+
+- Read [docs/rename-migration.md](docs/rename-migration.md) before changing identifiers.
+- Keep `project-reigns` block/item/entity IDs, network channels, saved-data/config
+  filenames and saved key bindings. `RegnumNations.legacyId` is for these contracts;
+  `RegnumNations.id` is for new presentation resources.
+- Preserve NBT keys, schema migrations, UUIDs, settlements, kingdoms and claims.
+- `/nations` and the `/reigns` alias must share server permission checks.
+- Update metadata, mixins, all source sets and packaged resources when moving classes.
 
 ## Architecture
 Keep responsibilities separated:

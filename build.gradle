@@ -36,6 +36,16 @@ fabricApi {
 	}
 }
 
+// GameTests use fixed locations and live saved data. Start each run with a fresh
+// disposable test world; never touch the development server world under run/.
+def resetGameTestWorld = tasks.register('resetGameTestWorld', Delete) {
+	delete layout.buildDirectory.dir('run/gameTest/world')
+}
+
+tasks.named('runGameTest') {
+	dependsOn resetGameTestWorld
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

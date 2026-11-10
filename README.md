@@ -52,10 +52,16 @@ Mojang mappings, and separate common and client source sets.
 ./gradlew runDatagen  # Run data generation (no providers registered yet)
 ```
 
+Work on a feature branch, use Conventional Commits, and run `./gradlew build`
+before committing code changes. Pull requests run the same build on GitHub Actions;
+merging requires maintainer approval. See [AGENTS.md](AGENTS.md) for engineering rules.
+The wrapper verifies its distribution checksum and Loom is pinned to an exact version.
+
 The first Gradle run needs internet access to download build and game dependencies.
 The development server requires accepting Minecraft's EULA in `run/eula.txt`.
 `check` and `build` include the server GameTests in `src/gametest`; their world is
-isolated under `build/run/gameTest/`. `check` also runs `testKingdomNames`, a
+isolated under `build/run/gameTest/` and reset before each run, so repeated builds
+do not inherit claims from a previous run. Development worlds under `run/` are untouched. `check` also runs `testKingdomNames`, a
 dependency-free pure Java rule test in `src/rulesTest`. There are no JUnit tests, so
 Gradle's separate `test` task reports `NO-SOURCE`. Test code is excluded from the
 shipped mod JAR.

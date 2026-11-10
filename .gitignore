@@ -38,3 +38,23 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# local agent context and reports
+.agents/
+.sober/
+
+# Python asset tooling
+__pycache__/
+*.py[cod]
+
+# local configuration, credentials, and logs
+.env
+.env.*
+!.env.example
+local.properties
+*.log
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key

@@ -41,15 +41,15 @@ final class AtlasWidgets {
         }
         return tabs;
     }
-    /** Index tabs are native buttons with natural text widths, not an administrative button grid. */
+    /** Navigation tabs share the button frame; a small inset stripe retains polity identity. */
     static final class Tab extends RoyalButton {
         private final int color;
         Tab(int x,int y,int width,Component label,boolean selected,int color,OnPress action) {
             super(x,y,width,label,action); selected(selected); this.color=selected?color:0;
         }
-        @Override protected void renderWidget(GuiGraphics g,int mx,int my,float delta) {
-            super.renderWidget(g,mx,my,delta);
-            if (color!=0) g.fill(getX()+6,getBottom()-1,getRight()-6,getBottom(),color);
+        @Override protected void renderIndicator(GuiGraphics g,int accent) {
+            super.renderIndicator(g,accent);
+            if (color!=0 && active) g.fill(getX()+6,getBottom()-3,getRight()-6,getBottom()-2,color);
         }
     }
 }

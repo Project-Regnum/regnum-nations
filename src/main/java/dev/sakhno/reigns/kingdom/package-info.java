@@ -1,4 +1,4 @@
 /**
- * Reserved for kingdom domain models and rules.
+ * Server-authoritative kingdom records, persistence, founding rules, and commands.
  */
 package dev.sakhno.reigns.kingdom;

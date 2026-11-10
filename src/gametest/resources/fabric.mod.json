@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "project-reigns-test",
+  "version": "1.0.0",
+  "name": "Project Reigns Tests",
+  "environment": "server",
+  "entrypoints": {
+    "fabric-gametest": [
+      "dev.sakhno.reigns.block.KingdomObeliskTests",
+      "dev.sakhno.reigns.kingdom.KingdomFoundingTests",
+      "dev.sakhno.reigns.kingdom.TerritoryTests",
+      "dev.sakhno.reigns.kingdom.KingdomManagementTests",
+      "dev.sakhno.reigns.kingdom.KingdomAdminTests",
+      "dev.sakhno.reigns.kingdom.SovereigntyTests",
+      "dev.sakhno.reigns.kingdom.RoyalCartographyTests"
+    ]
+  },
+  "depends": {
+    "project-reigns": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

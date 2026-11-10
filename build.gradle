@@ -27,6 +27,13 @@ fabricApi {
 		client = true
 		modId = "project-reigns"
 	}
+
+	// Exercise persistence in a real server world using the existing Fabric API.
+	configureTests {
+		createSourceSet = true
+		modId = "project-reigns-test"
+		enableClientGameTests = false
+	}
 }
 
 dependencies {
@@ -60,6 +67,26 @@ java {
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Pure rule checks without adding a test-library dependency. Server integration stays in GameTests.
+sourceSets {
+	rulesTest {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
+}
+
+tasks.register('testKingdomNames', JavaExec) {
+	group = 'verification'
+	description = 'Checks kingdom display-name and uniqueness rules without Minecraft startup.'
+	dependsOn tasks.named('rulesTestClasses')
+	classpath = sourceSets.rulesTest.runtimeClasspath
+	mainClass = 'dev.sakhno.reigns.kingdom.KingdomNameTest'
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('testKingdomNames')
 }
 
 jar {

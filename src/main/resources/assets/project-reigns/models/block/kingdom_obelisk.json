@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "project-reigns:block/kingdom_obelisk"
+  }
+}

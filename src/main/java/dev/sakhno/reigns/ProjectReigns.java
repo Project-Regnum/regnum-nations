@@ -1,5 +1,9 @@
 package dev.sakhno.reigns;
 
+import dev.sakhno.reigns.block.ModBlocks;
+import dev.sakhno.reigns.kingdom.KingdomCommands;
+import dev.sakhno.reigns.kingdom.KingdomService;
+import dev.sakhno.reigns.kingdom.TerritoryProtection;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.resources.ResourceLocation;
@@ -17,11 +21,13 @@ public class ProjectReigns implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-
-		LOGGER.info("Hello Fabric world!");
+		dev.sakhno.reigns.kingdom.PoliticalMapServer.initialize();
+		dev.sakhno.reigns.kingdom.KingdomManagementServer.initialize();
+		ModBlocks.initialize();
+		KingdomService.initialize();
+		KingdomCommands.initialize();
+		TerritoryProtection.initialize();
+		LOGGER.info("Project Reigns initialized");
 	}
 
 	public static ResourceLocation id(String path) {

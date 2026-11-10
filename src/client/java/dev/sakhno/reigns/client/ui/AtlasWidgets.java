@@ -1,0 +1,55 @@
+package dev.sakhno.reigns.client.ui;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.IntConsumer;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import static dev.sakhno.reigns.client.ui.KingdomUi.*;
+
+/** Small native atlas controls shared by the folios; no independent widget lifecycle. */
+final class AtlasWidgets {
+    private AtlasWidgets() { }
+    /** Natural label widths compress together within one bounded row. */
+    static int[] rowWidths(Font font,int width,int minimum,Component... labels) {
+        int available=width-GAP*(labels.length-1),desired=0;
+        int[] widths=new int[labels.length];
+        for (int i=0;i<labels.length;i++) { widths[i]=Math.max(minimum,font.width(labels[i])+PAD*2); desired+=widths[i]; }
+        if (desired>available) {
+            int used=0;
+            for (int i=0;i<widths.length;i++) {
+                widths[i]=i==widths.length-1?available-used:widths[i]*available/desired;
+                used+=widths[i];
+            }
+        }
+        return widths;
+    }
+    static List<Button> tabs(Font font,int x,int y,int width,int selected,int color,IntConsumer navigate) {
+        String[] keys={"city_section","kingdom_section","territories","map_section"};
+        Component[] labels=java.util.Arrays.stream(keys).map(KingdomUi::text).toArray(Component[]::new);
+        int[] widths=rowWidths(font,width,CONTROL,labels);
+        int used=0;
+        var tabs=new ArrayList<Button>();
+        for (int i=0;i<keys.length;i++) {
+            final int index=i;
+            Component label=text(keys[i]);
+            int w=widths[i];
+            tabs.add(new Tab(x+used,y,w,label,i==selected,color,b -> navigate.accept(index)));
+            used+=w+GAP;
+        }
+        return tabs;
+    }
+    /** Index tabs are native buttons with natural text widths, not an administrative button grid. */
+    static final class Tab extends RoyalButton {
+        private final int color;
+        Tab(int x,int y,int width,Component label,boolean selected,int color,OnPress action) {
+            super(x,y,width,label,action); selected(selected); this.color=selected?color:0;
+        }
+        @Override protected void renderWidget(GuiGraphics g,int mx,int my,float delta) {
+            super.renderWidget(g,mx,my,delta);
+            if (color!=0) g.fill(getX()+6,getBottom()-1,getRight()-6,getBottom(),color);
+        }
+    }
+}

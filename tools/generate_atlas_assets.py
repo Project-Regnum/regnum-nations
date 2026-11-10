@@ -208,6 +208,35 @@ rect(81, 48, 1, 2, GOLD)
 rect(90, 48, 1, 2, GOLD)
 
 
+# Map pins: 15px house and castle, with separately tinted roof/royal cloth.
+# Fixed silhouettes stay readable at every map zoom; the centre pixel is the anchor.
+def map_icon(u, rows):
+    palette = {'#': INK, 's': STONE, 'i': IVORY, 'g': GOLD, 'l': LIGHT,
+               'w': (255, 255, 255, 255)}
+    for y, row in enumerate(rows):
+        for x, value in enumerate(row):
+            if value in palette:
+                dot(u+x, y, palette[value])
+
+
+map_icon(128, [
+    '...............', '.........##....', '.....#...#s#...', '....###..#s#...',
+    '...#####.###...', '..#######......', '.#########.....', '###########....',
+    '.#iiiiiii#.....', '.#i#iii#i#.....', '.#igiiigi#.....', '.#iii#iii#.....',
+    '.#iii#iii#.....', '.#########.....', '...............'])
+map_icon(144, [
+    '...............', '...............', '...............', '...............',
+    '....www........', '...wwwww.......', '..wwwwwww......', '.wwwwwwwww.....'])
+map_icon(160, [
+    '........#gggg#.', '........#ggg#..', '........#gggg#.', '.#.#.#..#......',
+    '.#s#s#..#.#.#..', '.#sss#..#s#s#..', '.#s#s####sss#..', '.#sls#ii#sls#..',
+    '.#sss#ii#sss#..', '.#sssiiiiiss#..', '.#slsii#iisls#.', '.#sssii#iisss#.',
+    '.#sssii#iisss#.', '.#############.', '...............'])
+map_icon(176, ['.........wwww..', '.........www...', '.........wwww..'])
+map_icon(192, ['...#...', '..#i#..', '..#i#..', '.#iii#.',
+               '.#igi#.', '#ii#ii#', '###.###'])
+
+
 def chunk(kind, data):
     return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind+data))
 

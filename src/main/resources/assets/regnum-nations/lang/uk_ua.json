@@ -261,5 +261,9 @@
   "map.regnum-nations.layers": "Шари",
   "map.regnum-nations.layer_0": "Місцевість і політичні території",
   "map.regnum-nations.layer_1": "Політичні території",
-  "map.regnum-nations.layer_2": "Місцевість"
+  "map.regnum-nations.layer_2": "Місцевість",
+  "map.regnum-nations.city_marker": "Місто: %s",
+  "map.regnum-nations.capital_marker": "Столиця / королівський осідок: %s",
+  "map.regnum-nations.marker_more": "+%s міст поруч • Наблизьте, щоб розділити",
+  "map.regnum-nations.marker_hint": "Наблизьте, щоб розділити сусідні міста."
 }

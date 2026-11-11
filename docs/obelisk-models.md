@@ -2,8 +2,8 @@
 
 The City Obelisk is a two-block civic lantern monument: layered slate plinth,
 stepped taper, bronze foot clasps, four inset inscriptions and an amber heart.
-The Kingdom Obelisk is a 2.95-block royal monument: charcoal masonry, stepped
-gold ribs, blue inscriptions, a four-prong crown and a suspended sapphire core.
+The Kingdom Obelisk is a three-block royal monument: blackstone masonry, stepped
+gold ribs, blue inscriptions, four bent crown supports and a suspended sapphire.
 Shared plinth courses, carved panels and restrained metal palettes connect them.
 
 ![Actual Minecraft 1.21.1 daylight capture](images/obelisks/day-front.png)
@@ -16,7 +16,7 @@ Shared plinth courses, carved panels and restrained metal palettes connect them.
 | Royal upper structure | `models/block/kingdom_obelisk_crown.json`, translated up 16 model units by the client renderer |
 | Bright crystals | `models/block/{city,kingdom}_obelisk_glow.json`; full-bright, opaque geometry |
 | Complete inventory models | `assets/regnum-nations/models/item/{city,kingdom}_obelisk.json` |
-| Pixel textures | `assets/regnum-nations/textures/block/obelisk/`; five original 16×16 PNGs per monument |
+| Pixel textures | `assets/regnum-nations/textures/block/obelisk/`; five original 64×64 PNGs per monument |
 | Retained registry adapters | `assets/project-reigns/blockstates/` and `assets/project-reigns/models/item/` |
 | Editable sources | [`art/obelisks/`](../art/obelisks/) |
 
@@ -27,17 +27,19 @@ set of connected chips and seams; no random-noise texture generation is used.
 The base/body faces use normal Minecraft ambient occlusion and face shading.
 The crystals use bright surfaces, without casting world light.
 
-The City model has 25 cuboids / at most 150 quads (24 cuboids chunk-baked;
-one crystal rendered with its block entity). The Kingdom model has 45 cuboids /
-at most 270 quads (10 cuboids chunk-baked; 33 crown/upper-body cuboids and two
-crystal cuboids rendered with its existing block entity). Hidden faces are
-included in these conservative counts. All textures are opaque 16×16 PNGs.
+The City model has 55 cuboids / at most 330 quads (54 cuboids chunk-baked;
+one crystal rendered with its block entity). The Kingdom model has 88 cuboids /
+at most 528 quads (15 cuboids chunk-baked; 72 crown/upper-body cuboids and one
+crystal rendered with its existing block entity). Hidden faces are included in
+these conservative counts. All textures are opaque 64×64 PNGs, mapped at two
+texels per model unit (32 texels per block). This gives narrow trim and stone
+chips consistent detail without enlarging their pixels into flat color bands.
 
 Vanilla JSON element coordinates must fit within `[-16,32]`. A base-anchored
 three-block model exceeds that upper limit. Splitting the royal model at the
 existing one-block shaft seam keeps every JSON valid; the client-only
 `ObeliskRenderer` renders the upper JSON one block higher. The same renderer
-draws the small bright crystals. Its 128-block distance limit covers several
+draws the bright crystals. Its 128-block distance limit covers several
 chunks, and it permits rendering when the anchor is outside the view frustum.
 Models are resolved from the current model manager so resource reloads replace
 their textures correctly. Complete static item models include every part;
@@ -55,6 +57,11 @@ blocks for a City monument and three for a Kingdom monument when decorating.
 Interact with or mine the base. Relocation moves the whole visual with its
 existing anchor; it needs no upper-part cleanup.
 
+The refined City plinth is 20×20 model units (1.25×1.25 blocks), and the royal
+plinth is 24×24 units (1.5×1.5 blocks). These are decorative overhangs around the
+same 16×16 collision/selection footprint. Adjacent blocks can intersect these
+overhangs; placement and relocation do not reserve neighboring spaces.
+
 The only common-code edit adds `noOcclusion()` to the two registrations, so
 neighboring faces and lighting are appropriate for the open silhouettes.
 This changes their visual occlusion/light blocking, not their collision shape.
@@ -68,8 +75,9 @@ There is no world migration. Existing obelisks receive their new appearance.
 1. Open `art/obelisks/city_obelisk.bbmodel` or `kingdom_obelisk.bbmodel` in
    Blockbench (verified with 5.2.2). These use **Generic Model**, allowing the
    entire 48-unit royal source to be edited together.
-2. Expand the numbered Foundation, Pillar, Fittings/Ribs, Inscriptions, Crown or
-   Lantern, and Heart groups. Cubes are individually named. Every texture is
+2. Expand the numbered Foundation, Tapered body, Corner buttresses, Metal
+   fittings, Inscriptions, Crown/Lantern, and Crystal groups. Cubes are named.
+   Every texture is
    embedded; opening the source needs no external image files.
 3. Keep integer texel alignment where possible and preserve the existing UVs.
    Do not export the complete royal Generic Model directly as a Java block;
@@ -99,6 +107,9 @@ Actual 1.21.1 client captures reviewed during this change:
   inscriptions, stepped silhouettes and complete geometry.
 - [Night](images/obelisks/night.png): amber and blue hearts stay visible while
   stone and metal receive ordinary world lighting.
+- [Normal player height](images/obelisks/normal-player.png), at 70° FOV, and
+  [16-block distance](images/obelisks/distance-16.png): bright crystals and taper
+  remain readable from normal gameplay viewpoints, without a zoomed camera.
 - [48-block distance](images/obelisks/distance-48.png), at the standard 70° FOV:
   City lantern and taller
   royal crown remain distinguishable; carved detail naturally becomes small.
@@ -111,10 +122,50 @@ Actual 1.21.1 client captures reviewed during this change:
   [Kingdom](images/obelisks/blockbench-kingdom.png). Both opened with all five
   embedded textures reporting no errors and all named groups present.
 
-Two visual passes corrected embedded gold ribs, the crown's diagonal occlusion
-of the sapphire in inventory, the item viewing angle, and the brightest blue
-highlight. The concept image in `art/obelisks/` is explicitly an AI art reference;
-the screenshots above show the implemented geometry and textures.
+## Iteration 2: comparison with the supplied concept
+
+![Implemented models, matching concept direction](images/obelisks/concept-angle-pair.png)
+
+The initial models were too narrow, with undersized crystals and very simple
+shaft/trim geometry. The refinement uses the supplied concept as its primary
+reference. These are changes to assets and the isolated capture harness only;
+the renderer, Fabric registration, block logic and SavedData are unchanged from
+the first visual implementation.
+
+Compare the [reference concept](../art/obelisks/concept-reference.png),
+[initial Minecraft baseline](images/obelisks/iteration1-baseline.png) and
+[updated Minecraft capture](images/obelisks/day-front.png). The baseline and
+updated daylight capture use the same camera setup.
+
+| Proportion / detail | Initial models | Refined models |
+| --- | --- | --- |
+| City plinth width | 16 units | 20 units, six stone courses and four corner bosses |
+| Kingdom plinth width | 16 units | 24 units, seven courses and projecting gold frieze |
+| City crystal | 3-unit cube | 4.5-unit diamond, with a 6.36-unit vertical silhouette |
+| Royal crystal | 4×5-unit prism | 6.5-unit diamond, with a 9.19-unit vertical silhouette |
+| Body depth | Few shaft steps and short clasps | Retreating stone courses, four-tier corner buttresses, raised clasps and gold wraps |
+| Royal crown | Short straight prongs | Four splayed supports, sloping knees and inward tips, gold borders around recessed stone |
+| Textures | 16×16 | 64×64, clustered dressed-stone wear, hammered metal and longer carved inscriptions |
+
+The [pair render](images/obelisks/concept-angle-pair.png) uses orthographic
+projection, 45° azimuth and approximately 20° elevation to match the supplied
+concept's view. Both models share the same scale and ground plane. Their
+[untextured silhouettes](images/obelisks/silhouette-pair.png) use the exact same
+geometry/camera with one flat material. The closed civic lantern, open royal
+crown, broader foundations and narrowing bodies remain distinct without color.
+
+Reviewing the first refinement render exposed another royal crystal occlusion:
+straight supports still crowded the gem. The second pass moved them outward and
+introduced actual 45° knees/tips, leaving more visible space around the sapphire.
+The crystals were rotated into diamond silhouettes rather than enlarged prisms.
+The updated geometry was then reviewed in Minecraft at normal player height,
+16 blocks, 48 blocks, at night, in inventory and after a resource reload.
+
+The implementation interprets the concept in vanilla cuboids: the bodies use
+stepped taper instead of continuous tapered meshes, and the crystals are rigid
+diamond-shaped cubes. No smooth mesh or extra rendering dependency is required.
+The concept image in `art/obelisks/` is an AI art reference; all other renders
+linked above show the implemented geometry and textures.
 
 Asset validation checks all seven JSONs, ten texture paths/dimensions, face UV
 ranges, coordinate and rotation limits, retained blockstate/item adapters, group

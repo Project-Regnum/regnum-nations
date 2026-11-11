@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "src/main/resources/assets"
 ART = ROOT / "art/obelisks"
 SIDES = ("north", "east", "south", "west", "up", "down")
+TEXTURE_SIZE = 64
 
 
 def save_json(path, value):
@@ -24,61 +25,69 @@ def save_json(path, value):
 
 
 PALETTES = {
-    "city": dict(stone=["#626e70", "#768080", "#515d62", "#89918a"],
-                 base=["#444e54", "#58646a", "#333d44", "#697375"],
-                 metal=["#987448", "#bb975d", "#584b38", "#d0af71"],
-                 rune=["#303d43", "#4a575b", "#a98245", "#d6b36a"],
-                 core=["#bf853e", "#e0ac58", "#775330", "#ffe1a0"]),
-    "kingdom": dict(stone=["#333e49", "#46515b", "#262e38", "#56616b"],
-                    base=["#292f38", "#3b444e", "#1d242d", "#4b535c"],
-                    metal=["#ae8645", "#d2ae63", "#685330", "#f0d28a"],
-                    rune=["#202c3d", "#34465b", "#597da1", "#91b6cf"],
-                    core=["#386893", "#6c9fbe", "#244261", "#a0cbd8"]),
+    "city": dict(stone=["#707273", "#828481", "#5f6265", "#9a9b91"],
+                 base=["#515258", "#64656a", "#41434a", "#7a7b7b"],
+                 metal=["#9b723d", "#bb8d48", "#70512e", "#d5ac64"],
+                 rune=["#3f424a", "#54575e", "#c88f35", "#e7b753"],
+                 core=["#d68a18", "#f9b638", "#a86013", "#ffe39b"]),
+    "kingdom": dict(stone=["#38353e", "#48434e", "#2c2932", "#5b5560"],
+                    base=["#2d2b34", "#3c3944", "#24232b", "#504b56"],
+                    metal=["#b28a42", "#d5ad5b", "#806130", "#e9c87a"],
+                    rune=["#292832", "#3e3b48", "#3b76c7", "#73a6df"],
+                    core=["#2e65c5", "#549bea", "#193c91", "#9dcdfa"]),
 }
 
 
 def texture(kind, material):
     colors = PALETTES[kind][material]
-    im = Image.new("RGB", (16, 16), colors[0])
+    im = Image.new("RGB", (TEXTURE_SIZE, TEXTURE_SIZE), colors[0])
     d = ImageDraw.Draw(im)
     if material in ("stone", "base"):
-        # Large contiguous chips and bedding planes, not per-pixel dithering.
-        for box in [(1, 2, 5, 3), (9, 1, 13, 2), (4, 7, 9, 8), (1, 12, 4, 13), (11, 11, 14, 12)]:
-            d.rectangle(box, fill=colors[1])
-        for line in [[(0, 5), (5, 5), (6, 6)], [(10, 6), (15, 6)], [(6, 13), (12, 13), (13, 14)]]:
-            d.line(line, fill=colors[2])
-        if material == "base":
-            d.line([(0, 0), (15, 0)], fill=colors[3])
-            d.line([(0, 15), (15, 15)], fill=colors[2])
-            d.line([(0, 8), (15, 8)], fill=colors[2])
-            d.line([(7, 1), (7, 7)], fill=colors[2])
-            d.line([(3, 9), (3, 14)], fill=colors[2])
-        else:
-            d.line([(0, 0), (15, 0)], fill=colors[1])
-            d.line([(0, 0), (0, 15)], fill=colors[1])
-            d.line([(15, 0), (15, 15)], fill=colors[2])
+        # Hand-structured stone courses with connected chips. Small clusters
+        # sit inside larger slabs rather than independent noisy pixels.
+        for row in range(8):
+            y = row*8
+            offset = 6 if row%2 else 0
+            for column in range(-1,6):
+                x = column*12+offset
+                d.rectangle((x+1,y+1,x+10,y+6), fill=colors[0 if (row+column)%3 else 2])
+                d.line([(x+2,y+1),(x+8,y+1)], fill=colors[1])
+                d.rectangle((x+3,y+3,x+5,y+4), fill=colors[1])
+                d.line([(x+8,y+5),(x+10,y+5)], fill=colors[2])
+                if material == "base":
+                    d.line([(x,y+7),(x+11,y+7)], fill=colors[2])
+                    d.line([(x,y+2),(x,y+6)], fill=colors[2])
+        for x,y in [(8,13),(23,28),(34,38),(47,21),(19,46),(41,52)]:
+            d.line([(x,y),(x+3,y),(x+4,y+1)], fill=colors[3])
     elif material == "metal":
-        d.rectangle((0, 0, 15, 15), outline=colors[2])
-        d.line([(1, 14), (1, 1), (14, 1)], fill=colors[3])
-        d.line([(3, 3), (12, 3)], fill=colors[1])
-        d.line([(14, 3), (14, 14), (3, 14)], fill=colors[2])
-        d.rectangle((4, 6, 6, 8), fill=colors[1])
-        d.rectangle((10, 10, 12, 11), fill=colors[2])
+        for y in range(2,64,7):
+            for x in range((y//7%2)*4,64,9):
+                d.rectangle((x,y,x+2,y+1), fill=colors[1])
+                d.line([(x+4,y+3),(x+5,y+3)], fill=colors[2])
+        # Central ridges remain visible on narrow trim UVs as well as caps.
+        for line in ([(30,0),(30,63)],[(0,30),(63,30)]): d.line(line,fill=colors[1])
+        for line in ([(33,0),(33,63)],[(0,33),(63,33)]): d.line(line,fill=colors[2])
+        d.point((31,31),fill=colors[3])
     elif material == "rune":
-        d.rectangle((0, 0, 15, 15), outline=colors[1])
-        # Two angular, intentionally fictional glyphs in a deep carved recess.
-        strokes = [[(7, 4), (7, 7), (9, 6)], [(7, 5), (6, 4)],
-                   [(6, 9), (8, 8), (9, 9), (8, 11), (6, 9)]]
+        d.line([(27,0),(27,63)],fill=colors[1])
+        d.line([(37,0),(37,63)],fill=colors[1])
+        # A long chevron / diamond inscription, matching the reference's rhythm.
+        strokes = [[(32,18),(32,23)],[(29,24),(32,21),(35,24)],
+                   [(29,28),(32,25),(35,28)],
+                   [(28,33),(32,29),(36,33),(32,37),(28,33)],
+                   [(30,33),(32,31),(34,33),(32,35),(30,33)],
+                   [(29,40),(32,37),(35,40)],[(32,40),(32,47)]]
         for s in strokes:
-            d.line([(x+1, y+1) for x, y in s], fill="#101c27", width=2)
+            d.line([(x+1, y+1) for x, y in s], fill="#17171e", width=2)
             d.line(s, fill=colors[2])
-        d.point((7, 5), fill=colors[3]); d.point((8, 10), fill=colors[3])
+        d.point((32,29), fill=colors[3]); d.point((32,37), fill=colors[3])
     else:
-        d.polygon([(0, 0), (7, 0), (7, 15), (0, 10)], fill=colors[1])
-        d.polygon([(8, 0), (15, 0), (15, 15), (8, 15)], fill=colors[2])
-        d.polygon([(2, 2), (6, 2), (6, 10), (4, 8)], fill=colors[3])
-        d.line([(8, 1), (13, 6), (13, 11)], fill=colors[0])
-        d.point((3, 12), fill=colors[3])
+        d.polygon([(0,0),(31,0),(31,63),(0,48)],fill=colors[1])
+        d.polygon([(32,0),(63,0),(63,63),(32,63)],fill=colors[2])
+        d.polygon([(22,21),(30,25),(30,36),(26,32)],fill=colors[3])
+        d.polygon([(33,25),(43,34),(33,41)],fill=colors[0])
+        d.line([(24,38),(28,42),(31,39)],fill=colors[1])
+        d.line([(26,25),(29,26),(29,30)],fill=colors[3])
     path = ASSETS / f"regnum-nations/textures/block/obelisk/{kind}_{material}.png"
     path.parent.mkdir(parents=True, exist_ok=True)
     im.save(path)
@@ -90,8 +99,9 @@ def box(name, a, b, material, group, angle=None):
     dx, dy, dz = [b[i]-a[i] for i in range(3)]
     for side in SIDES:
         w, h = (dx, dz) if side in ("up", "down") else (dz if side in ("east", "west") else dx, dy)
-        # One texel per model unit, repeat only on deliberately separate courses.
-        u, v = max(0, (16-w)/2), max(0, (16-h)/2)
+        # Two pixels per model unit, including wide plinths (64px / 16 UV units).
+        w, h = w*.5, h*.5
+        u, v = (16-w)/2, (16-h)/2
         e["faces"][side] = {"uv": [u, v, u+w, v+h], "texture": "#"+material}
     if angle:
         axis, degrees, origin = angle
@@ -101,68 +111,113 @@ def box(name, a, b, material, group, angle=None):
 
 def geometry(kind):
     es = []
-    def add(n, a, b, mat, group, angle=None): es.append(box(n, a, b, mat, group, angle))
-    city = kind == "city"
-    # The base exactly fills the preserved full-block collision footprint.
-    add("Foundation / dressed lower course", [0,0,0], [16,2,16], "base", "01 Foundation")
-    add("Plinth / shadow reveal", [1,2,1], [15,3,15], "stone", "01 Foundation")
-    add("Plinth / bronze string course", [1,3,1], [15,4,15], "metal", "01 Foundation")
-    add("Plinth / bevel step", [2,4,2], [14,6,14], "base", "01 Foundation")
-    add("Plinth / upper course", [3,6,3], [13,8,13], "stone", "01 Foundation")
+    def add(n, a, b, mat, group, angle=None):
+        es.append(box(n, a, b, mat, group, angle))
+    city = kind == 'city'
+    # Broad decorative plinths overhang the unchanged one-block collision box.
+    courses = ([(-2,18,0,2.5,'base'),(-1,17,2.5,4,'stone'),
+                (0,16,4,5.5,'base'),(-.5,16.5,5.5,6.25,'stone'),
+                (1,15,6.25,7.5,'stone'),(2,14,7.5,9,'base')]
+               if city else
+               [(-4,20,0,3,'base'),(-3,19,3,4.5,'stone'),
+                (-2,18,4.5,6.5,'base'),(-1,17,6.5,8.5,'stone'),
+                (-2,18,8.5,9.5,'metal'),(-1,17,9.5,11,'base'),
+                (0,16,11,12,'stone')])
+    for index,(lo,hi,y0,y1,mat) in enumerate(courses):
+        add(f'Foundation / course {index+1}',[lo,y0,lo],[hi,y1,hi],mat,'01 Foundation')
+    for x in ((-1,14) if city else (-3,16)):
+        for z in ((-1,14) if city else (-3,16)):
+            add(f'Foundation / metal corner boss {x}/{z}',[x,2.5,z],[x+3,4.5,z+3],
+                'metal','01 Foundation')
+    # Each course retreats visibly. Buttresses reinforce that taper in depth.
+    shaft = ([(3,13,9,13),(3.75,12.25,13,17),(4.5,11.5,17,21)] if city else
+             [(1.5,14.5,12,18),(2.5,13.5,18,24),(3.5,12.5,24,30)])
+    for lo,hi,y0,y1 in shaft:
+        add(f'Shaft / tapered course {y0}',[lo,y0,lo],[hi,y1,hi],'stone','02 Tapered body')
+    tiers = ([(1.75,12.25,8,11.5),(2.5,11.5,11.5,15),(3.25,10.75,15,18.5),
+              (3.75,10.25,18.5,21.5)] if city else
+             [(-.25,14.25,11,15),(1,13,15,20),(2,12,20,25),(3,11,25,30)])
+    for left,right,y0,y1 in tiers:
+        for x in (left,right):
+            for z in (left,right):
+                add(f'Buttress / stone tier {y0} at {x}/{z}',[x,y0,z],[x+2,y1,z+2],
+                    'stone','03 Corner buttresses')
+                if not city and y0>=15:
+                    # Metal wraps project beyond the stone instead of hiding in it.
+                    add(f'Buttress / gilded edge {y0} at {x}/{z}',
+                        [x-.125,y0,z-.125],[x+.625,y1,z+2.125],
+                        'metal','04 Metal fittings')
+    for x in ((3.5,10.25) if city else (3,10.5)):
+        for z in ((3.5,10.25) if city else (3,10.5)):
+            y0,y1 = (20,22) if city else (27,29)
+            add(f'Shoulder / architectural clasp {x}/{z}',[x-.25,y0,z-.25],
+                [x+2.25,y1,z+2.25],'metal','04 Metal fittings')
+    # Recessed long inscriptions follow the taper instead of floating on a flat
+    # vertical decal. Continuous UVs preserve the chevron/diamond rhythm.
+    total_bottom,total_top = (9,21) if city else (12,30)
+    for lo,hi,y0,y1 in shaft:
+        for side in ('north','east','south','west'):
+            if side in ('north','south'):
+                z = lo-.1875 if side=='north' else hi
+                a,b = [5.75,y0,z],[10.25,y1,z+.1875]
+            else:
+                x = lo-.1875 if side=='west' else hi
+                a,b = [x,y0,5.75],[x+.1875,y1,10.25]
+            e=box(f'Carved inscription / {side} course {y0}',a,b,'rune','05 Inscriptions')
+            # Fit the complete 24/36-pixel inscription across its three courses.
+            v0=8-(total_top-total_bottom)*.25+(total_top-y1)*.5
+            v1=v0+(y1-y0)*.5
+            e['faces'][side]['uv']=[6.875,v0,9.125,v1]
+            for face in SIDES:
+                if face!=side: e['faces'][face]['texture']='#stone'
+            es.append(e)
     if city:
-        add("Shaft / lower dressed stone", [4,8,4], [12,16,12], "stone", "02 Pillar")
-        add("Shaft / taper shoulder", [4.5,16,4.5], [11.5,18,11.5], "stone", "02 Pillar")
-        add("Shaft / upper dressed stone", [5,18,5], [11,24,11], "stone", "02 Pillar")
-        for x in (3.5,11):
-            for z in (3.5,11): add(f"Bronze foot clasp {x}/{z}", [x,6,z], [x+1.5,11,z+1.5], "metal", "03 Bronze fittings")
-        for side in ("north", "south", "east", "west"):
-            if side in ("north", "south"):
-                z = 3.875 if side == "north" else 12
-                add(f"Civic inscription / {side}", [6,9,z], [10,16,z+.125], "rune", "04 Inscriptions")
-            else:
-                x = 3.875 if side == "west" else 12
-                add(f"Civic inscription / {side}", [x,9,6], [x+.125,16,10], "rune", "04 Inscriptions")
-        add("Lantern / bronze sill", [4.5,24,4.5], [11.5,25,11.5], "metal", "05 Lantern")
-        for x in (5,10):
-            for z in (5,10): add(f"Lantern upright {x}/{z}", [x,25,z], [x+1,29,z+1], "metal", "05 Lantern")
-        add("Amber heart", [6.5,25.75,6.5], [9.5,28.75,9.5], "core", "05 Lantern", ("y",45,[8,27.25,8]))
-        add("Lantern / slate lintel", [4.5,29,4.5], [11.5,30,11.5], "stone", "05 Lantern")
-        add("Lantern / bronze cap", [5.5,30,5.5], [10.5,31,10.5], "metal", "05 Lantern")
-        add("Lantern / finial", [7,31,7], [9,32,9], "metal", "05 Lantern")
+        add('Shoulder / carved stone capital',[3.25,21,3.25],[12.75,22.5,12.75],
+            'stone','06 Amber lantern')
+        add('Lantern / bronze sill',[2,22.5,2],[14,23.5,14],'metal','06 Amber lantern')
+        # Thin corner posts leave a generous opening around the large heart.
+        for x in (2.5,12.5):
+            for z in (2.5,12.5):
+                add(f'Lantern / bronze upright {x}/{z}',[x,23.5,z],[x+1,30.5,z+1],
+                    'metal','06 Amber lantern')
+        add('Lantern / bronze roof',[2,30.5,2],[14,31.25,14],'metal','06 Amber lantern')
+        add('Lantern / weathered roof cap',[3,31.25,3],[13,31.75,13],
+            'stone','06 Amber lantern')
+        add('Lantern / bronze finial',[5,31.75,5],[11,32,11],'metal','06 Amber lantern')
+        add('Amber heart / suspended diamond',[5.75,25,5.75],[10.25,29.5,10.25],
+            'core','07 Crystal',('z',45,[8,27.25,8]))
     else:
-        for lo,hi,y0,y1 in [(3.5,12.5,8,16),(4,12,16,24),(4.5,11.5,24,30)]:
-            add(f"Royal shaft / course {y0}", [lo,y0,lo], [hi,y1,hi], "stone", "02 Pillar")
-        for x in (3.25,11.5):
-            for z in (3.25,11.5):
-                add(f"Gilded lower rib {x}/{z}", [x,7,z], [x+1.25,16,z+1.25], "metal", "03 Gilded ribs")
-        for x in (3.75,11):
-            for z in (3.75,11):
-                add(f"Gilded middle rib {x}/{z}", [x,16,z], [x+1.25,24,z+1.25], "metal", "03 Gilded ribs")
-        for x in (4.25,10.5):
-            for z in (4.25,10.5):
-                add(f"Gilded upper rib {x}/{z}", [x,24,z], [x+1.25,29,z+1.25], "metal", "03 Gilded ribs")
-        for side in ("north", "south", "east", "west"):
-            if side in ("north", "south"):
-                z = 3.875 if side == "north" else 12
-                add(f"Royal inscription / {side}", [6,17,z], [10,24,z+.125], "rune", "04 Inscriptions")
-            else:
-                x = 3.875 if side == "west" else 12
-                add(f"Royal inscription / {side}", [x,17,6], [x+.125,24,10], "rune", "04 Inscriptions")
-        add("Capital / shadow band", [3.5,29,3.5], [12.5,30,12.5], "base", "05 Crown")
-        add("Capital / wide gold collar", [2.5,30,2.5], [13.5,31.5,13.5], "metal", "05 Crown")
-        add("Capital / blackstone abacus", [2,31.5,2], [14,33,14], "base", "05 Crown")
-        add("Crown / gold seat", [3,33,3], [13,34,13], "metal", "05 Crown")
-        # Four broad square prongs flare out above a narrower stem; the gap is
-        # real geometry, not transparency. Crown frame remains inside footprint.
-        for x,z in ((7,2.5),(11.5,7),(7,11.5),(2.5,7)):
-            add(f"Crown / dark upright {x}/{z}", [x,34,z], [x+2,40,z+2], "stone", "05 Crown")
-            add(f"Crown / gilded prong {x}/{z}", [x-.5,40,z-.5], [x+2.5,44,z+2.5], "metal", "05 Crown")
-            add(f"Crown / square tooth {x}/{z}", [x,44,z], [x+2,46,z+2], "metal", "05 Crown")
-        add("Core / levitation seat", [6,34,6], [10,35,10], "base", "06 Royal heart")
-        add("Core / lower gold seal", [6.5,36.5,6.5], [9.5,37.25,9.5], "metal", "06 Royal heart", ("y",45,[8,37,8]))
-        add("Core / floating sapphire", [6,37.25,6], [10,42.25,10], "core", "06 Royal heart", ("y",45,[8,39.75,8]))
-        add("Core / upper facet", [6.75,42.25,6.75], [9.25,44,9.25], "core", "06 Royal heart", ("y",45,[8,43,8]))
-        add("Core / suspended gold sigil", [7,45.25,7], [9,47.25,9], "metal", "06 Royal heart", ("y",45,[8,46.25,8]))
+        add('Capital / shadow reveal',[2.5,29.5,2.5],[13.5,30.5,13.5],
+            'base','06 Royal crown')
+        add('Capital / projecting gold cornice',[0,30.5,0],[16,31.5,16],
+            'metal','06 Royal crown')
+        add('Capital / blackstone tray',[-.5,31.5,-.5],[16.5,32.5,16.5],
+            'base','06 Royal crown')
+        add('Capital / upper gold rim',[0,32.5,0],[16,33.25,16],
+            'metal','06 Royal crown')
+        def arm(side,name,r0,r1,y0,y1,width,material,angle=None):
+            if side=='north': a,b=[8-width/2,y0,8-r1],[8+width/2,y1,8-r0]
+            elif side=='south': a,b=[8-width/2,y0,8+r0],[8+width/2,y1,8+r1]
+            elif side=='east': a,b=[8+r0,y0,8-width/2],[8+r1,y1,8+width/2]
+            else: a,b=[8-r1,y0,8-width/2],[8-r0,y1,8+width/2]
+            add(f'Crown / {side} {name}',a,b,material,'06 Royal crown',angle)
+        for side in ('north','east','south','west'):
+            dx,dz={'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}[side]
+            axis='x' if dz else 'z'
+            sign=-1 if side in ('north','east') else 1
+            knee=(axis,45*sign,[8+dx*6.5,35.5,8+dz*6.5])
+            tip=(axis,-45*sign,[8+dx*9.5,45.25,8+dz*9.5])
+            arm(side,'root',4.75,6.75,33.25,35.5,2.25,'metal')
+            arm(side,'sloping outward knee',5.5,7.5,35.5,40,2.25,'metal',knee)
+            arm(side,'open upright',8.5,10.5,38,45.5,2.25,'metal')
+            arm(side,'sloping inward tip',8.5,10.5,45.25,48,2.25,'metal',tip)
+            # Dark inlays on both radial faces leave an actual raised gold border.
+            arm(side,'outer stone inlay',10.49,10.625,38.75,44.75,1.5,'stone')
+            arm(side,'inner stone inlay',8.375,8.51,38.75,44.75,1.5,'stone')
+        add('Core / levitation socket',[5.5,33.25,5.5],[10.5,34,10.5],
+            'base','07 Crystal')
+        add('Sapphire / suspended diamond',[4.75,37.5,4.75],[11.25,44,11.25],
+            'core','07 Crystal',('z',45,[8,40.75,8]))
     return es
 
 
@@ -197,7 +252,7 @@ def blockbench(kind, es, paths):
     textures = []
     for material, path in paths.items():
         textures.append({"uuid": str(uuid.uuid5(uuid.NAMESPACE_URL, f"regnum/{kind}/{material}")),
-                         "name": path.name, "id": texture_ids[material], "width": 16, "height": 16,
+                         "name": path.name, "id": texture_ids[material], "width": TEXTURE_SIZE, "height": TEXTURE_SIZE,
                          "uv_width": 16, "uv_height": 16, "particle": material == "stone",
                          "mode": "bitmap", "saved": True,
                          "source": "data:image/png;base64,"+base64.b64encode(path.read_bytes()).decode()})
@@ -215,7 +270,7 @@ def blockbench(kind, es, paths):
     save_json(ART/f"{kind}_obelisk.bbmodel", {
         "meta": {"format_version": "4.10", "model_format": "free", "box_uv": False},
         "name": f"Regnum Nations / {kind.title()} Obelisk", "model_identifier": f"{kind}_obelisk",
-        "visible_box": [1,3,0], "resolution": {"width":16,"height":16},
+        "visible_box": [2,3,0], "resolution": {"width":16,"height":16},
         "elements": elements, "outliner": [{"name":n,"origin":[8,0,8],"children":ids,
             "uuid":str(uuid.uuid5(uuid.NAMESPACE_URL,f"regnum/{kind}/{n}"))} for n,ids in groups.items()],
         "textures": textures,

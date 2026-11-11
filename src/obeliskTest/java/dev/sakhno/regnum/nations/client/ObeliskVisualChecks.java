@@ -135,9 +135,22 @@ public final class ObeliskVisualChecks implements ClientModInitializer {
             case 9 -> {
                 if (++ticks<90) return;
                 capture(mc,"after-reload.png");
-                Files.writeString(output.resolve("passed.txt"),"PASS: real 1.21.1 client; block/item/extra model baking; missing sprite checks; day/rear/night/48-block/inventory captures; resource reload and rebaking.\n");
+                mc.options.fov().set(70);
+                camera(mc,4,floor+1,8,153,0);
+                stage=10; ticks=0;
+            }
+            case 10 -> {
+                if (++ticks<90) return;
+                capture(mc,"normal-player.png");
+                camera(mc,4,floor+1,16,166,0);
+                stage=11; ticks=0;
+            }
+            case 11 -> {
+                if (++ticks<90) return;
+                capture(mc,"distance-16.png");
+                Files.writeString(output.resolve("passed.txt"),"PASS: real 1.21.1 client; block/item/extra model baking; missing sprite checks; day/rear/night/normal-player/16-block/48-block/inventory captures; resource reload and rebaking.\n");
                 RegnumNations.LOGGER.info("OBELISK VISUAL CHECKS PASSED: {}",output);
-                stage=10; mc.stop();
+                stage=12; mc.stop();
             }
         }
     }

@@ -209,8 +209,8 @@ public class CityRoleTests implements FabricGameTest {
                 h.assertTrue(loaded.role(city.id(), target.getUUID()) == CITIZEN, "Restored officer can invite after reload");
                 var saved = loaded.save(new CompoundTag(), level.registryAccess());
                 var again = KingdomSavedData.load(saved, level.registryAccess()); again.requireAvailable();
-                h.assertTrue(saved.getInt("Version") == 5 && !again.isDirty() && saved.equals(again.save(new CompoundTag(), level.registryAccess())),
-                        "Schema 5 reload must be idempotent");
+                h.assertTrue(saved.getInt("Version") == 6 && !again.isDirty() && saved.equals(again.save(new CompoundTag(), level.registryAccess())),
+                        "Current-schema reload must be idempotent");
             } finally {
                 try (var files = Files.list(directory)) { for (var file : files.toList()) Files.delete(file); }
                 Files.delete(directory);
@@ -233,7 +233,7 @@ public class CityRoleTests implements FabricGameTest {
         h.assertTrue(data.role(city, player) == CITIZEN && data.role(city, new UUID(0, 7)) == OWNER && data.isDirty(),
                 "Schema 4 members default to CITIZEN and owner stays implicit");
         var saved = data.save(new CompoundTag(), h.getLevel().registryAccess());
-        h.assertTrue(saved.getInt("Version") == 5 && saved.getList("Citizens", Tag.TAG_COMPOUND).getCompound(0).getString("Role").equals("CITIZEN")
+        h.assertTrue(saved.getInt("Version") == 6 && saved.getList("Citizens", Tag.TAG_COMPOUND).getCompound(0).getString("Role").equals("CITIZEN")
                 && Set.copyOf(saved.getList("Claims", Tag.TAG_COMPOUND)).equals(Set.copyOf(legacy.getList("Claims", Tag.TAG_COMPOUND)))
                 && saved.getList("DeletedStateAnchors", Tag.TAG_COMPOUND).equals(legacy.getList("DeletedStateAnchors", Tag.TAG_COMPOUND))
                 && data.kingdoms().size() == 1 && data.settlements().size() == 2, "Migration must retain political records, claims, tombstones, and identity");

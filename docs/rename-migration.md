@@ -70,3 +70,9 @@ territory; canonical recovery uses the same saved records. No migration is neede
 v0.8.1 [citizen management](citizen-management-ui.md) retains schema 5 and all
 existing wire contracts. UI concurrency stamps and invitation IDs are ephemeral;
 only two additive citizen UI channels are introduced. No migration is required.
+
+v0.8.3 [kingdom diplomacy](kingdom-diplomacy.md) writes schema 6 in the same saved
+file, adding UUID-based agreements, declarations, invitations and pair revisions.
+Schemas 1–5 migrate without replacing existing records. Registry IDs, filenames,
+key bindings and existing wire layouts remain unchanged; two diplomacy channels
+are additive. Rollback requires the pre-upgrade world backup.

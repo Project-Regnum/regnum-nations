@@ -1,5 +1,9 @@
 # Kingdom management — v0.5.0
 
+Use **City → Citizens** for the [v0.8.1 citizen interface](citizen-management-ui.md).
+Citizens now open their own city folio; owner controls retain their permission checks.
+
+
 Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
 earlier anchor destruction and recovery behavior described below.
 

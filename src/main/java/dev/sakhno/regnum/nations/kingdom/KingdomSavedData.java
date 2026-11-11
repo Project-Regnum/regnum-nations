@@ -30,6 +30,10 @@ public final class KingdomSavedData extends SavedData {
     // Non-owner citizenship only. Owners remain implicit citizens, never duplicate records.
     private final Map<UUID,Membership> citizens=new HashMap<>();
     private record Membership(UUID city, CityRole role) { }
+    // Transient UI concurrency stamp; no schema or gameplay rule change.
+    private final Map<UUID,Long> membershipRevisions=new HashMap<>();
+    long membershipRevision(UUID city) { return membershipRevisions.getOrDefault(city,0L); }
+    private void membershipChanged(UUID city) { membershipRevisions.merge(city,1L,Long::sum); }
     private final Map<UUID,DeletedAnchor> deleted=new HashMap<>();
     private CompoundTag unreadableData;
     public record DeletedAnchor(UUID kingdom, ResourceKey<Level> dimension, BlockPos pos, UUID obelisk) { }
@@ -72,7 +76,7 @@ public final class KingdomSavedData extends SavedData {
         Membership member=citizens.get(player);
         if (member==null||!city.equals(member.city())) throw new FoundingException(NOT_CITIZEN);
         if (member.role()==role) return;
-        citizens.put(player,new Membership(city,role)); setDirty();
+        citizens.put(player,new Membership(city,role)); membershipChanged(city); setDirty();
     }
     public List<UUID> citizens(UUID city) {
         Settlement current=settlement(city);
@@ -85,7 +89,7 @@ public final class KingdomSavedData extends SavedData {
         requireAvailable();
         if (settlement(city)==null) throw new FoundingException(CITY_MISSING);
         if (citizenCity(player)!=null) throw new FoundingException(ALREADY_CITIZEN);
-        citizens.put(player,new Membership(city,CityRole.CITIZEN)); setDirty();
+        citizens.put(player,new Membership(city,CityRole.CITIZEN)); membershipChanged(city); setDirty();
     }
     void removeCitizen(UUID city,UUID player) throws FoundingException {
         requireAvailable();
@@ -93,7 +97,7 @@ public final class KingdomSavedData extends SavedData {
         if (current==null) throw new FoundingException(CITY_MISSING);
         if (current.ownerId().equals(player)) throw new FoundingException(OWNER_CANNOT_LEAVE);
         if (role(city,player)==null) throw new FoundingException(NOT_CITIZEN);
-        citizens.remove(player); setDirty();
+        citizens.remove(player); membershipChanged(city); setDirty();
     }
     /** Internal lifecycle operation. Capital cities must survive until their state is dissolved. */
     void deleteSettlement(UUID city) throws FoundingException {
@@ -102,7 +106,7 @@ public final class KingdomSavedData extends SavedData {
         if (kingdoms.values().stream().anyMatch(k -> k.capitalSettlementId().equals(city))) throw new FoundingException(CITY_IS_CAPITAL);
         citizens.values().removeIf(member -> city.equals(member.city()));
         claims.values().removeIf(city::equals);
-        settlements.remove(city); setDirty();
+        settlements.remove(city); membershipChanged(city); setDirty();
     }
     public Settlement cityAt(ResourceKey<Level> dimension,BlockPos pos) {
         return settlements.values().stream().filter(s -> s.dimension().equals(dimension)&&s.obeliskPos().equals(pos)).findFirst().orElse(null);

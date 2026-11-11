@@ -1,5 +1,10 @@
 # Cities, sovereignty and citizenship
 
+[v0.8.1 citizen management UI](citizen-management-ui.md) exposes the existing
+citizenship and role actions in game, with UUID-based offline management,
+permission-gated invitation views and explicit destructive-action confirmations.
+
+
 Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
 earlier anchor destruction and recovery behavior described below.
 

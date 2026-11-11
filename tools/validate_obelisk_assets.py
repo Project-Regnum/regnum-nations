@@ -4,6 +4,7 @@ import base64
 import json
 from pathlib import Path
 import struct
+from obelisk_assets import exports
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "src/main/resources/assets"
@@ -19,6 +20,8 @@ def resource(identifier, folder, extension):
 
 
 def validate():
+    for path, expected in exports().items():
+        assert path.read_bytes() == expected, f'Export differs from authoritative source: {path}'
     exported = []
     for kind in ("city", "kingdom"):
         identifier = f"{kind}_obelisk"
@@ -64,7 +67,7 @@ def validate():
             for face in element["faces"].values():
                 assert 0 <= face["texture"] < len(source["textures"]), identifier
     assert len(exported) == 7, exported
-    print(f"PASS: {len(exported)} models; 10 original textures; retained blockstate/item IDs; UVs, bounds, rotations; embedded Blockbench textures and groups")
+    print(f"PASS: {len(exported)} models; 10 textures; retained IDs; UVs/bounds/rotations; embedded sources; exact source export and animation pivots")
 
 
 if __name__ == "__main__":

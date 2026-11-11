@@ -1,9 +1,11 @@
 package dev.sakhno.regnum.nations.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.sakhno.regnum.nations.RegnumNations;
 import dev.sakhno.regnum.nations.block.ModBlocks;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -11,10 +13,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-/** Static JSON upper geometry and full-bright hearts. No animation, ticking or packets. */
+/** Static JSON architecture with client-only crystal motion. No ticking or packets. */
 public final class ObeliskRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
     public static final ResourceLocation CROWN = RegnumNations.id("block/kingdom_obelisk_crown");
     public static final ResourceLocation CITY_GLOW = RegnumNations.id("block/city_obelisk_glow");
@@ -27,6 +30,7 @@ public final class ObeliskRenderer<T extends BlockEntity> implements BlockEntity
     }
 
     public static void initialize() {
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new CrystalAnimation());
         ModelLoadingPlugin.register(context -> context.addModels(CROWN, CITY_GLOW, KINGDOM_GLOW));
         BlockEntityRenderers.register(ModBlocks.KINGDOM_OBELISK_ENTITY, context -> new ObeliskRenderer<>(true));
         BlockEntityRenderers.register(ModBlocks.CITY_OBELISK_ENTITY, context -> new ObeliskRenderer<>(false));
@@ -48,10 +52,17 @@ public final class ObeliskRenderer<T extends BlockEntity> implements BlockEntity
                     obelisk.getBlockState(), obelisk.getBlockPos().above(), poses,
                     buffers.getBuffer(RenderType.solid()), false, random, 0, overlay);
         }
+        var animation = CrystalAnimation.settings(kingdom);
+        var motion = animation.sample(level.getGameTime(), partialTick);
+        // The exported pivot is local to the glow model, including the royal
+        // model's existing one-block offset. Authored cube rotations stay baked.
+        poses.translate(animation.x(), animation.y() + motion.bob(), animation.z());
+        poses.mulPose(Axis.YP.rotationDegrees(motion.degrees()));
+        poses.translate(-animation.x(), -animation.y(), -animation.z());
         // Bright surfaces only: this does not add world light or change spawn/gameplay rules.
         renderer.renderModel(poses.last(), buffers.getBuffer(RenderType.solid()), obelisk.getBlockState(),
                 minecraft.getModelManager().getModel(kingdom ? KINGDOM_GLOW : CITY_GLOW),
-                1, 1, 1, LightTexture.FULL_BRIGHT, overlay);
+                motion.brightness(), motion.brightness(), motion.brightness(), LightTexture.FULL_BRIGHT, overlay);
         poses.popPose();
     }
 

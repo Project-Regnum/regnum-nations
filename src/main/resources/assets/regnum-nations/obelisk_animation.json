@@ -1,0 +1,32 @@
+{
+  "city": {
+    "source_sha256": "a6f38cb84c8a02ecbbb7baaff16e51d2ab337555aa0ec13004ebe23b0b165acf",
+    "crystal_uuids": [
+      "535bef26-624c-531f-b978-5d02567ffb66"
+    ],
+    "pivot": [
+      8,
+      27.25,
+      8
+    ],
+    "rotation_ticks": 800,
+    "bob_ticks": 100,
+    "bob_amplitude": 0.25,
+    "brightness_min": 0.94
+  },
+  "kingdom": {
+    "source_sha256": "208edb2b4f2ffd2425dbfc70a52a3c04163af5b986d33010a251d61c3ec8f991",
+    "crystal_uuids": [
+      "381c5589-3a5f-5d1f-9f5c-16d9af95a79c"
+    ],
+    "pivot": [
+      8,
+      24.75,
+      8
+    ],
+    "rotation_ticks": 600,
+    "bob_ticks": 120,
+    "bob_amplitude": 0.4,
+    "brightness_min": 0.92
+  }
+}

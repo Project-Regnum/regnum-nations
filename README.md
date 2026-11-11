@@ -44,6 +44,7 @@ See [v0.5.0 kingdom management, networking, and manual gameplay checks](docs/kin
 
 See [Kingdom Obelisk development and manual tests](docs/kingdom-obelisk.md).
 See [City and Kingdom models, in-game captures and Blockbench editing](docs/obelisk-models.md).
+See [animated crystals, authoritative source export and validation](docs/animated-obelisk-crystals.md).
 See [kingdom founding, persistence, policies, and manual tests](docs/kingdom-foundation.md).
 
 See [territory claims, protections, and manual checks](docs/territory-claims.md).

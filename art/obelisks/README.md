@@ -2,9 +2,11 @@
 
 Open either `.bbmodel` in Blockbench as a Generic Model. All textures are embedded.
 The sources contain the full monuments at 16 units per block, with named cubes
-and numbered groups. See [asset integration and export instructions](../../docs/obelisk-models.md).
-`tools/obelisk_assets.py` is the canonical repeatable export recipe; rerunning it
-overwrites these source files, the PNGs and JSONs.
+and numbered groups. They are the authoritative, manually edited models.
+See [animation and source export instructions](../../docs/animated-obelisk-crystals.md).
+`python3 tools/obelisk_assets.py` reads these sources and exports runtime PNGs,
+JSONs and animation pivots. It never writes either `.bbmodel`. The earlier
+procedural model generator has been retired to protect manual edits.
 
 `concept-reference.png` was generated with the built-in imagegen tool as an art
 direction reference only. It is not an in-game render or a texture atlas.

@@ -148,9 +148,21 @@ public final class ObeliskVisualChecks implements ClientModInitializer {
             case 11 -> {
                 if (++ticks<90) return;
                 capture(mc,"distance-16.png");
-                Files.writeString(output.resolve("passed.txt"),"PASS: real 1.21.1 client; block/item/extra model baking; missing sprite checks; day/rear/night/normal-player/16-block/48-block/inventory captures; resource reload and rebaking.\n");
+                mc.options.fov().set(45);
+                camera(mc,5,floor+3.5,8,148,18);
+                Files.createDirectories(output.resolve("animation"));
+                stage=12; ticks=0;
+            }
+            case 12 -> {
+                if (++ticks<90) return;
+                stage=13; ticks=0;
+            }
+            case 13 -> {
+                capture(mc,String.format(java.util.Locale.ROOT,"animation/frame-%04d.png",ticks));
+                if (++ticks<240) return;
+                Files.writeString(output.resolve("passed.txt"),"PASS: real 1.21.1 client; model/sprite baking; no duplicate static crystals; source pivot alignment; partial ticks and long-clock continuity; day/rear/night/normal-player/16/48-block/inventory captures; resource reload; 240-frame animation recording.\n");
                 RegnumNations.LOGGER.info("OBELISK VISUAL CHECKS PASSED: {}",output);
-                stage=12; mc.stop();
+                stage=14; mc.stop();
             }
         }
     }
@@ -178,6 +190,40 @@ public final class ObeliskVisualChecks implements ClientModInitializer {
             for (var quad:quads) if (quad.getSprite().contents().name().getPath().equals("missingno"))
                 throw new AssertionError("Missing obelisk sprite");
         }
+        for (int index : new int[]{0,1,2}) {
+            for (var quad:models.get(index).getQuads(null,null,net.minecraft.util.RandomSource.create(0)))
+                check(!quad.getSprite().contents().name().getPath().endsWith("_core"),"Duplicate static crystal");
+        }
+        for (boolean kingdom:new boolean[]{false,true}) {
+            var settings=CrystalAnimation.settings(kingdom);
+            check(settings.rotationTicks()>0,"Animation profile loaded");
+            var crystal=manager.getModel(kingdom?ObeliskRenderer.KINGDOM_GLOW:ObeliskRenderer.CITY_GLOW);
+            double x=0,y=0,z=0; int count=0;
+            for (var quad:crystal.getQuads(null,null,net.minecraft.util.RandomSource.create(0))) {
+                check(quad.getSprite().contents().name().getPath().endsWith("_core"),"Static frame in animated model");
+                int[] data=quad.getVertices(); int stride=data.length/4;
+                for (int i=0;i<4;i++) {
+                    x+=Float.intBitsToFloat(data[i*stride]);
+                    y+=Float.intBitsToFloat(data[i*stride+1]);
+                    z+=Float.intBitsToFloat(data[i*stride+2]); count++;
+                }
+            }
+            check(Math.abs(x/count-settings.x())<.0001 && Math.abs(y/count-settings.y())<.0001
+                    && Math.abs(z/count-settings.z())<.0001,"Baked crystal is centered on its exported authored pivot");
+            var start=settings.sample(0,0); var loop=settings.sample(settings.rotationTicks(),0);
+            check(start.equals(loop),"Seamless spin/bob/glow loop");
+            check(!settings.sample(123,.25F).equals(settings.sample(123,.75F)),"Partial ticks interpolate motion");
+            long oldWorld=1L<<50;
+            check(settings.sample(oldWorld,.75F).equals(settings.sample(oldWorld%settings.rotationTicks(),.75F)),
+                    "Long-running world retains animation precision");
+            var end=settings.sample(settings.rotationTicks()-1,.999F);
+            check(360-end.degrees()<.001F && Math.abs(end.bob()-start.bob())<.0001,
+                    "No abrupt movement at the loop boundary");
+        }
+    }
+
+    private static void check(boolean condition,String message) {
+        if (!condition) throw new AssertionError(message);
     }
 
     private void capture(Minecraft mc,String name) throws Exception {

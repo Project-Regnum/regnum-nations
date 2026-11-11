@@ -1,5 +1,11 @@
 # City and Kingdom obelisk art
 
+The [animated crystal integration](animated-obelisk-crystals.md) supersedes the
+source/export workflow and static crystal behavior described in this visual-art
+milestone. The current authoritative sources are the artist's manually edited
+Blockbench files, including the City roof/finial removal. The renders below
+record the earlier refinement; current renders and animation are in that guide.
+
 The City Obelisk is a two-block civic lantern monument: layered slate plinth,
 stepped taper, bronze foot clasps, four inset inscriptions and an amber heart.
 The Kingdom Obelisk is a three-block royal monument: blackstone masonry, stepped
@@ -82,11 +88,10 @@ There is no world migration. Existing obelisks receive their new appearance.
 3. Keep integer texel alignment where possible and preserve the existing UVs.
    Do not export the complete royal Generic Model directly as a Java block;
    its world coordinates exceed vanilla's element limit.
-4. For reproducible authored exports, edit `tools/obelisk_assets.py` and run
-   `python3 tools/obelisk_assets.py` (development requirement: Pillow). This
-   regenerates PNGs, embedded Blockbench sources and split/static JSONs. It
-   overwrites those outputs; transfer deliberate Blockbench edits into the
-   authoring script first. The script is the canonical export recipe.
+4. Save your edits directly in the `.bbmodel` files, with embedded textures,
+   then run `python3 tools/obelisk_assets.py` (Python standard library only).
+   It exports split/static JSONs, textures and crystal pivots from your sources
+   without modifying them. Use `--check` to verify the exports without writing.
 5. Run `python3 tools/validate_obelisk_assets.py`, then
    `./gradlew build --no-daemon --console=plain` and the client review below.
    The validator uses Python's standard library only.

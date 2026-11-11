@@ -4,11 +4,15 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
 
 public final class TerritoryProtection {
 	private TerritoryProtection() { }
@@ -48,10 +52,45 @@ public final class TerritoryProtection {
 		return denied(level, player, pos, CityPermission.BUILD);
 	}
 
-	private static boolean denied(Level level, Player player, BlockPos pos, CityPermission permission) {
+	public static boolean denied(Level level, Player player, BlockPos pos, CityPermission permission) {
 		if (!(level instanceof ServerLevel serverLevel)) return false;
 		if (ClaimService.canAccess(serverLevel, player, pos, permission)) return false;
 		if (player != null) player.displayClientMessage(Component.translatable("message.regnum-nations.territory.protected"), true);
 		return true;
 	}
+
+    public static boolean terrainAllowed(Level level, BlockPos pos) {
+        return !(level instanceof ServerLevel server) || ClaimService.canChangeTerrain(server, pos);
+    }
+
+    public static boolean transferAllowed(Object level, BlockPos source, BlockPos target) {
+        return !(level instanceof ServerLevel server) || ClaimService.sameTerritory(server, source, target);
+    }
+
+    /** Resolve the entire sticky graph before triggerEvent makes its first write (including retraction). */
+    public static boolean pistonAllowed(Level level, BlockPos piston, Direction facing, boolean extending, boolean sticky) {
+        if (!TerritoryProtectionConfig.pistons || !(level instanceof ServerLevel)) return true;
+        if (!transferAllowed(level, piston, piston.relative(facing))) return false;
+        if (!extending && !sticky) return true;
+        // Vanilla can finalize a still-extending block before resolving a rapid sticky retraction.
+        if (!extending && level.getBlockEntity(piston.relative(facing, 2)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity
+                && !transferAllowed(level, piston, piston.relative(facing, 2))) return false;
+        var movement = new PistonStructureResolver(level, piston, facing, extending);
+        if (!movement.resolve()) return true; // Vanilla handles an immovable structure.
+        Direction travel = extending ? facing : facing.getOpposite();
+        for (BlockPos source : movement.getToPush()) {
+            if (!transferAllowed(level, piston, source) || !transferAllowed(level, piston, source.relative(travel))) return false;
+        }
+        for (BlockPos destroyed : movement.getToDestroy()) {
+            if (!transferAllowed(level, piston, destroyed)) return false;
+        }
+        return true;
+    }
+
+    /** Real player/projectile permissions stay centralized; mobs and ownerless projectiles have none. */
+    public static boolean entityAllowed(Level level, Entity entity, BlockPos pos, CityPermission permission) {
+        if (!(level instanceof ServerLevel server)) return true;
+        Entity actor = entity instanceof Projectile projectile ? projectile.getOwner() : entity;
+        return ClaimService.canAccess(server, actor instanceof Player player ? player : null, pos, permission);
+    }
 }

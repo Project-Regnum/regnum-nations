@@ -16,15 +16,18 @@ public final class PoliticalMapServer {
     public static void initialize() {
         // Preserve existing server radius settings across the branding rename.
         Path config = FabricLoader.getInstance().getConfigDir().resolve("project-reigns-map.properties");
+        Properties properties = new Properties();
         try {
-            Properties properties = new Properties();
             if (Files.exists(config)) {
                 try (var input = Files.newInputStream(config)) { properties.load(input); }
-                radius = Math.clamp(Integer.parseInt(properties.getProperty("radiusChunks", "32")), 1, 64);
             } else {
-                Files.writeString(config, "# Political map radius in chunks (1-64)\nradiusChunks=32\n");
+                Files.writeString(config, "# Server settings; protection changes require a restart.\nradiusChunks=32\n"
+                        + "protection.explosions=true\nprotection.pistons=true\nprotection.fluids=true\n"
+                        + "protection.dispensers=true\nprotection.fire=true\nprotection.entities=true\n");
             }
+            radius = Math.clamp(Integer.parseInt(properties.getProperty("radiusChunks", "32")), 1, 64);
         } catch (Exception e) { RegnumNations.LOGGER.warn("Cannot read political map config; using radius 32", e); }
+        TerritoryProtectionConfig.load(properties);
         PayloadTypeRegistry.playC2S().register(Request.TYPE, Request.CODEC);
         PayloadTypeRegistry.playS2C().register(Snapshot.TYPE, Snapshot.CODEC);
         PayloadTypeRegistry.playS2C().register(AtlasPayloads.Session.TYPE, AtlasPayloads.Session.CODEC);

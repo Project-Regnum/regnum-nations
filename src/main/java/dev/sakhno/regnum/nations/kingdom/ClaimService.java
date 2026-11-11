@@ -92,13 +92,31 @@ public final class ClaimService {
 	/** Block-action gate shared by build and interaction hooks. Wilderness needs no municipal permission. */
 	public static boolean canAccess(ServerLevel level, Player player, BlockPos pos, CityPermission permission) {
 		KingdomSavedData data = KingdomService.get(level.getServer()).data();
-		try {
-			data.requireAvailable();
-		} catch (FoundingException exception) {
-			return false;
-		}
+		if (!data.available()) return false;
 		UUID ownerId=data.claimOwner(ClaimPos.at(level.dimension(),pos));
 		Settlement owner=data.settlement(ownerId);
 		return ownerId==null || CityPermissions.allows(data,owner,player==null?null:player.getUUID(),permission);
+	}
+
+	/** Unattributed changes have no municipal permission, even when triggered by a member. */
+	public static boolean canChangeTerrain(ServerLevel level, BlockPos pos) {
+		return canAccess(level, null, pos, CityPermission.BUILD);
+	}
+
+	/** Machines have no player identity. Only the same current city domain may exchange blocks/fluids. */
+	public static boolean sameTerritory(ServerLevel level, BlockPos source, BlockPos target) {
+		KingdomSavedData data = KingdomService.get(level.getServer()).data();
+		if (!data.available()) return false;
+		UUID sourceOwner = data.claimOwner(ClaimPos.at(level.dimension(), source));
+		UUID targetOwner = data.claimOwner(ClaimPos.at(level.dimension(), target));
+		return java.util.Objects.equals(sourceOwner, targetOwner)
+				&& (sourceOwner == null || data.settlement(sourceOwner) != null);
+	}
+
+	/** One registry read per explosion; include air positions because vanilla also uses this list for fire. */
+	public static void filterExplosion(ServerLevel level, java.util.List<BlockPos> affected) {
+		KingdomSavedData data = KingdomService.get(level.getServer()).data();
+		if (!data.available()) affected.clear();
+		else affected.removeIf(pos -> data.claimOwner(ClaimPos.at(level.dimension(), pos)) != null);
 	}
 }

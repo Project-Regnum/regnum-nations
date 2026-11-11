@@ -26,6 +26,9 @@ public class RegnumNationsClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while(key.consumeClick()) if(client.player != null && client.screen == null) client.setScreen(new PoliticalMapScreen());
         });
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.ObeliskRelocationPayloads.Reply.TYPE,(payload,context) -> {
+            if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.ObeliskRelocationScreen screen) screen.accept(payload);
+        });
         ClientPlayNetworking.registerGlobalReceiver(KingdomManagementPayloads.State.TYPE, (payload, context) -> {
             var client = context.client();
             if (client.player == null || client.level == null) return;

@@ -14,9 +14,9 @@ public final class TerritoryProtection {
 	private TerritoryProtection() { }
 
 	public static void initialize() {
-		PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, entity) -> !denied(level, player, pos));
+		PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, entity) -> !anchorDenied(level,player,pos) && !denied(level, player, pos));
 		AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) ->
-				denied(level, player, pos) ? InteractionResult.FAIL : InteractionResult.PASS);
+				(anchorDenied(level,player,pos)||denied(level, player, pos)) ? InteractionResult.FAIL : InteractionResult.PASS);
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
 			// A verified capital is a public kingdom interface. It consumes normal block use;
 			// sneaking/item placement still follows the existing protection checks.
@@ -36,6 +36,13 @@ public final class TerritoryProtection {
 			return InteractionResult.PASS;
 		});
 	}
+
+    private static boolean anchorDenied(Level level,Player player,BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel&&ObeliskRelocationService.protectedAnchor(serverLevel,pos)) {
+            player.displayClientMessage(Component.translatable("relocation.regnum-nations.protected"),true); return true;
+        }
+        return false;
+    }
 
 	public static boolean denied(Level level, Player player, BlockPos pos) {
 		return denied(level, player, pos, CityPermission.BUILD);

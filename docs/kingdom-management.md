@@ -1,5 +1,9 @@
 # Kingdom management — v0.5.0
 
+Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
+earlier anchor destruction and recovery behavior described below.
+
+
 For the current compact menu, single-map modes and administrative commands, see
 [v0.5.1 UX and administration](ux-and-administration.md). The implementation and
 verification notes below describe the v0.5.0 baseline.

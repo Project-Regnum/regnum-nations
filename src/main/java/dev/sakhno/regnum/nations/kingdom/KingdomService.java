@@ -38,6 +38,7 @@ public final class KingdomService {
 	private final KingdomSavedData data;
 	private final SettlementService cities;
 	private final CitizenshipService citizenship;
+    private final ObeliskRelocationService relocation;
 	private final Map<String,DeleteConfirmation> confirmations=new HashMap<>();
 	private record DeleteConfirmation(UUID kingdom,UUID token,Object actor,long at) { }
 	private final Map<UUID, Pending> pending = new HashMap<>();
@@ -50,6 +51,7 @@ public final class KingdomService {
 		this.data = data;
 		this.cities = new SettlementService(this,server,data);
 		this.citizenship = new CitizenshipService(this,server,data,System::nanoTime);
+        this.relocation = new ObeliskRelocationService(this,server,System::nanoTime);
 	}
 
 	public static void initialize() {
@@ -58,6 +60,7 @@ public final class KingdomService {
 			if (service != null) {
 				service.forget(handler.player.getUUID()); service.cities.disconnect(handler.player.getUUID());
 				service.citizenship.disconnect(handler.player.getUUID());
+                service.relocation.disconnect(handler.player.getUUID());
 				service.confirmations.remove(handler.player.getUUID().toString());
 			}
 		});
@@ -100,7 +103,7 @@ public final class KingdomService {
 		checkDistance(player, pos);
 		if (data.byOwner(player.getUUID())!=null) cities.stateAnchor(player,pos);
 		KingdomObeliskBlockEntity obelisk = obeliskAt(player.serverLevel(), pos);
-		if (obelisk.getKingdomId() != null || data.atCapital(player.level().dimension(), pos) != null) {
+		if (obelisk.getKingdomId() != null || data.atCapital(player.level().dimension(), pos) != null || data.stateIdentityOccupied(player.level().dimension(),pos,obelisk.getObeliskId())) {
 			throw new FoundingException(ALREADY_BOUND);
 		}
 		long now = server.overworld().getGameTime();
@@ -163,6 +166,8 @@ public final class KingdomService {
 		}
 		return foundWithColor(player, inputName, color);
 	}
+
+	public ObeliskRelocationService relocation() { checkThread(); return relocation; }
 
 	public CitizenshipService citizenship() { checkThread(); return citizenship; }
 

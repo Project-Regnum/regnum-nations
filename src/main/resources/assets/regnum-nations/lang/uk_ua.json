@@ -303,5 +303,20 @@
   "citizen.regnum-nations.permission.invite": "Запрошення громадян",
   "citizen.regnum-nations.permission.manage_members": "Керування громадянами та ролями",
   "message.regnum-nations.founding.owner_role_immutable": "Роль власника визначається правом власності на місто й не змінюється командами ролей.",
-  "message.regnum-nations.founding.invalid_city_role": "Оберіть officer або citizen. Роль власника визначається правом власності й не може бути призначена."
+  "message.regnum-nations.founding.invalid_city_role": "Оберіть officer або citizen. Роль власника визначається правом власності й не може бути призначена.",
+  "relocation.regnum-nations.title": "Перенести обеліск",
+  "relocation.regnum-nations.description": "Оберіть порожнє місце в межах шести блоків, на землі вашого міста й у тому самому вимірі. Державний обеліск залишається в чанку столиці. Перевірте місце й підтвердьте за 30 секунд.",
+  "relocation.regnum-nations.select": "Перевірити",
+  "relocation.regnum-nations.confirm": "Підтвердити",
+  "relocation.regnum-nations.ready": "Місце перевірено. Підтвердьте за 30 секунд. До підтвердження початковий обеліск працює.",
+  "relocation.regnum-nations.selected": "Місце %s перевірено на 30 секунд.",
+  "relocation.regnum-nations.success": "Обеліск перенесено. Ідентичність поселення й територію збережено.",
+  "relocation.regnum-nations.recovered": "Обеліск відновлено на збереженому місці. Ідентичність поселення збережено.",
+  "relocation.regnum-nations.protected": "Активні обеліски захищено. Скористайтеся перенесенням.",
+  "relocation.regnum-nations.help": "Використайте /nations relocate city|state <x> <y> <z>, потім /nations relocate confirm <token>. Станьте в межах шести блоків від порожнього місця на власній землі. Запит чинний 30 секунд.",
+  "message.regnum-nations.founding.relocation_destination": "Хибне місце: оберіть завантажений порожній блок на землі вашого міста в межах світу.",
+  "message.regnum-nations.founding.relocation_conflict": "Конфлікт обеліска, прив’язки або зайняте місце. Перенесення не виконано.",
+  "message.regnum-nations.founding.relocation_pending": "Гравця, обеліск або місце вже зарезервовано для перенесення. Підтвердьте запит або зачекайте 30 секунд.",
+  "message.regnum-nations.founding.relocation_expired": "Запит перенесення прострочено, використано або створено в іншому сеансі. Перевірте нове місце.",
+  "message.regnum-nations.founding.relocation_capital": "Столичні обеліски мають залишатися в поточному чанку столиці держави."
 }

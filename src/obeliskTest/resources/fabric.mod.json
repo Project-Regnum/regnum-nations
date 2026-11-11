@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "regnum-nations-obelisk-test",
+  "version": "1.0.0",
+  "name": "Obelisk visual checks",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.sakhno.regnum.nations.client.ObeliskVisualChecks"] },
+  "depends": { "regnum-nations": "*" }
+}

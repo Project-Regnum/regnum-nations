@@ -1,0 +1,2433 @@
+{
+  "credit": "Regnum Nations original obelisk art",
+  "parent": "minecraft:block/block",
+  "ambientocclusion": true,
+  "textures": {
+    "stone": "regnum-nations:block/obelisk/kingdom_stone",
+    "base": "regnum-nations:block/obelisk/kingdom_base",
+    "metal": "regnum-nations:block/obelisk/kingdom_metal",
+    "rune": "regnum-nations:block/obelisk/kingdom_rune",
+    "core": "regnum-nations:block/obelisk/kingdom_core",
+    "particle": "#stone"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        210,
+        0
+      ],
+      "translation": [
+        0,
+        -3.84,
+        0
+      ],
+      "scale": [
+        0.48,
+        0.48,
+        0.48
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -3.6,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    }
+  },
+  "elements": [
+    {
+      "name": "Royal shaft / course 16",
+      "from": [
+        4,
+        0,
+        4
+      ],
+      "to": [
+        12,
+        8,
+        12
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Royal shaft / course 24",
+      "from": [
+        4.5,
+        8,
+        4.5
+      ],
+      "to": [
+        11.5,
+        14,
+        11.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            4.5,
+            4.5,
+            11.5,
+            11.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            4.5,
+            4.5,
+            11.5,
+            11.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Gilded middle rib 3.75/3.75",
+      "from": [
+        3.75,
+        0,
+        3.75
+      ],
+      "to": [
+        5.0,
+        8,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded middle rib 3.75/11",
+      "from": [
+        3.75,
+        0,
+        11
+      ],
+      "to": [
+        5.0,
+        8,
+        12.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded middle rib 11/3.75",
+      "from": [
+        11,
+        0,
+        3.75
+      ],
+      "to": [
+        12.25,
+        8,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded middle rib 11/11",
+      "from": [
+        11,
+        0,
+        11
+      ],
+      "to": [
+        12.25,
+        8,
+        12.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded upper rib 4.25/4.25",
+      "from": [
+        4.25,
+        8,
+        4.25
+      ],
+      "to": [
+        5.5,
+        13,
+        5.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded upper rib 4.25/10.5",
+      "from": [
+        4.25,
+        8,
+        10.5
+      ],
+      "to": [
+        5.5,
+        13,
+        11.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded upper rib 10.5/4.25",
+      "from": [
+        10.5,
+        8,
+        4.25
+      ],
+      "to": [
+        11.75,
+        13,
+        5.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Gilded upper rib 10.5/10.5",
+      "from": [
+        10.5,
+        8,
+        10.5
+      ],
+      "to": [
+        11.75,
+        13,
+        11.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Royal inscription / north",
+      "from": [
+        6,
+        1,
+        3.875
+      ],
+      "to": [
+        10,
+        8,
+        4.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": "#rune"
+        },
+        "down": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": "#rune"
+        }
+      }
+    },
+    {
+      "name": "Royal inscription / south",
+      "from": [
+        6,
+        1,
+        12
+      ],
+      "to": [
+        10,
+        8,
+        12.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": "#rune"
+        },
+        "down": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": "#rune"
+        }
+      }
+    },
+    {
+      "name": "Royal inscription / east",
+      "from": [
+        12,
+        1,
+        6
+      ],
+      "to": [
+        12.125,
+        8,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": "#rune"
+        },
+        "down": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": "#rune"
+        }
+      }
+    },
+    {
+      "name": "Royal inscription / west",
+      "from": [
+        3.875,
+        1,
+        6
+      ],
+      "to": [
+        4.0,
+        8,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": "#rune"
+        },
+        "down": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": "#rune"
+        }
+      }
+    },
+    {
+      "name": "Capital / shadow band",
+      "from": [
+        3.5,
+        13,
+        3.5
+      ],
+      "to": [
+        12.5,
+        14,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Capital / wide gold collar",
+      "from": [
+        2.5,
+        14,
+        2.5
+      ],
+      "to": [
+        13.5,
+        15.5,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            2.5,
+            2.5,
+            13.5,
+            13.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            2.5,
+            2.5,
+            13.5,
+            13.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Capital / blackstone abacus",
+      "from": [
+        2,
+        15.5,
+        2
+      ],
+      "to": [
+        14,
+        17,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Crown / gold seat",
+      "from": [
+        3,
+        17,
+        3
+      ],
+      "to": [
+        13,
+        18,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / dark upright 7/2.5",
+      "from": [
+        7,
+        18,
+        2.5
+      ],
+      "to": [
+        9,
+        24,
+        4.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / gilded prong 7/2.5",
+      "from": [
+        6.5,
+        24,
+        2.0
+      ],
+      "to": [
+        9.5,
+        28,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / square tooth 7/2.5",
+      "from": [
+        7,
+        28,
+        2.5
+      ],
+      "to": [
+        9,
+        30,
+        4.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / dark upright 11.5/7",
+      "from": [
+        11.5,
+        18,
+        7
+      ],
+      "to": [
+        13.5,
+        24,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / gilded prong 11.5/7",
+      "from": [
+        11.0,
+        24,
+        6.5
+      ],
+      "to": [
+        14.0,
+        28,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / square tooth 11.5/7",
+      "from": [
+        11.5,
+        28,
+        7
+      ],
+      "to": [
+        13.5,
+        30,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / dark upright 7/11.5",
+      "from": [
+        7,
+        18,
+        11.5
+      ],
+      "to": [
+        9,
+        24,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / gilded prong 7/11.5",
+      "from": [
+        6.5,
+        24,
+        11.0
+      ],
+      "to": [
+        9.5,
+        28,
+        14.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / square tooth 7/11.5",
+      "from": [
+        7,
+        28,
+        11.5
+      ],
+      "to": [
+        9,
+        30,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / dark upright 2.5/7",
+      "from": [
+        2.5,
+        18,
+        7
+      ],
+      "to": [
+        4.5,
+        24,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / gilded prong 2.5/7",
+      "from": [
+        2.0,
+        24,
+        6.5
+      ],
+      "to": [
+        5.0,
+        28,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / square tooth 2.5/7",
+      "from": [
+        2.5,
+        28,
+        7
+      ],
+      "to": [
+        4.5,
+        30,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Core / levitation seat",
+      "from": [
+        6,
+        18,
+        6
+      ],
+      "to": [
+        10,
+        19,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Core / lower gold seal",
+      "from": [
+        6.5,
+        20.5,
+        6.5
+      ],
+      "to": [
+        9.5,
+        21.25,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          21,
+          8
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Core / suspended gold sigil",
+      "from": [
+        7,
+        29.25,
+        7
+      ],
+      "to": [
+        9,
+        31.25,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          30.25,
+          8
+        ],
+        "rescale": false
+      }
+    }
+  ]
+}

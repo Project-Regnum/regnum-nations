@@ -16,8 +16,8 @@ baseline block mechanics and six tests described below are retained.
 
 The registered block, item, and block entity type all use
 `project-reigns:kingdom_obelisk`. The item appears in the Functional Blocks Creative
-tab and Creative search. The current appearance is a full cube with an original
-16×16 dark-stone placeholder texture. No recipe is provided.
+tab and Creative search. The [obelisk model overhaul](obelisk-models.md) replaces
+the original cube placeholder with a tall royal monument. No recipe is provided.
 
 ## Compatibility and design
 

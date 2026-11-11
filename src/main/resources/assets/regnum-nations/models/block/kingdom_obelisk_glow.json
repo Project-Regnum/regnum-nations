@@ -1,0 +1,296 @@
+{
+  "credit": "Regnum Nations original obelisk art",
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "stone": "regnum-nations:block/obelisk/kingdom_stone",
+    "base": "regnum-nations:block/obelisk/kingdom_base",
+    "metal": "regnum-nations:block/obelisk/kingdom_metal",
+    "rune": "regnum-nations:block/obelisk/kingdom_rune",
+    "core": "regnum-nations:block/obelisk/kingdom_core",
+    "particle": "#stone"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        210,
+        0
+      ],
+      "translation": [
+        0,
+        -3.84,
+        0
+      ],
+      "scale": [
+        0.48,
+        0.48,
+        0.48
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -3.6,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    }
+  },
+  "elements": [
+    {
+      "name": "Core / floating sapphire",
+      "from": [
+        6,
+        21.25,
+        6
+      ],
+      "to": [
+        10,
+        26.25,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": "#core"
+        },
+        "east": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": "#core"
+        },
+        "south": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": "#core"
+        },
+        "west": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": "#core"
+        },
+        "up": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": "#core"
+        },
+        "down": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": "#core"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          23.75,
+          8
+        ],
+        "rescale": false
+      },
+      "shade": false
+    },
+    {
+      "name": "Core / upper facet",
+      "from": [
+        6.75,
+        26.25,
+        6.75
+      ],
+      "to": [
+        9.25,
+        28,
+        9.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": "#core"
+        },
+        "east": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": "#core"
+        },
+        "south": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": "#core"
+        },
+        "west": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": "#core"
+        },
+        "up": {
+          "uv": [
+            6.75,
+            6.75,
+            9.25,
+            9.25
+          ],
+          "texture": "#core"
+        },
+        "down": {
+          "uv": [
+            6.75,
+            6.75,
+            9.25,
+            9.25
+          ],
+          "texture": "#core"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8,
+          27,
+          8
+        ],
+        "rescale": false
+      },
+      "shade": false
+    }
+  ]
+}

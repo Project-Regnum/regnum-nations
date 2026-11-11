@@ -1,0 +1,3955 @@
+{
+  "meta": {
+    "format_version": "4.10",
+    "model_format": "free",
+    "box_uv": false
+  },
+  "name": "Regnum Nations / Kingdom Obelisk",
+  "model_identifier": "kingdom_obelisk",
+  "visible_box": [
+    1,
+    3,
+    0
+  ],
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "Foundation / dressed lower course",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            7.0,
+            16,
+            9.0
+          ],
+          "texture": 1
+        },
+        "east": {
+          "uv": [
+            0,
+            7.0,
+            16,
+            9.0
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            7.0,
+            16,
+            9.0
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            0,
+            7.0,
+            16,
+            9.0
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        }
+      },
+      "uuid": "ccf2ec8c-072c-51b5-9ae9-aee269594d2f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 0,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Plinth / shadow reveal",
+      "from": [
+        1,
+        2,
+        1
+      ],
+      "to": [
+        15,
+        3,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            1.0,
+            1.0,
+            15.0,
+            15.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            1.0,
+            1.0,
+            15.0,
+            15.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "65b4612c-7e13-5b13-bd97-3ffa1a5076e4",
+      "type": "cube",
+      "autouv": 0,
+      "color": 1,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Plinth / bronze string course",
+      "from": [
+        1,
+        3,
+        1
+      ],
+      "to": [
+        15,
+        4,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            1.0,
+            7.5,
+            15.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            1.0,
+            1.0,
+            15.0,
+            15.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            1.0,
+            1.0,
+            15.0,
+            15.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "960ac453-c12a-5c54-82b2-7f854a52fbd2",
+      "type": "cube",
+      "autouv": 0,
+      "color": 2,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Plinth / bevel step",
+      "from": [
+        2,
+        4,
+        2
+      ],
+      "to": [
+        14,
+        6,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.0,
+            7.0,
+            14.0,
+            9.0
+          ],
+          "texture": 1
+        },
+        "east": {
+          "uv": [
+            2.0,
+            7.0,
+            14.0,
+            9.0
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            2.0,
+            7.0,
+            14.0,
+            9.0
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            2.0,
+            7.0,
+            14.0,
+            9.0
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": 1
+        },
+        "down": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": 1
+        }
+      },
+      "uuid": "8849dd92-efb5-590c-bc68-274f359b06bc",
+      "type": "cube",
+      "autouv": 0,
+      "color": 3,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Plinth / upper course",
+      "from": [
+        3,
+        6,
+        3
+      ],
+      "to": [
+        13,
+        8,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.0,
+            7.0,
+            13.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            3.0,
+            7.0,
+            13.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            3.0,
+            7.0,
+            13.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            3.0,
+            7.0,
+            13.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "feaffb0c-d366-5f67-9f0d-c7871a6e780f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 4,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal shaft / course 8",
+      "from": [
+        3.5,
+        8,
+        3.5
+      ],
+      "to": [
+        12.5,
+        16,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5,
+            4.0,
+            12.5,
+            12.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            3.5,
+            4.0,
+            12.5,
+            12.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            3.5,
+            4.0,
+            12.5,
+            12.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            3.5,
+            4.0,
+            12.5,
+            12.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "3c9edf63-ae56-5301-880f-a5e30e5c3c92",
+      "type": "cube",
+      "autouv": 0,
+      "color": 5,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal shaft / course 16",
+      "from": [
+        4,
+        16,
+        4
+      ],
+      "to": [
+        12,
+        24,
+        12
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "f8036ffe-2d75-5b47-80a7-971f7ba99bf2",
+      "type": "cube",
+      "autouv": 0,
+      "color": 6,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal shaft / course 24",
+      "from": [
+        4.5,
+        24,
+        4.5
+      ],
+      "to": [
+        11.5,
+        30,
+        11.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            4.5,
+            5.0,
+            11.5,
+            11.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            4.5,
+            4.5,
+            11.5,
+            11.5
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            4.5,
+            4.5,
+            11.5,
+            11.5
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "888a302a-af72-507d-8af5-6eff15862589",
+      "type": "cube",
+      "autouv": 0,
+      "color": 7,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded lower rib 3.25/3.25",
+      "from": [
+        3.25,
+        7,
+        3.25
+      ],
+      "to": [
+        4.5,
+        16,
+        4.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "4f5cd1c2-f9b9-5dae-bb28-ab043d5fe85a",
+      "type": "cube",
+      "autouv": 0,
+      "color": 0,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded lower rib 3.25/11.5",
+      "from": [
+        3.25,
+        7,
+        11.5
+      ],
+      "to": [
+        4.5,
+        16,
+        12.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "05a6e8fc-ca76-5fae-b80a-4a796a4f8ade",
+      "type": "cube",
+      "autouv": 0,
+      "color": 1,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded lower rib 11.5/3.25",
+      "from": [
+        11.5,
+        7,
+        3.25
+      ],
+      "to": [
+        12.75,
+        16,
+        4.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "320703ac-e099-595d-93cb-c88d343711d8",
+      "type": "cube",
+      "autouv": 0,
+      "color": 2,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded lower rib 11.5/11.5",
+      "from": [
+        11.5,
+        7,
+        11.5
+      ],
+      "to": [
+        12.75,
+        16,
+        12.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            3.5,
+            8.625,
+            12.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "a15842a6-1ea7-55c4-a8a8-573add87df9f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 3,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded middle rib 3.75/3.75",
+      "from": [
+        3.75,
+        16,
+        3.75
+      ],
+      "to": [
+        5.0,
+        24,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "ee79cc0e-ea0e-5753-ae68-4183ce104a19",
+      "type": "cube",
+      "autouv": 0,
+      "color": 4,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded middle rib 3.75/11",
+      "from": [
+        3.75,
+        16,
+        11
+      ],
+      "to": [
+        5.0,
+        24,
+        12.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "09faf31d-4015-53b1-ad7c-1b80b691fd1d",
+      "type": "cube",
+      "autouv": 0,
+      "color": 5,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded middle rib 11/3.75",
+      "from": [
+        11,
+        16,
+        3.75
+      ],
+      "to": [
+        12.25,
+        24,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "4c73e96f-5def-5923-99af-aa8c32f6afab",
+      "type": "cube",
+      "autouv": 0,
+      "color": 6,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded middle rib 11/11",
+      "from": [
+        11,
+        16,
+        11
+      ],
+      "to": [
+        12.25,
+        24,
+        12.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            4.0,
+            8.625,
+            12.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "8938e6d9-8730-5558-8644-689e3780875f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 7,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded upper rib 4.25/4.25",
+      "from": [
+        4.25,
+        24,
+        4.25
+      ],
+      "to": [
+        5.5,
+        29,
+        5.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "6200044d-638c-581a-9c4a-c5178a821026",
+      "type": "cube",
+      "autouv": 0,
+      "color": 0,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded upper rib 4.25/10.5",
+      "from": [
+        4.25,
+        24,
+        10.5
+      ],
+      "to": [
+        5.5,
+        29,
+        11.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "09246e84-c7c4-5b89-a03f-9bd86f868ae5",
+      "type": "cube",
+      "autouv": 0,
+      "color": 1,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded upper rib 10.5/4.25",
+      "from": [
+        10.5,
+        24,
+        4.25
+      ],
+      "to": [
+        11.75,
+        29,
+        5.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "1eae2459-88cd-5c77-968a-92e597bf271a",
+      "type": "cube",
+      "autouv": 0,
+      "color": 2,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Gilded upper rib 10.5/10.5",
+      "from": [
+        10.5,
+        24,
+        10.5
+      ],
+      "to": [
+        11.75,
+        29,
+        11.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.375,
+            5.5,
+            8.625,
+            10.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "b2497696-221a-56b4-9e69-bd79aca92889",
+      "type": "cube",
+      "autouv": 0,
+      "color": 3,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal inscription / north",
+      "from": [
+        6,
+        17,
+        3.875
+      ],
+      "to": [
+        10,
+        24,
+        4.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "east": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "south": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "west": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "up": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": 3
+        },
+        "down": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": 3
+        }
+      },
+      "uuid": "5a87f35f-bc92-5b88-9bc6-d07dfa1794a0",
+      "type": "cube",
+      "autouv": 0,
+      "color": 4,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal inscription / south",
+      "from": [
+        6,
+        17,
+        12
+      ],
+      "to": [
+        10,
+        24,
+        12.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "east": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "south": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "west": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "up": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": 3
+        },
+        "down": {
+          "uv": [
+            6.0,
+            7.9375,
+            10.0,
+            8.0625
+          ],
+          "texture": 3
+        }
+      },
+      "uuid": "dd281e58-7bf6-50b9-a6fe-7ac4ab49d9db",
+      "type": "cube",
+      "autouv": 0,
+      "color": 5,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal inscription / east",
+      "from": [
+        12,
+        17,
+        6
+      ],
+      "to": [
+        12.125,
+        24,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "east": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "south": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "west": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "up": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": 3
+        },
+        "down": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": 3
+        }
+      },
+      "uuid": "9a786ca8-ece0-52c4-be5c-bfa650885209",
+      "type": "cube",
+      "autouv": 0,
+      "color": 6,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Royal inscription / west",
+      "from": [
+        3.875,
+        17,
+        6
+      ],
+      "to": [
+        4.0,
+        24,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "east": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "south": {
+          "uv": [
+            7.9375,
+            4.5,
+            8.0625,
+            11.5
+          ],
+          "texture": 3
+        },
+        "west": {
+          "uv": [
+            6.0,
+            4.5,
+            10.0,
+            11.5
+          ],
+          "texture": 3
+        },
+        "up": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": 3
+        },
+        "down": {
+          "uv": [
+            7.9375,
+            6.0,
+            8.0625,
+            10.0
+          ],
+          "texture": 3
+        }
+      },
+      "uuid": "399fdf1a-13e7-55d4-9eb1-3832652eb464",
+      "type": "cube",
+      "autouv": 0,
+      "color": 7,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Capital / shadow band",
+      "from": [
+        3.5,
+        29,
+        3.5
+      ],
+      "to": [
+        12.5,
+        30,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": 1
+        },
+        "east": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": 1
+        },
+        "down": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": 1
+        }
+      },
+      "uuid": "f7f21857-82af-5358-9d15-ae7f222dcc39",
+      "type": "cube",
+      "autouv": 0,
+      "color": 0,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Capital / wide gold collar",
+      "from": [
+        2.5,
+        30,
+        2.5
+      ],
+      "to": [
+        13.5,
+        31.5,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            2.5,
+            7.25,
+            13.5,
+            8.75
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            2.5,
+            2.5,
+            13.5,
+            13.5
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            2.5,
+            2.5,
+            13.5,
+            13.5
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "51271607-407d-5e01-bbba-1020bed08e99",
+      "type": "cube",
+      "autouv": 0,
+      "color": 1,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Capital / blackstone abacus",
+      "from": [
+        2,
+        31.5,
+        2
+      ],
+      "to": [
+        14,
+        33,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": 1
+        },
+        "east": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": 1
+        },
+        "down": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": 1
+        }
+      },
+      "uuid": "ad49a559-3bc1-59f1-95c0-4f2f73973e61",
+      "type": "cube",
+      "autouv": 0,
+      "color": 2,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / gold seat",
+      "from": [
+        3,
+        33,
+        3
+      ],
+      "to": [
+        13,
+        34,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "84bd2f0d-e9d2-544d-8cf5-4893ef411e66",
+      "type": "cube",
+      "autouv": 0,
+      "color": 3,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / dark upright 7/2.5",
+      "from": [
+        7,
+        34,
+        2.5
+      ],
+      "to": [
+        9,
+        40,
+        4.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "5d07063c-9142-5841-970d-46329a1a41a2",
+      "type": "cube",
+      "autouv": 0,
+      "color": 4,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / gilded prong 7/2.5",
+      "from": [
+        6.5,
+        40,
+        2.0
+      ],
+      "to": [
+        9.5,
+        44,
+        5.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "8b3d8a44-713e-5e9f-bf10-ced71a03de7f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 5,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / square tooth 7/2.5",
+      "from": [
+        7,
+        44,
+        2.5
+      ],
+      "to": [
+        9,
+        46,
+        4.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "14c3ca14-d260-55d8-843b-3c74f13740a9",
+      "type": "cube",
+      "autouv": 0,
+      "color": 6,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / dark upright 11.5/7",
+      "from": [
+        11.5,
+        34,
+        7
+      ],
+      "to": [
+        13.5,
+        40,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "747f7fe7-cd1f-5a30-a712-72e98eda2164",
+      "type": "cube",
+      "autouv": 0,
+      "color": 7,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / gilded prong 11.5/7",
+      "from": [
+        11.0,
+        40,
+        6.5
+      ],
+      "to": [
+        14.0,
+        44,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "9bde9a0d-41b5-5f17-be65-7c9de6a6211f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 0,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / square tooth 11.5/7",
+      "from": [
+        11.5,
+        44,
+        7
+      ],
+      "to": [
+        13.5,
+        46,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "edc8fa6b-6c27-51e8-9bbe-d2f32bdc188c",
+      "type": "cube",
+      "autouv": 0,
+      "color": 1,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / dark upright 7/11.5",
+      "from": [
+        7,
+        34,
+        11.5
+      ],
+      "to": [
+        9,
+        40,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "42919a82-eed9-54c1-960c-46c85c8b28f6",
+      "type": "cube",
+      "autouv": 0,
+      "color": 2,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / gilded prong 7/11.5",
+      "from": [
+        6.5,
+        40,
+        11.0
+      ],
+      "to": [
+        9.5,
+        44,
+        14.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "1a1edb82-548a-5a19-bdf1-f6139ce77b26",
+      "type": "cube",
+      "autouv": 0,
+      "color": 3,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / square tooth 7/11.5",
+      "from": [
+        7,
+        44,
+        11.5
+      ],
+      "to": [
+        9,
+        46,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "00e231da-279f-53a9-b72b-f376960cee5f",
+      "type": "cube",
+      "autouv": 0,
+      "color": 4,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / dark upright 2.5/7",
+      "from": [
+        2.5,
+        34,
+        7
+      ],
+      "to": [
+        4.5,
+        40,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            11.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "cbdc3b60-e3a0-5c75-9b45-02afec837cc4",
+      "type": "cube",
+      "autouv": 0,
+      "color": 5,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / gilded prong 2.5/7",
+      "from": [
+        2.0,
+        40,
+        6.5
+      ],
+      "to": [
+        5.0,
+        44,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            6.5,
+            6.0,
+            9.5,
+            10.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "354c337c-d24f-57c8-bf1e-da548fc8f7ea",
+      "type": "cube",
+      "autouv": 0,
+      "color": 6,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Crown / square tooth 2.5/7",
+      "from": [
+        2.5,
+        44,
+        7
+      ],
+      "to": [
+        4.5,
+        46,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "31d415da-c65f-500b-9b91-5afa6a0b6e45",
+      "type": "cube",
+      "autouv": 0,
+      "color": 7,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Core / levitation seat",
+      "from": [
+        6,
+        34,
+        6
+      ],
+      "to": [
+        10,
+        35,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": 1
+        },
+        "east": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            6.0,
+            7.5,
+            10.0,
+            8.5
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": 1
+        },
+        "down": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": 1
+        }
+      },
+      "uuid": "2c697ada-1e14-50dc-bfa6-78fb89ad93d6",
+      "type": "cube",
+      "autouv": 0,
+      "color": 0,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        0,
+        8
+      ]
+    },
+    {
+      "name": "Core / lower gold seal",
+      "from": [
+        6.5,
+        36.5,
+        6.5
+      ],
+      "to": [
+        9.5,
+        37.25,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            6.5,
+            7.625,
+            9.5,
+            8.375
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            6.5,
+            6.5,
+            9.5,
+            9.5
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "5af3bd59-15df-5dbc-8c05-40f7550418cd",
+      "type": "cube",
+      "autouv": 0,
+      "color": 1,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        37,
+        8
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "name": "Core / floating sapphire",
+      "from": [
+        6,
+        37.25,
+        6
+      ],
+      "to": [
+        10,
+        42.25,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": 4
+        },
+        "east": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": 4
+        },
+        "south": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": 4
+        },
+        "west": {
+          "uv": [
+            6.0,
+            5.5,
+            10.0,
+            10.5
+          ],
+          "texture": 4
+        },
+        "up": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": 4
+        },
+        "down": {
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ],
+          "texture": 4
+        }
+      },
+      "uuid": "e6294e16-1fc1-52e4-b91c-b7ed0b6a4873",
+      "type": "cube",
+      "autouv": 0,
+      "color": 2,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        39.75,
+        8
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "name": "Core / upper facet",
+      "from": [
+        6.75,
+        42.25,
+        6.75
+      ],
+      "to": [
+        9.25,
+        44,
+        9.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": 4
+        },
+        "east": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": 4
+        },
+        "south": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": 4
+        },
+        "west": {
+          "uv": [
+            6.75,
+            7.125,
+            9.25,
+            8.875
+          ],
+          "texture": 4
+        },
+        "up": {
+          "uv": [
+            6.75,
+            6.75,
+            9.25,
+            9.25
+          ],
+          "texture": 4
+        },
+        "down": {
+          "uv": [
+            6.75,
+            6.75,
+            9.25,
+            9.25
+          ],
+          "texture": 4
+        }
+      },
+      "uuid": "7d0d5a24-84d3-5dff-a837-a29c8d25f6ee",
+      "type": "cube",
+      "autouv": 0,
+      "color": 3,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        43,
+        8
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "name": "Core / suspended gold sigil",
+      "from": [
+        7,
+        45.25,
+        7
+      ],
+      "to": [
+        9,
+        47.25,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "east": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "south": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "west": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "up": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ],
+          "texture": 2
+        }
+      },
+      "uuid": "a7fb967a-2468-5df3-8fa0-0f99640c9ae9",
+      "type": "cube",
+      "autouv": 0,
+      "color": 4,
+      "box_uv": false,
+      "rescale": false,
+      "locked": false,
+      "render_order": "default",
+      "allow_mirror_modeling": true,
+      "origin": [
+        8,
+        46.25,
+        8
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ]
+    }
+  ],
+  "outliner": [
+    {
+      "name": "01 Foundation",
+      "origin": [
+        8,
+        0,
+        8
+      ],
+      "children": [
+        "ccf2ec8c-072c-51b5-9ae9-aee269594d2f",
+        "65b4612c-7e13-5b13-bd97-3ffa1a5076e4",
+        "960ac453-c12a-5c54-82b2-7f854a52fbd2",
+        "8849dd92-efb5-590c-bc68-274f359b06bc",
+        "feaffb0c-d366-5f67-9f0d-c7871a6e780f"
+      ],
+      "uuid": "2b856f83-84b2-504e-9ad2-f0b5077bdc3f"
+    },
+    {
+      "name": "02 Pillar",
+      "origin": [
+        8,
+        0,
+        8
+      ],
+      "children": [
+        "3c9edf63-ae56-5301-880f-a5e30e5c3c92",
+        "f8036ffe-2d75-5b47-80a7-971f7ba99bf2",
+        "888a302a-af72-507d-8af5-6eff15862589"
+      ],
+      "uuid": "1a0db3fe-6c54-55ac-b50c-7af12babec5e"
+    },
+    {
+      "name": "03 Gilded ribs",
+      "origin": [
+        8,
+        0,
+        8
+      ],
+      "children": [
+        "4f5cd1c2-f9b9-5dae-bb28-ab043d5fe85a",
+        "05a6e8fc-ca76-5fae-b80a-4a796a4f8ade",
+        "320703ac-e099-595d-93cb-c88d343711d8",
+        "a15842a6-1ea7-55c4-a8a8-573add87df9f",
+        "ee79cc0e-ea0e-5753-ae68-4183ce104a19",
+        "09faf31d-4015-53b1-ad7c-1b80b691fd1d",
+        "4c73e96f-5def-5923-99af-aa8c32f6afab",
+        "8938e6d9-8730-5558-8644-689e3780875f",
+        "6200044d-638c-581a-9c4a-c5178a821026",
+        "09246e84-c7c4-5b89-a03f-9bd86f868ae5",
+        "1eae2459-88cd-5c77-968a-92e597bf271a",
+        "b2497696-221a-56b4-9e69-bd79aca92889"
+      ],
+      "uuid": "5b4d8715-d26a-5df7-8a1f-e45a3a3f60ed"
+    },
+    {
+      "name": "04 Inscriptions",
+      "origin": [
+        8,
+        0,
+        8
+      ],
+      "children": [
+        "5a87f35f-bc92-5b88-9bc6-d07dfa1794a0",
+        "dd281e58-7bf6-50b9-a6fe-7ac4ab49d9db",
+        "9a786ca8-ece0-52c4-be5c-bfa650885209",
+        "399fdf1a-13e7-55d4-9eb1-3832652eb464"
+      ],
+      "uuid": "14c707b7-d519-57bf-b372-34b87f5697b5"
+    },
+    {
+      "name": "05 Crown",
+      "origin": [
+        8,
+        0,
+        8
+      ],
+      "children": [
+        "f7f21857-82af-5358-9d15-ae7f222dcc39",
+        "51271607-407d-5e01-bbba-1020bed08e99",
+        "ad49a559-3bc1-59f1-95c0-4f2f73973e61",
+        "84bd2f0d-e9d2-544d-8cf5-4893ef411e66",
+        "5d07063c-9142-5841-970d-46329a1a41a2",
+        "8b3d8a44-713e-5e9f-bf10-ced71a03de7f",
+        "14c3ca14-d260-55d8-843b-3c74f13740a9",
+        "747f7fe7-cd1f-5a30-a712-72e98eda2164",
+        "9bde9a0d-41b5-5f17-be65-7c9de6a6211f",
+        "edc8fa6b-6c27-51e8-9bbe-d2f32bdc188c",
+        "42919a82-eed9-54c1-960c-46c85c8b28f6",
+        "1a1edb82-548a-5a19-bdf1-f6139ce77b26",
+        "00e231da-279f-53a9-b72b-f376960cee5f",
+        "cbdc3b60-e3a0-5c75-9b45-02afec837cc4",
+        "354c337c-d24f-57c8-bf1e-da548fc8f7ea",
+        "31d415da-c65f-500b-9b91-5afa6a0b6e45"
+      ],
+      "uuid": "b47cbd89-1f3b-5af3-8605-3410a2698cd2"
+    },
+    {
+      "name": "06 Royal heart",
+      "origin": [
+        8,
+        0,
+        8
+      ],
+      "children": [
+        "2c697ada-1e14-50dc-bfa6-78fb89ad93d6",
+        "5af3bd59-15df-5dbc-8c05-40f7550418cd",
+        "e6294e16-1fc1-52e4-b91c-b7ed0b6a4873",
+        "7d0d5a24-84d3-5dff-a837-a29c8d25f6ee",
+        "a7fb967a-2468-5df3-8fa0-0f99640c9ae9"
+      ],
+      "uuid": "988d7ed5-04ff-5414-9dd8-f6998ce49eac"
+    }
+  ],
+  "textures": [
+    {
+      "uuid": "a4b46ede-db2b-5011-9dc6-1aff9f9ce95f",
+      "name": "kingdom_stone.png",
+      "id": "0",
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "particle": true,
+      "mode": "bitmap",
+      "saved": true,
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAgklEQVR4nKVRSQqAMAyMkmtB7Z+8e/btBT9QE+gHBAslhtRWnNtkn8ywbjt04wgBASDG00x7v0ga7zKsJWrAl5zZic2RRkNikiE3zY0G96xITCWiZoHSkNWrH0gkphE+AiXpUT/+2gAWpKTEpJ1uXmVsUK/MtDzacNo0rpjTK7pMuQA+8DMmnrfSMAAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "bceac43f-ec67-57d8-995b-5481f0af585c",
+      "name": "kingdom_base.png",
+      "id": "1",
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "particle": false,
+      "mode": "bitmap",
+      "saved": true,
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAnUlEQVR4nJVRsQ6FIAysL2wwkeDm5uqXvNH1fTpR44iJE92Nj2gKRdRO0Obu2rvq2//gTYnBWt71iEpKbWraXBe3AwAgO7hUgOvKIsUtZVLCIyYtJWUJoNiYUnA6QT/hem1gnsbDCZcAqqbtCguUVvJ/728Bn1f0UM4hFI11XdyuoE19nBtF/lQhsdLjSMOJkg6P7OmnJVHSPCauvAFzaD2o7UhJxQAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "2a5b4fd0-91ea-5382-80c8-611710b86b9c",
+      "name": "kingdom_metal.png",
+      "id": "2",
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "particle": false,
+      "mode": "bitmap",
+      "saved": true,
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAcElEQVR4nGPMCDZgIAWwMDAwdNRHEam6onEZSAMDA8O+LbtJsAECVDTkGHCDOzce7Tr7GkXDnRuPGIgATAwkAhZkDtxVeGxjItUGJoqcdIcIf7Pgl4YEJQMDg5uxKDWchAngBsMBBTbAnYsfMJKavAHvjhrStqvjXQAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "8e327a05-b56b-542a-b01c-ab7525ed8f73",
+      "name": "kingdom_rune.png",
+      "id": "3",
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "particle": false,
+      "mode": "bitmap",
+      "saved": true,
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAnklEQVR4nGM0cYtmIAWwMDAwvHn2iEjVIlJyTCQZz8DAQA0NloEpHz68IkHD9vltjbNWfPjwCqs2FkwhAQGx+rQIz8QqBgaG4+vnENbAwMDgmVi1fX4bXD8DfifB9RDrB8vAlO3z27bPb8OqhwVTCKLUwlKvPi2CgYHhw4dXyK7C7mmwB6DGE+UHmB4sAHsoYRpMwAY8AGSDiJQc8RoAjO8s7SOPtWgAAAAASUVORK5CYII="
+    },
+    {
+      "uuid": "7bb1a7bf-1f5c-5c05-b9a4-fb8e12e7ebdf",
+      "name": "kingdom_core.png",
+      "id": "4",
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "particle": false,
+      "mode": "bitmap",
+      "saved": true,
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAjElEQVR4nGPMmb+PARvYsXgxVnEmrKIMDAwiakZYxVkglImOFLLomSvP3tw6J6Jm9ObWOWJtYGBggOhhwKrhzJVnROphwmMDVj1MBDUwoOpBaMDlKjRAlA04NRBjCRMan6AepjMnr5KkB2TDmZNXz5y8ihbZaAAe5QgnzZi7G79j0DXArSJBA1wbHg0AeZg5Ab5d/YUAAAAASUVORK5CYII="
+    }
+  ]
+}

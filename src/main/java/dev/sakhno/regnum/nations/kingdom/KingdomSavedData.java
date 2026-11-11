@@ -150,7 +150,8 @@ public final class KingdomSavedData extends SavedData {
                 || kingdoms.values().stream().anyMatch(k -> ClaimPos.at(k.dimension(),k.capitalPos()).equals(pos));
     }
     public DeletedAnchor deletedAnchor(UUID id) { return deleted.get(id); }
-    void requireAvailable() throws FoundingException { if (unreadableData!=null) throw new FoundingException(DATA_UNAVAILABLE); }
+    boolean available() { return unreadableData == null; }
+    void requireAvailable() throws FoundingException { if (!available()) throw new FoundingException(DATA_UNAVAILABLE); }
     void validate(UUID founder,KingdomName name,ResourceKey<Level> dim,BlockPos pos,UUID obelisk) throws FoundingException {
         requireAvailable();
         if (founders.containsKey(founder)) throw new FoundingException(ALREADY_FOUNDER);

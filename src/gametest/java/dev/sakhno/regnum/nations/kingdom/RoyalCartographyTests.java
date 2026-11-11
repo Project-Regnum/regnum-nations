@@ -30,6 +30,8 @@ public final class RoyalCartographyTests implements FabricGameTest {
         h.assertTrue(run(admin,"reigns admin delete \""+target.name().display()+"\"")==1,"Initial request must route through quoted full name");
         Component prompt=messages.last(); var actions=runActions(prompt);
         h.assertTrue(actions.size()==2,"Prompt must expose exactly two RUN_COMMAND actions");
+        h.assertTrue(prompt.toFlatList().stream().allMatch(part -> part.getStyle().getHoverEvent()==null),
+                "Deletion prompt must retain its actions without custom hover descriptions");
         UUID token=service.requestDeletion(admin,target.id());
         h.assertTrue(actions.getFirst().getStyle().getClickEvent().getValue().equals(KingdomDeletionPrompt.command(target.id(),"confirm",token))
                 &&actions.get(1).getStyle().getClickEvent().getValue().equals(KingdomDeletionPrompt.command(target.id(),"cancel",token)),

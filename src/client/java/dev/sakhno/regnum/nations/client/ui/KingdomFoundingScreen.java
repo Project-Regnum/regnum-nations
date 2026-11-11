@@ -125,7 +125,5 @@ public final class KingdomFoundingScreen extends RoyalScreen {
         g.drawString(font,ellipsize(font,text("color_preview",text("color_"+color)),bounds.contentWidth()-30),bounds.left()+30,previewY+1,INK,false);
         g.drawString(font,previewLabel,bounds.left()+30,previewY+12,MUTED,false);
         super.render(g,mx,my,delta);
-        if (font.width(title)>(bounds.contentWidth()-48)/titleScale&&mx>=bounds.left()+48&&mx<bounds.right()&&my>=top+24&&my<top+headerHeight)
-            tooltip(g,font,title,mx,my);
     }
 }

@@ -109,6 +109,5 @@ public final class KingdomManagementScreen extends RoyalScreen {
         Component message=status();
         if (atlas!=null) atlas.render(g,message,failed); else civic.render(g,message,failed);
         super.render(g,mx,my,delta);
-        if (atlas!=null) atlas.renderHover(g,mx,my,message); else civic.renderHover(g,mx,my,message);
     }
 }

@@ -136,14 +136,7 @@ final class KingdomAtlasView {
             g.fill(right,colorY,right+7,colorY+7,color);
             g.drawString(font,colorLabel,right+12,colorY,MUTED,false);
         }
-        // Feedback is separate from primary information; full text remains in its hover and narration.
+        // Feedback is separate from primary information; full text remains in narration.
         if (!feedback.getString().isEmpty()) g.drawString(font,ellipsize(font,feedback,feedbackWidth),feedbackX,bounds.footerY()+(CONTROL-LINE)/2,failed?ERROR:MUTED,false);
     }
-    void renderHover(GuiGraphics g,int mx,int my,Component feedback) {
-        if (record!=null) record.renderTooltip(g,mx,my);
-        if (font.width(name)>textWidth/2&&hit(mx,my,textX,nameY-2,textWidth,CONTROL+2)) tooltip(g,font,name,mx,my);
-        if (font.width(feedback)>feedbackWidth&&hit(mx,my,feedbackX,bounds.footerY(),feedbackWidth,CONTROL)) tooltip(g,font,feedback,mx,my);
-    }
-    private static boolean hit(int mx,int my,int x,int y,int w,int h) { return mx>=x&&mx<x+w&&my>=y&&my<y+h; }
-
 }

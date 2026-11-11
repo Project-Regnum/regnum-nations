@@ -128,10 +128,4 @@ final class CityAtlasView {
         }
         if (!feedback.getString().isEmpty()) g.drawString(font,ellipsize(font,feedback,feedbackWidth),feedbackX,bounds.footerY()+(CONTROL-LINE)/2,failed?ERROR:MUTED,false);
     }
-    void renderHover(GuiGraphics g,int mx,int my,Component feedback) {
-        if (record!=null) record.renderTooltip(g,mx,my);
-        if (font.width(name)>textWidth/nameScale&&hit(mx,my,textX,y+54,textWidth,CONTROL+2)) tooltip(g,font,name,mx,my);
-        if (font.width(feedback)>feedbackWidth&&hit(mx,my,feedbackX,bounds.footerY(),feedbackWidth,CONTROL)) tooltip(g,font,feedback,mx,my);
-    }
-    private static boolean hit(int mx,int my,int x,int y,int w,int h) { return mx>=x&&mx<x+w&&my>=y&&my<y+h; }
 }

@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import org.lwjgl.glfw.GLFW;
@@ -32,7 +31,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private RoyalControlButton modeButton;
     private RoyalControlButton layersButton;
     private MapCanvas canvas;
-    private Component actionHint=Component.empty();
     private boolean actionFailed;
     private static final String[] LEGEND_KEYS={"map_key_personal","map_key_selected","map_key_unknown"};
     private int selectedX, selectedZ, detailsSequence;
@@ -78,8 +76,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         int[] navigation=AtlasWidgets.rowWidths(font,(width-MARGIN*2)/2,CONTROL*2,back,font.width(manage)>font.width(view)?manage:view);
         int navigationX=width-MARGIN-CONTROL-GAP-navigation[0]-GAP-navigation[1],navigationY=top-CONTROL-MARGIN;
         headerTextWidth=navigationX-GAP-MARGIN*2;
-        addRenderableWidget(new RoyalControlButton(navigationX,navigationY,navigation[0],back,Icon.NONE,false,b -> showOverview()))
-                .setTooltip(Tooltip.create(back));
+        addRenderableWidget(new RoyalControlButton(navigationX,navigationY,navigation[0],back,Icon.NONE,false,b -> showOverview()));
         modeButton = addRenderableWidget(new RoyalControlButton(navigationX+navigation[0]+GAP,navigationY,navigation[1],KingdomUi.text(manageMode ? "mode_manage" : "mode_view"),Icon.NONE,false,b -> {
             manageMode = !manageMode;
             modeButton.setMessage(KingdomUi.text(manageMode ? "mode_manage" : "mode_view"));
@@ -87,7 +84,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
             feedback = Component.empty(); updateActions();
         }));
         modeButton.selected(true);
-        modeButton.setTooltip(Tooltip.create(KingdomUi.text("mode_hint")));
         int actionWidth=Math.min((width-MARGIN*2)/3,Math.max(CONTROL*4,Math.max(font.width(KingdomUi.text("claim")),font.width(KingdomUi.text("unclaim")))+PAD*2));
         territoryAction = addRenderableWidget(new RoyalControlButton(width-MARGIN-actionWidth,inspectorY+2,actionWidth,KingdomUi.text("claim"),Icon.NONE,false,
                 b -> sendDetails(releasing() ? Action.UNCLAIM : Action.CLAIM)));
@@ -102,26 +98,21 @@ public final class PoliticalMapScreen extends RoyalScreen {
         refreshButton = addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,text("refresh"),Icon.REFRESH,true,b -> {
             fitNextSnapshot = true; request(); needsDetails = true; feedback = Component.empty();
         }));
-        refreshButton.setTooltip(Tooltip.create(text("refresh")));
         toolX+=CONTROL+groupGap;
-        Button out=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_out"),Icon.MINUS,true,
+        addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_out"),Icon.MINUS,true,
                 b -> zoom=Math.max(MIN_ZOOM,zoom/1.25)));
-        out.setTooltip(Tooltip.create(KingdomUi.text("zoom_out")));
         toolX+=CONTROL+zoomGap;
-        Button in=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_in"),Icon.PLUS,true,
+        addRenderableWidget(new RoyalControlButton(toolX,toolbarY,CONTROL,KingdomUi.text("zoom_in"),Icon.PLUS,true,
                 b -> zoom=Math.min(MAX_ZOOM,zoom*1.25)));
-        in.setTooltip(Tooltip.create(KingdomUi.text("zoom_in")));
         toolX+=CONTROL+zoomGap;
-        addRenderableWidget(new RoyalControlButton(toolX,toolbarY,fitWidth,text("fit"),Icon.NONE,false,b -> fitClaims()))
-                .setTooltip(Tooltip.create(KingdomUi.text("map_keyboard")));
+        addRenderableWidget(new RoyalControlButton(toolX,toolbarY,fitWidth,text("fit"),Icon.NONE,false,b -> fitClaims()));
         toolX+=fitWidth+groupGap;
         layersButton=addRenderableWidget(new RoyalControlButton(toolX,toolbarY,layersWidth,text("layers"),Icon.LAYERS,false,b -> {
             layer=(layer+1)%3;
             updateLayerButton();
         }));
         updateLayerButton();
-        addRenderableWidget(new RoyalControlButton(width-MARGIN-CONTROL,MARGIN,CONTROL,text("close"),Icon.CLOSE,true,b -> onClose()))
-                .setTooltip(Tooltip.create(text("close")));
+        addRenderableWidget(new RoyalControlButton(width-MARGIN-CONTROL,MARGIN,CONTROL,text("close"),Icon.CLOSE,true,b -> onClose()));
         setInitialFocus(canvas);
         if (requested == 0) request();
         if (!selected && minecraft.player != null && minecraft.level != null) {
@@ -131,7 +122,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private void updateLayerButton() {
         Component description=text("layer_"+layer);
         layersButton.layerState(layer,description);
-        layersButton.setTooltip(Tooltip.create(text("layers").copy().append(": ").append(description)));
     }
     private void request() {
         if (minecraft.player == null) return;
@@ -405,40 +395,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
         renderSelection(g);
         g.drawString(font,scale,scaleX,10,MUTED,false);
         super.render(g,mx,my,delta);
-        if (!panning && inside(mx,my)) {
-            if (layer!=2) for (MapMarker marker:mapMarkers) {
-                var p=marker.point();
-                if (mx>=p.x()-8 && mx<=p.x()+(marker.members().size()>1?14:8) && Math.abs(my-p.y())<=8) {
-                    Component tip=Component.empty();
-                    for (int i=0;i<Math.min(3,marker.members().size());i++) {
-                        var member=marker.members().get(i);
-                        if (i>0) tip=tip.copy().append("\n\n");
-                        tip=tip.copy().append(text(member.marker().capital()?"capital_marker":"city_marker",member.cell().name()))
-                                .append("\n").append(ownership(member.cell()))
-                                .append("\n").append(text("position",member.marker().pos().getX()>>4,member.marker().pos().getZ()>>4));
-                    }
-                    if (marker.members().size()>3) tip=tip.copy().append("\n").append(text("marker_more",marker.members().size()-3));
-                    if (marker.members().size()>1) tip=tip.copy().append("\n").append(text("marker_hint"));
-                    atlasTooltip(g,tip,mx,my); return;
-                }
-            }
-            if (Math.abs(mx-px)<=6 && Math.abs(my-pz)<=6) atlasTooltip(g,text("you"),mx,my);
-        }
-        if (mx>=MARGIN && mx<width-MARGIN && my>=inspectorY && my<toolbarY && (!manageMode || mx<territoryAction.getX())) {
-            atlasTooltip(g,inspectorTooltip(),mx,my);
-        }
-        if (mx>=legendX && mx<width-MARGIN && my>=legendListY && my<legendListY+capacity*LEGEND_ROW) {
-            int index=legendOffset+(my-legendListY)/LEGEND_ROW;
-            if (index<legendEntries.size()) {
-                Cell cell=legendEntries.get(index);
-                atlasTooltip(g,Component.literal(cell.name()).append("\n").append(ownership(cell)),mx,my);
-            }
-        }
-        if (legendEntries.size()>capacity&&mx>=legendX&&mx<width-MARGIN&&my>=top+GAP&&my<legendListY)
-            atlasTooltip(g,text("legend_hint"),mx,my);
-    }
-    private void atlasTooltip(GuiGraphics g,Component value,int mx,int my) {
-        KingdomUi.tooltip(g,font,font.split(value,Math.max(40,Math.min(260,width-24))),mx,my,(height-20)/LINE);
     }
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical) {
         if (x > right+7 && x < width-8 && y >= top && y < bottom) {
@@ -529,9 +485,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
                 && detailsRequested == 0 && !needsDetails && standingInSelection() && snapshot != null
                 && snapshot.status() != 2 && !state.equals("stale");
         territoryAction.active = ready && (releasing() ? details.unclaimReason() : details.claimReason()).isEmpty();
-        Component hint=selectionMessage();
-        if (territoryAction.active&&releasing()) hint=hint.copy().append("\n").append(KingdomUi.text("release_hint"));
-        if (!hint.equals(actionHint)) { actionHint=hint; territoryAction.setTooltip(hint.getString().isEmpty()?null:Tooltip.create(hint)); }
     }
     /** One message owns action feedback: no parallel claim/unclaim reasons or repeated restrictions. */
     private Component selectionMessage() {
@@ -547,20 +500,9 @@ public final class PoliticalMapScreen extends RoyalScreen {
         String reason = releasing() ? details.unclaimReason() : details.claimReason();
         return reason.isEmpty() ? KingdomUi.text(releasing() ? "unclaim_ready" : "claim_ready") : Component.translatable(reason);
     }
-    private static Component ownership(Cell cell) {
-        return cell.sovereign()==null?KingdomUi.text("independent_city"):KingdomUi.text("sovereign_kingdom",cell.politicalName());
-    }
     private Component selectedOwner() {
         return details==null?KingdomUi.text(needsDetails || detailsRequested!=0?"loading":"details_error")
                 :details.owner().isEmpty()?Component.translatable("message.regnum-nations.territory.wilderness"):Component.literal(details.owner());
-    }
-    private Component inspectorTooltip() {
-        Component line=selected?KingdomUi.text("chunk_owner",selectedX,selectedZ,selectedOwner()):KingdomUi.text("select_chunk");
-        if (details!=null) {
-            if (!details.owner().isEmpty()) line=line.copy().append("\n").append(details.sovereign()==null?KingdomUi.text("independent_city"):KingdomUi.text("sovereign_kingdom",details.politicalName()));
-            line=line.copy().append("\n").append(KingdomUi.text("adjacency",KingdomUi.text(details.adjacent()?"yes":"no")));
-        }
-        return line.copy().append("\n").append(selectionMessage()).append("\n\n").append(KingdomUi.text("map_keyboard"));
     }
     private void renderSelection(GuiGraphics g) {
         int inspectorX=MARGIN+GAP;
@@ -570,10 +512,9 @@ public final class PoliticalMapScreen extends RoyalScreen {
         g.drawString(font,ellipsize(font,line,lineWidth),inspectorX,inspectorY+4,INK,false);
         Component political=details==null?selectedOwner():details.owner().isEmpty()?Component.empty():details.sovereign()==null?KingdomUi.text("independent_city"):
                 KingdomUi.text("sovereign_kingdom",details.politicalName());
-        // Feedback stays visible; instructions and action restrictions are available on hover and via narration.
+        // Feedback stays visible; instructions and action restrictions remain in narration.
         boolean hasFeedback=!feedback.getString().isEmpty();
         g.drawString(font,ellipsize(font,hasFeedback?feedback:political,lineWidth),inspectorX,inspectorY+4+LINE,hasFeedback?(actionFailed?ERROR:GOLD):MUTED,false);
-        if (!manageMode) g.drawString(font,"?",width-MARGIN-10,inspectorY+4,AtlasGraphics.BRASS,false);
     }
     private final class MapCanvas extends AbstractWidget {
         MapCanvas() { super(8,top,right-8,bottom-top,KingdomUi.text("map_keyboard")); }

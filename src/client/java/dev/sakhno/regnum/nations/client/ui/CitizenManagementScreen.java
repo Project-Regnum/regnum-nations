@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import static dev.sakhno.regnum.nations.client.ui.KingdomUi.*;
@@ -82,7 +81,6 @@ public final class CitizenManagementScreen extends RoyalScreen {
                     var row=(RoyalButton)control(bounds.left(),listTop+(i-offset)*(CONTROL+2),content,label,
                             () -> { selected=entry.id(); rebuildWidgets(); },() -> ready());
                     row.selected(entry.id().equals(selected));
-                    row.setTooltip(Tooltip.create(label.copy().append("\n").append(Component.literal(entry.player().toString()))));
                 }
             } else addRenderableWidget(paragraph(font,bounds.left(),listTop,content-GAP,Math.max(CONTROL,actionsY-listTop-GAP),
                     state==null?feedback:message(state.matches()==0&&!query.isBlank()?"no_matches":"empty."+tab.name().toLowerCase(Locale.ROOT))));
@@ -188,7 +186,5 @@ public final class CitizenManagementScreen extends RoyalScreen {
             g.drawCenteredString(font,ellipsize(font,paging,bounds.contentWidth()-120),bounds.left()+bounds.contentWidth()/2,bounds.footerY()-CONTROL-GAP+6,MUTED);
         }
         super.render(g,mx,my,delta);
-        if (my>=bounds.y()+25&&my<bounds.y()+39&&font.width(summary)>bounds.contentWidth()) tooltip(g,font,summary,mx,my);
-        if (my>=bounds.y()+92&&my<listTop&&font.width(feedback)>bounds.contentWidth()) tooltip(g,font,feedback,mx,my);
     }
 }

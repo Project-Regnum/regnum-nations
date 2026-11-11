@@ -43,8 +43,6 @@ public final class AtlasClientChecks implements ClientModInitializer {
     private PoliticalMapScreen screen;
     private TileImage red;
     private int scaleStep;
-    private String pendingCapture;
-    private int hoverX,hoverY,hoverTicks;
     private dev.sakhno.regnum.nations.client.terrain.diorama.render.MapLevel previousMap;
 
     @Override public void onInitializeClient() {
@@ -61,13 +59,6 @@ public final class AtlasClientChecks implements ClientModInitializer {
 
     private void tick(Minecraft mc) throws Exception {
         if ((System.nanoTime()-start)/1_000_000_000L>300) throw new AssertionError("Client checks timed out, stage "+stage);
-        if (pendingCapture!=null) {
-            pointCursor(mc,hoverX,hoverY);
-            if (++hoverTicks>=4) {
-                screenshot(mc,pendingCapture); pendingCapture=null; pointCursor(mc,2,2);
-            }
-            return;
-        }
         switch (stage) {
             case 0 -> {
                 GLFW.glfwHideWindow(mc.getWindow().getWindow());
@@ -137,8 +128,6 @@ public final class AtlasClientChecks implements ClientModInitializer {
                 check(distinct>5,"Real terrain has varied world-derived colors");
                 check(!MapSession.get().map().chunk(-1,-1).equals(MapSession.get().map().chunk(0,-1)),"Distinct loaded chunks");
                 screenshot(mc,"combined.png");
-                var pin=recordField(((java.util.List<?>)field("mapMarkers")).getFirst(),"point");
-                hoverScreenshot(mc,"capital-tooltip.png",(int)recordField(pin,"x"),(int)recordField(pin,"y"));
                 stage=19;
             }
             case 19 -> {
@@ -206,7 +195,6 @@ public final class AtlasClientChecks implements ClientModInitializer {
                 screenshot(mc,"small.png");
                 check(screen.width<=400 && screen.height<=300,"Small-window layout must be exercised");
                 checkLayout(mc); checkMarkerPositions(mc);
-                hoverScreenshot(mc,"inspector-tooltip.png",25,(int)field("inspectorY")+4);
                 stage=20;
             }
             case 20 -> {
@@ -230,7 +218,7 @@ public final class AtlasClientChecks implements ClientModInitializer {
                 if (++ticks<30) return;
                 checkMarkerPositions(mc);
                 screenshot(mc,"fog.png");
-                // Dense markers at low zoom must share hover targets instead of shifting coordinates.
+                // Dense markers at low zoom must cluster without shifting coordinates.
                 check(((java.util.List<?>)field("mapMarkers")).isEmpty(),"Offscreen pins must be culled");
                 set("centerX",0.0); set("centerZ",-1.0); set("zoom",4.0);
                 ticks=0; stage=17;
@@ -240,8 +228,6 @@ public final class AtlasClientChecks implements ClientModInitializer {
                 check(((java.util.List<?>)field("mapMarkers")).size()==1,"Nearby city/capital pins cluster at minimum zoom");
                 checkMarkerPositions(mc);
                 screenshot(mc,"cluster.png");
-                var pin=recordField(((java.util.List<?>)field("mapMarkers")).getFirst(),"point");
-                hoverScreenshot(mc,"cluster-tooltip.png",(int)recordField(pin,"x"),(int)recordField(pin,"y"));
                 stage=21;
             }
             case 21 -> {
@@ -314,11 +300,6 @@ public final class AtlasClientChecks implements ClientModInitializer {
     }
     private Object field(String name) throws Exception { var f=PoliticalMapScreen.class.getDeclaredField(name); f.setAccessible(true); return f.get(screen); }
     private void set(String name,Object value) throws Exception { var f=PoliticalMapScreen.class.getDeclaredField(name); f.setAccessible(true); f.set(screen,value); }
-    private void hoverScreenshot(Minecraft mc,String name,int x,int y) throws Exception {
-        check(!(boolean)field("panning"),"Hover targets are available when not dragging");
-        pendingCapture=name; hoverX=x; hoverY=y; hoverTicks=0;
-        pointCursor(mc,x,y);
-    }
     private void pointCursor(Minecraft mc,int x,int y) throws Exception {
         var horizontal=net.minecraft.client.MouseHandler.class.getDeclaredField("xpos"); horizontal.setAccessible(true);
         var vertical=net.minecraft.client.MouseHandler.class.getDeclaredField("ypos"); vertical.setAccessible(true);

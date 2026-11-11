@@ -11,14 +11,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.FittingMultiLineTextWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
-import org.joml.Vector2i;
 
 /** Royal Cartography: logical pixels, native widget lifecycle, no gameplay authority. */
 final class KingdomUi {
@@ -45,11 +41,6 @@ final class KingdomUi {
     }
     private static int sequence;
     private static long lastReadAt, lastMutationAt;
-    private static final ClientTooltipPositioner TOOLTIP_POSITION = (w,h,x,y,tw,th) -> {
-        int tx = x + 12;
-        if (tx + tw + 6 > w) tx = x - tw - 8;
-        return new Vector2i(Math.clamp(tx,4,Math.max(4,w-tw-6)),Math.clamp(y+8,4,Math.max(4,h-th-6)));
-    };
     private KingdomUi() { }
     static boolean canRead() { return System.currentTimeMillis()-lastReadAt >= 175; }
     static void readSent() { lastReadAt = System.currentTimeMillis(); }
@@ -79,20 +70,6 @@ final class KingdomUi {
     static String ellipsize(Font font, Component line, int width) {
         String value = line.getString();
         return font.width(value) <= width ? value : font.plainSubstrByWidth(value,Math.max(0,width-font.width("…")))+"…";
-    }
-    static void tooltip(GuiGraphics g,Font font,Component value,int mx,int my) {
-        tooltip(g,font,font.split(value,Math.max(40,Math.min(200,g.guiWidth()/2))),mx,my);
-    }
-    static void tooltip(GuiGraphics g,Font font,List<FormattedCharSequence> lines,int mx,int my) {
-        tooltip(g,font,lines,mx,my,3);
-    }
-    static void tooltip(GuiGraphics g,Font font,List<FormattedCharSequence> lines,int mx,int my,int maxLines) {
-        int max = Math.max(1,Math.min(maxLines,(g.guiHeight()-16)/LINE));
-        if (lines.size() > max) {
-            var clipped = new java.util.ArrayList<>(lines.subList(0,Math.max(0,max-1)));
-            clipped.add(Component.literal("…").getVisualOrderText()); lines = clipped;
-        }
-        g.renderTooltip(font,lines,TOOLTIP_POSITION,mx,my);
     }
     static EditBox field(Font font,int x,int y,int width,Component label) {
         EditBox box = new EditBox(font,x,y,width,CONTROL,label) {
@@ -144,11 +121,6 @@ final class KingdomUi {
         }
         double scrollPosition() { return scrollAmount(); }
         void restoreScroll(double amount) { setScrollAmount(amount); }
-        void renderTooltip(GuiGraphics g,int mx,int my) {
-            if (!isMouseOver(mx,my)) return;
-            int row=(int)((my-getY()-innerPadding()+scrollAmount())/ROW);
-            if (row>=0&&row<rows.size()&&font.width(rows.get(row))>getWidth()-16) tooltip(g,font,rows.get(row),mx,my);
-        }
         @Override public void updateWidgetNarration(NarrationElementOutput output) {
             output.add(NarratedElementType.TITLE,getMessage());
             output.add(NarratedElementType.USAGE,text("scroll_details"));
@@ -164,7 +136,6 @@ final class KingdomUi {
         RoyalButton(int x,int y,int width,Component label,OnPress press) { this(x,y,width,label,press,ButtonStyle.NORMAL); }
         RoyalButton(int x,int y,int width,Component label,OnPress press,ButtonStyle style) {
             super(x,y,width,CONTROL,label,press,DEFAULT_NARRATION); this.style = style;
-            setTooltip(Tooltip.create(label));
         }
         void style(ButtonStyle value) { style=value; }
         void selected(boolean value) { selected=value; }

@@ -1,5 +1,8 @@
 # Kingdom management — v0.5.0
 
+For current government roles, persistent city invitations and leadership transfer,
+see [v0.8.4 kingdom administration](kingdom-administration.md).
+
 Use **City → Citizens** for the [v0.8.1 citizen interface](citizen-management-ui.md).
 Citizens now open their own city folio; owner controls retain their permission checks.
 

@@ -36,19 +36,25 @@ public final class KingdomManagementScreen extends RoyalScreen {
     @Override protected void init() {
         atlas=null; civic=null;
         if (section==Section.KINGDOM) {
-            atlas=new KingdomAtlasView(font,width,height,state,expandedAtlasRecord,this::request,this::onClose,this::navigate,
+            atlas=new KingdomAtlasView(font,width,height,state,expandedAtlasRecord,this::request,this::onClose,this::relocate,this::navigate,
                     () -> { expandedAtlasRecord=!expandedAtlasRecord; rebuildWidgets(); if (atlas.disclosure!=null) setInitialFocus(atlas.disclosure); },requested!=0,failed);
             for (AbstractWidget widget:atlas.widgets()) addRenderableWidget(widget);
             refresh=atlas.refresh; readout=atlas.record;
             setInitialFocus(atlas.initialFocus);
         } else {
-            civic=new CityAtlasView(font,width,height,state,section==Section.TERRITORIES,expandedCityRecord,this::request,this::onClose,this::navigate,
+            civic=new CityAtlasView(font,width,height,state,section==Section.TERRITORIES,expandedCityRecord,this::request,this::onClose,this::relocate,this::navigate,
                     () -> { expandedCityRecord=!expandedCityRecord; rebuildWidgets(); if (civic.disclosure!=null) setInitialFocus(civic.disclosure); },requested!=0,failed);
             for (AbstractWidget widget:civic.widgets()) addRenderableWidget(widget);
             refresh=civic.refresh; readout=civic.record;
             setInitialFocus(civic.initialFocus);
         }
         if (refreshOnInit || state==null&&requested==0) { refreshOnInit=false; request(); }
+    }
+    private void relocate() {
+        if (state==null) return;
+        boolean kingdom=section==Section.KINGDOM;
+        UUID target=kingdom?(state.overview()==null?null:state.overview().id()):(state.city()==null?null:state.city().id());
+        if (target!=null) minecraft.setScreen(new ObeliskRelocationScreen(this,target,kingdom));
     }
     private void navigate(int index) {
         if (index==3) minecraft.setScreen(new PoliticalMapScreen(this,false));

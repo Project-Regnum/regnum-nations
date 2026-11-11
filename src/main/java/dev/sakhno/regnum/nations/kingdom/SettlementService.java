@@ -36,7 +36,7 @@ public final class SettlementService {
         if (data.citizenCity(player.getUUID())!=null) throw new FoundingException(ALREADY_CITIZEN);
         KingdomService.checkDistance(player,pos);
         CityObeliskBlockEntity block=cityBlock(player,pos);
-        if (block.getSettlementId()!=null||data.cityAt(player.level().dimension(),pos)!=null) throw new FoundingException(ALREADY_BOUND);
+        if (block.getSettlementId()!=null||data.anchorAt(player.level().dimension(),pos)||data.usesObelisk(block.getObeliskId())) throw new FoundingException(ALREADY_BOUND);
         long now=server.overworld().getGameTime(); pending.values().removeIf(p -> now-p.at()>=KingdomService.SELECTION_TICKS);
         pending.put(player.getUUID(),new Pending(player,player.level().dimension(),pos.immutable(),block.getObeliskId(),now));
     }

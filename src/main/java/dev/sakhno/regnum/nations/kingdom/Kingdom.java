@@ -21,6 +21,10 @@ public record Kingdom(UUID id, KingdomName name, UUID founderId, ResourceKey<Lev
 
 	public enum CapitalStatus { PRESENT, MISSING, UNRESOLVED }
 
+    public Kingdom withCapitalPos(BlockPos pos) {
+        return new Kingdom(id,name,founderId,dimension,pos,capitalObeliskId,createdAt,CapitalStatus.PRESENT,capitalSettlementId,color,government);
+    }
+
 	public Kingdom withName(KingdomName name) {
 		return new Kingdom(id, name, founderId, dimension, capitalPos, capitalObeliskId, createdAt, capitalStatus, capitalSettlementId, color, government);
 	}

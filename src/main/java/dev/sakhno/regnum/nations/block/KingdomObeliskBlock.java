@@ -87,10 +87,31 @@ public class KingdomObeliskBlock extends BaseEntityBlock {
 		return InteractionResult.sidedSuccess(level.isClientSide);
 	}
 
+    @Override
+    protected void onExplosionHit(BlockState state,Level level,BlockPos pos,net.minecraft.world.level.Explosion explosion,
+            java.util.function.BiConsumer<net.minecraft.world.item.ItemStack,BlockPos> drops) {
+        if (level instanceof ServerLevel serverLevel
+                && dev.sakhno.regnum.nations.kingdom.ObeliskRelocationService.protectedAnchor(serverLevel,pos)) return;
+        super.onExplosionHit(state,level,pos,explosion,drops);
+    }
+
+    @Override
+    protected java.util.List<net.minecraft.world.item.ItemStack> getDrops(BlockState state,net.minecraft.world.level.storage.loot.LootParams.Builder builder) {
+        var entity=builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        var origin=builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN);
+        var level=builder.getLevel();
+        // Also suppress copied/stale bindings. Relocation itself never drops an item.
+        if (origin!=null&&dev.sakhno.regnum.nations.kingdom.ObeliskRelocationService.protectedAnchor(level,BlockPos.containing(origin))) return java.util.List.of();
+        if (entity instanceof KingdomObeliskBlockEntity block
+                && (block.getKingdomId()!=null||KingdomService.get(level.getServer()).data().usesObelisk(block.getObeliskId()))) return java.util.List.of();
+        return super.getDrops(state,builder);
+    }
+
 	@Override
 	protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
 		if (!state.is(newState.getBlock()) && level instanceof ServerLevel serverLevel) {
-			KingdomService.get(serverLevel.getServer()).capitalRemoved(serverLevel, pos);
+			var service=KingdomService.get(serverLevel.getServer());
+            if (!service.relocation().transferring(serverLevel,pos)) service.capitalRemoved(serverLevel, pos);
 		}
 		super.onRemove(state, level, pos, newState, moving);
 	}

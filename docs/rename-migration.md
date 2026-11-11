@@ -62,3 +62,7 @@ Automated checks cover literal legacy registry identifiers, block entity and ite
 NBT, loading the old saved-data filename from disk, stable record/claim identities,
 mod metadata and the command alias, alongside existing gameplay tests. A real
 player-world upgrade and interactive client visual checks still require manual review.
+
+v0.8.0 [obelisk relocation](obelisk-relocation.md) retains schema 5, all registry
+identities and existing packet layouts. Anchor positions may change within owned
+territory; canonical recovery uses the same saved records. No migration is needed.

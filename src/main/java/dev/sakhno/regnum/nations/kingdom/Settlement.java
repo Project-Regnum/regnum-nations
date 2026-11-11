@@ -13,6 +13,9 @@ public record Settlement(UUID id, KingdomName name, UUID founderId, UUID ownerId
         obeliskPos=obeliskPos.immutable();
         if (!PoliticalColors.valid(color)) throw new IllegalArgumentException("Invalid settlement color");
     }
+    public Settlement withObeliskPos(BlockPos pos) {
+        return new Settlement(id,name,founderId,ownerId,dimension,pos,obeliskId,createdAt,Kingdom.CapitalStatus.PRESENT,sovereign,color,legacyAnchor);
+    }
     public Settlement withSovereign(UUID kingdom) {
         return new Settlement(id,name,founderId,ownerId,dimension,obeliskPos,obeliskId,createdAt,status,kingdom,color,legacyAnchor);
     }

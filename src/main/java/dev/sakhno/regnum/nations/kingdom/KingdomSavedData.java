@@ -107,6 +107,30 @@ public final class KingdomSavedData extends SavedData {
     public Settlement cityAt(ResourceKey<Level> dimension,BlockPos pos) {
         return settlements.values().stream().filter(s -> s.dimension().equals(dimension)&&s.obeliskPos().equals(pos)).findFirst().orElse(null);
     }
+    /** Identity checks span both kinds of anchors, including migrated shared anchors. */
+    public boolean usesObelisk(UUID identity) {
+        return obelisks.containsKey(identity)||settlements.values().stream().anyMatch(s -> s.obeliskId().equals(identity));
+    }
+    boolean stateIdentityOccupied(ResourceKey<Level> dimension,BlockPos pos,UUID identity) {
+        if (obelisks.containsKey(identity)) return true;
+        return settlements.values().stream().anyMatch(s -> s.obeliskId().equals(identity)
+                && !(s.legacyAnchor()&&s.sovereign()==null&&s.dimension().equals(dimension)&&s.obeliskPos().equals(pos)));
+    }
+    public boolean anchorAt(ResourceKey<Level> dimension,BlockPos pos) {
+        return cityAt(dimension,pos)!=null||atCapital(dimension,pos)!=null;
+    }
+    /** Only position/status change; claims, memberships and political references are untouched. */
+    void relocate(Settlement city,Kingdom state,BlockPos destination) throws FoundingException {
+        requireAvailable();
+        if (city!=null&&!city.equals(settlement(city.id()))||state!=null&&!state.equals(byId(state.id()))) throw new FoundingException(OBELISK_UNAVAILABLE);
+        if (city!=null) settlements.put(city.id(),city.withObeliskPos(destination));
+        if (state!=null) {
+            capitals.remove(GlobalPos.of(state.dimension(),state.capitalPos()),state.id());
+            Kingdom moved=state.withCapitalPos(destination);
+            kingdoms.put(state.id(),moved); capitals.put(GlobalPos.of(moved.dimension(),destination),moved.id());
+        }
+        setDirty();
+    }
     public UUID claimOwner(ClaimPos pos) { return claims.get(pos); }
     public List<ClaimPos> settlementClaims(UUID id) { return claims.entrySet().stream().filter(e -> e.getValue().equals(id)).map(Map.Entry::getKey).toList(); }
     public long settlementClaimCount(UUID id) { return claims.values().stream().filter(id::equals).count(); }
@@ -127,7 +151,7 @@ public final class KingdomSavedData extends SavedData {
         requireAvailable();
         if (founders.containsKey(founder)) throw new FoundingException(ALREADY_FOUNDER);
         if (names.containsKey(name.key())) throw new FoundingException(DUPLICATE_NAME);
-        if (obelisks.containsKey(obelisk)||capitals.containsKey(GlobalPos.of(dim,pos))) throw new FoundingException(ALREADY_BOUND);
+        if (stateIdentityOccupied(dim,pos,obelisk)||capitals.containsKey(GlobalPos.of(dim,pos))) throw new FoundingException(ALREADY_BOUND);
     }
     /** Historical/command combined founding, still one personal domain. */
     void add(Kingdom kingdom) throws FoundingException {
@@ -145,7 +169,7 @@ public final class KingdomSavedData extends SavedData {
         if (byOwner(city.ownerId())!=null) throw new FoundingException(DOMAIN_LIMIT);
         if (citizens.containsKey(city.ownerId())) throw new FoundingException(ALREADY_CITIZEN);
         if (settlements.containsKey(city.id())||kingdoms.containsKey(city.id())||city.id().equals(city.obeliskId())
-                || cityAt(city.dimension(),city.obeliskPos())!=null || settlements.values().stream().anyMatch(s -> s.obeliskId().equals(city.obeliskId()))) throw new FoundingException(ALREADY_BOUND);
+                || anchorAt(city.dimension(),city.obeliskPos()) || usesObelisk(city.obeliskId())) throw new FoundingException(ALREADY_BOUND);
         if (city.sovereign()!=null||city.legacyAnchor()) throw new IllegalArgumentException("Native city must start independent");
         ClaimPos capital=ClaimPos.at(city.dimension(),city.obeliskPos());
         if (claims.containsKey(capital)||isCapital(capital)) throw new FoundingException(TERRITORY_OCCUPIED);

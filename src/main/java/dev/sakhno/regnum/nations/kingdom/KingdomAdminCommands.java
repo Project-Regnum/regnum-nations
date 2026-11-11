@@ -23,6 +23,7 @@ public final class KingdomAdminCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> commands() {
         return Commands.literal("admin").requires(source -> source.hasPermission(3))
                 .executes(context -> help(context.getSource()))
+                .then(ObeliskRelocationCommands.recovery())
                 .then(Commands.literal("help").executes(context -> help(context.getSource())))
                 .then(Commands.literal("list").executes(context -> list(context.getSource(),1))
                         .then(Commands.argument("page",IntegerArgumentType.integer(1))

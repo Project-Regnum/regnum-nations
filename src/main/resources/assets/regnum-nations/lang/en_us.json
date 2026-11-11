@@ -303,5 +303,20 @@
   "citizen.regnum-nations.permission.invite": "Invite citizens",
   "citizen.regnum-nations.permission.manage_members": "Manage citizens and roles",
   "message.regnum-nations.founding.owner_role_immutable": "City ownership is implicit and cannot be changed with role commands.",
-  "message.regnum-nations.founding.invalid_city_role": "Choose officer or citizen. The owner role is implicit and cannot be assigned."
+  "message.regnum-nations.founding.invalid_city_role": "Choose officer or citizen. The owner role is implicit and cannot be assigned.",
+  "relocation.regnum-nations.title": "Relocate obelisk",
+  "relocation.regnum-nations.description": "Choose empty space within six blocks, in your city’s owned territory and the same dimension. State anchors stay in the current capital chunk. Validate the destination, then confirm within 30 seconds.",
+  "relocation.regnum-nations.select": "Validate",
+  "relocation.regnum-nations.confirm": "Confirm move",
+  "relocation.regnum-nations.ready": "Destination validated. Confirm within 30 seconds. The original remains active until confirmation.",
+  "relocation.regnum-nations.selected": "Destination %s validated for 30 seconds.",
+  "relocation.regnum-nations.success": "Obelisk relocated. Settlement identity and territory preserved.",
+  "relocation.regnum-nations.recovered": "Obelisk restored at its saved position. Settlement identity preserved.",
+  "relocation.regnum-nations.protected": "Active obelisks are protected. Use relocation to move yours.",
+  "relocation.regnum-nations.help": "Use /nations relocate city|state <x> <y> <z>, then /nations relocate confirm <token>. Stand within six blocks of empty owned space. Requests expire after 30 seconds.",
+  "message.regnum-nations.founding.relocation_destination": "Invalid destination: choose loaded empty space within your city’s owned territory and the world border.",
+  "message.regnum-nations.founding.relocation_conflict": "Conflicting obelisk, binding, or occupied destination. No relocation performed.",
+  "message.regnum-nations.founding.relocation_pending": "A relocation already reserves this player, obelisk, or destination. Confirm it or wait 30 seconds.",
+  "message.regnum-nations.founding.relocation_expired": "Relocation request expired, was consumed, or belongs to another session. Validate a new destination.",
+  "message.regnum-nations.founding.relocation_capital": "Capital obelisks must stay in the existing state capital chunk."
 }

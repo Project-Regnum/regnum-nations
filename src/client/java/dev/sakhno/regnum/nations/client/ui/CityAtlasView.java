@@ -27,7 +27,7 @@ final class CityAtlasView {
     final Readout record;
 
     CityAtlasView(Font font,int screenWidth,int screenHeight,State state,boolean territories,boolean expanded,
-                  Runnable refreshAction,Runnable closeAction,IntConsumer navigate,Runnable toggle,boolean loading,boolean failed) {
+                  Runnable refreshAction,Runnable closeAction,Runnable relocateAction,IntConsumer navigate,Runnable toggle,boolean loading,boolean failed) {
         this.font=font; this.territories=territories; this.expanded=expanded;
         city=state==null?null:state.city();
         bounds=folioBounds(screenWidth,screenHeight,620,256);
@@ -66,7 +66,7 @@ final class CityAtlasView {
         } else if (city==null) {
             widgets.add(paragraph(font,bounds.left(),bodyY,bodyWidth-GAP,Math.max(CONTROL,bounds.footerY()-GAP-bodyY),empty));
         } else {
-            toggleButton=new RoyalButton(bounds.left(),bounds.disclosureY(),Math.min(bodyWidth,font.width(text(expanded?"atlas_record_close":"atlas_record_open"))+PAD*2),
+            toggleButton=new RoyalButton(bounds.left(),bounds.disclosureY(),Math.min(city.manager()?bodyWidth/2-GAP:bodyWidth,font.width(text(expanded?"atlas_record_close":"atlas_record_open"))+PAD*2),
                     text(expanded?"atlas_record_close":"atlas_record_open"),b -> toggle.run());
             widgets.add(toggleButton);
             if (expanded) {
@@ -77,6 +77,11 @@ final class CityAtlasView {
             }
         }
         record=technicalRecord; disclosure=toggleButton;
+        if (!territories&&city!=null&&city.manager()) {
+            int relocationWidth=Math.min(bodyWidth/2,font.width(Component.translatable("relocation.regnum-nations.title"))+PAD*2);
+            widgets.add(new RoyalButton(bounds.right()-relocationWidth,bounds.disclosureY(),relocationWidth,
+                    Component.translatable("relocation.regnum-nations.title"),b -> relocateAction.run()));
+        }
         int[] actions=AtlasWidgets.rowWidths(font,bodyWidth,CONTROL*3,text("refresh"),text("close"));
         refresh=new RoyalButton(bounds.left(),bounds.footerY(),actions[0],text("refresh"),b -> refreshAction.run());
         widgets.add(refresh);

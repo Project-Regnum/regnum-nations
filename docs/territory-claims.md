@@ -1,5 +1,9 @@
 # Regnum Nations v0.3 — Basic territory claims
 
+Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
+earlier anchor destruction and recovery behavior described below.
+
+
 For the current founding GUI, kingdom menu and interactive map controls, see
 [kingdom management v0.5.0](kingdom-management.md). This document retains the
 earlier milestone behavior and verification history. For current citizen building

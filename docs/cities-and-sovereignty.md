@@ -1,5 +1,9 @@
 # Cities, sovereignty and citizenship
 
+Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
+earlier anchor destruction and recovery behavior described below.
+
+
 For the current v0.6.1 visual standard and clickable dissolution UX, see
 [Royal Cartography](ui-design-system.md). v0.7.0 extends the v0.6 city model with
 player citizenship. v0.7.1 adds fixed city roles and named permissions below.

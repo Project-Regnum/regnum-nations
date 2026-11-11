@@ -116,7 +116,7 @@ public final class ObeliskRelocationService {
     }
     private void authorize(ServerPlayer player,Anchor anchor) throws FoundingException {
         Settlement city=owner(anchor);
-        if (!city.ownerId().equals(player.getUUID())||anchor.state()!=null&&!anchor.state().founderId().equals(player.getUUID())) throw new FoundingException(NOT_OWNER);
+        if (!city.ownerId().equals(player.getUUID())||anchor.state()!=null&&!anchor.state().rulerId().equals(player.getUUID())) throw new FoundingException(NOT_OWNER);
         if (data.ownedSettlements(player.getUUID()).size()!=1) throw new FoundingException(DOMAIN_REPAIR);
     }
     private void validate(ServerPlayer player,Anchor anchor,ResourceKey<Level> dimension,BlockPos destination) throws FoundingException {

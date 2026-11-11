@@ -17,12 +17,10 @@ public final class SettlementService {
     private final MinecraftServer server;
     private final KingdomSavedData data;
     private final Map<UUID,Pending> pending=new HashMap<>();
-    private final Map<UUID,Invitation> invitations=new HashMap<>();
     private record Pending(ServerPlayer player,ResourceKey<Level> dimension,BlockPos pos,UUID obelisk,long at) { }
-    private record Invitation(ServerPlayer recipient,UUID kingdom,UUID leader,long at) { }
     SettlementService(KingdomService kingdoms,MinecraftServer server,KingdomSavedData data) { this.kingdoms=kingdoms; this.server=server; this.data=data; }
     void forget(UUID player) { pending.remove(player); }
-    void disconnect(UUID player) { pending.remove(player); invitations.remove(player); invitations.values().removeIf(i -> i.leader().equals(player)); }
+    void disconnect(UUID player) { pending.remove(player); }
     public Settlement owned(ServerPlayer player) throws FoundingException {
         kingdoms.validatePlayer(player);
         var cities=data.ownedSettlements(player.getUUID());
@@ -94,20 +92,17 @@ public final class SettlementService {
         if (!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())))) throw new FoundingException(CAPITAL_CONFLICT);
         return city;
     }
+    /** Legacy commands now delegate to the persistent city-ID invitation lifecycle. */
     public UUID invite(ServerPlayer leader,ServerPlayer recipient) throws FoundingException {
-        kingdoms.validatePlayer(leader); owned(recipient);
-        Kingdom kingdom=data.byFounder(leader.getUUID());
-        if (kingdom==null) throw new FoundingException(NO_KINGDOM);
-        Settlement city=owned(recipient); if (city.sovereign()!=null) throw new FoundingException(ALREADY_AFFILIATED);
-        long now=server.overworld().getGameTime(); invitations.values().removeIf(i -> now-i.at()>=KingdomService.SELECTION_TICKS);
-        invitations.put(recipient.getUUID(),new Invitation(recipient,kingdom.id(),leader.getUUID(),now)); return kingdom.id();
+        kingdoms.validatePlayer(recipient);
+        Kingdom kingdom=kingdoms.administration().current(leader);
+        kingdoms.administration().inviteCity(leader,kingdom.id(),owned(recipient).id());
+        return kingdom.id();
     }
     public void join(ServerPlayer player,UUID kingdomId) throws FoundingException {
-        Invitation invitation=invitations.remove(player.getUUID()); Settlement city=owned(player);
-        long age=invitation==null?-1:server.overworld().getGameTime()-invitation.at();
-        Kingdom kingdom=data.byId(kingdomId);
-        if (invitation==null||invitation.recipient()!=player||!invitation.kingdom().equals(kingdomId)||age<0||age>=KingdomService.SELECTION_TICKS
-                ||kingdom==null||!kingdom.founderId().equals(invitation.leader())) throw new FoundingException(INVITATION_REQUIRED);
-        data.affiliate(city,kingdomId);
+        Settlement city=owned(player);
+        var invitation=data.cityInvitations().stream().filter(i -> i.kingdom().equals(kingdomId)&&i.city().equals(city.id())).findFirst()
+                .orElseThrow(() -> new FoundingException(INVITATION_REQUIRED));
+        kingdoms.administration().answer(player,invitation.id(),true);
     }
 }

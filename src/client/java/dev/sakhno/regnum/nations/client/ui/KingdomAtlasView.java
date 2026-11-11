@@ -33,7 +33,7 @@ final class KingdomAtlasView {
     final Readout record;
 
     KingdomAtlasView(Font font,int screenWidth,int screenHeight,State state,boolean expanded,
-                     Runnable refreshAction,Runnable closeAction,Runnable relocateAction,IntConsumer navigate,Runnable toggle,boolean loading,boolean failed) {
+                     Runnable refreshAction,Runnable closeAction,Runnable relocateAction,Runnable administrationAction,IntConsumer navigate,Runnable toggle,boolean loading,boolean failed) {
         this.font=font; this.expanded=expanded;
         kingdom=state==null?null:state.overview();
         bounds=folioBounds(screenWidth,screenHeight,MAX_WIDTH,screenWidth-MARGIN*2>=500?MAX_HEIGHT:256);
@@ -89,7 +89,8 @@ final class KingdomAtlasView {
             record=expanded?new Readout(font,bounds.left(),bodyY,bodyWidth-GAP,Math.max(CONTROL,bounds.contentBottom()-bodyY),technical):null;
             if (record!=null) widgets.add(record);
         }
-        int[] actions=AtlasWidgets.rowWidths(font,bodyWidth,CONTROL*3,text("refresh"),text("close"));
+        Component adminLabel=Component.translatable("kingdom_admin.regnum-nations.title");
+        int[] actions=AtlasWidgets.rowWidths(font,bodyWidth,CONTROL*2,text("refresh"),adminLabel,text("close"));
         if (kingdom!=null&&kingdom.manager()) {
             int relocationWidth=Math.min(bodyWidth/2,font.width(Component.translatable("relocation.regnum-nations.title"))+PAD*2);
             widgets.add(new RoyalButton(bounds.right()-relocationWidth,bounds.disclosureY(),relocationWidth,
@@ -97,8 +98,9 @@ final class KingdomAtlasView {
         }
         refresh=new RoyalButton(bounds.left(),bounds.footerY(),actions[0],text("refresh"),b -> refreshAction.run());
         widgets.add(refresh);
-        widgets.add(new RoyalButton(bounds.right()-actions[1],bounds.footerY(),actions[1],text("close"),b -> closeAction.run()));
-        feedbackX=refresh.getRight()+GAP; feedbackWidth=bounds.right()-actions[1]-GAP-feedbackX;
+        widgets.add(new RoyalButton(bounds.right()-actions[2],bounds.footerY(),actions[2],text("close"),b -> closeAction.run()));
+        widgets.add(new RoyalButton(refresh.getRight()+GAP,bounds.footerY(),actions[1],adminLabel,b -> administrationAction.run()));
+        feedbackX=refresh.getRight()+GAP+actions[1]+GAP; feedbackWidth=Math.max(0,bounds.right()-actions[2]-GAP-feedbackX);
     }
     List<AbstractWidget> widgets() { return widgets; }
     Component narration() {

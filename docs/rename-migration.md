@@ -70,3 +70,8 @@ territory; canonical recovery uses the same saved records. No migration is neede
 v0.8.1 [citizen management](citizen-management-ui.md) retains schema 5 and all
 existing wire contracts. UI concurrency stamps and invitation IDs are ephemeral;
 only two additive citizen UI channels are introduced. No migration is required.
+
+v0.8.4 [kingdom administration](kingdom-administration.md) adds schema-6 ruler,
+kingdom-role and persistent city-invitation fields. Existing identities, municipal
+roles, affiliations, claims and legacy channels remain. Schema 1–5 founders migrate
+to rulers; downgrade requires restoring the pre-upgrade world backup.

@@ -3,6 +3,7 @@ package dev.sakhno.regnum.nations.kingdom;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -46,8 +47,37 @@ final class CitizenshipCommands {
                     ctx.getSource().sendSuccess(() -> text("list", city.name().display(), members.size()), false);
                     for (UUID member : members) {
                         String name = name(actor, member);
-                        ctx.getSource().sendSuccess(() -> text(member.equals(city.ownerId()) ? "owner_entry" : "entry",
-                                name, member.toString()), false);
+                        CityRole role = service.role(actor, member);
+                        ctx.getSource().sendSuccess(() -> text("role_entry", name, member.toString(), roleName(role)), false);
+                    }
+                })))
+                .then(Commands.literal("role").then(Commands.argument("player", StringArgumentType.word())
+                        .suggests((ctx, builder) -> net.minecraft.commands.SharedSuggestionProvider.suggest(ctx.getSource().getOnlinePlayerNames(), builder))
+                        .then(Commands.argument("role", StringArgumentType.word())
+                                .suggests((ctx, builder) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                                        java.util.List.of("officer", "citizen"), builder))
+                                .executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
+                                    UUID target = target(service, actor, StringArgumentType.getString(ctx, "player"));
+                                    CityRole role;
+                                    try { role = CityRole.valueOf(StringArgumentType.getString(ctx, "role").toUpperCase(Locale.ROOT)); }
+                                    catch (IllegalArgumentException invalid) { throw new FoundingException(FoundingException.Reason.INVALID_CITY_ROLE); }
+                                    service.assignRole(actor, target, role);
+                                    ctx.getSource().sendSuccess(() -> text("role_assigned", name(actor, target), target.toString(), roleName(role)), false);
+                                })))))
+                .then(Commands.literal("roles").executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
+                    service.current(actor);
+                    for (CityRole role : CityRole.values()) {
+                        ctx.getSource().sendSuccess(() -> text("role_description." + role.name().toLowerCase(Locale.ROOT), roleName(role)), false);
+                    }
+                })))
+                .then(Commands.literal("permissions").executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
+                    CityRole role = service.role(actor, actor.getUUID());
+                    ctx.getSource().sendSuccess(() -> text("permissions", roleName(role)), false);
+                    for (CityPermission permission : CityPermission.values()) {
+                        boolean allowed = service.permits(actor, permission);
+                        ctx.getSource().sendSuccess(() -> text("permission_entry",
+                                text("permission." + permission.name().toLowerCase(Locale.ROOT)),
+                                Component.translatable("ui.regnum-nations." + (allowed ? "yes" : "no"))), false);
                     }
                 })))
                 .then(Commands.literal("kick").then(Commands.argument("player", StringArgumentType.word())
@@ -100,6 +130,10 @@ final class CitizenshipCommands {
             source.sendFailure(Component.translatable(failure.translationKey()));
             return 0;
         }
+    }
+
+    private static Component roleName(CityRole role) {
+        return text("role." + role.name().toLowerCase(Locale.ROOT));
     }
 
     private static Component text(String key, Object... args) {

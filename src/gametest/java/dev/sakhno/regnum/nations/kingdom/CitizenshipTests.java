@@ -212,8 +212,8 @@ public class CitizenshipTests implements FabricGameTest {
                         "Every older schema must retain ownership, implicit citizenship and claims");
                 var saved = loaded.save(new CompoundTag(), h.getLevel().registryAccess());
                 var again = KingdomSavedData.load(saved, h.getLevel().registryAccess()); again.requireAvailable();
-                h.assertTrue(saved.getInt("Version") == 4 && !again.isDirty()
-                        && saved.equals(again.save(new CompoundTag(), h.getLevel().registryAccess())), "Schema 4 migration must be idempotent");
+                h.assertTrue(saved.getInt("Version") == 5 && !again.isDirty()
+                        && saved.equals(again.save(new CompoundTag(), h.getLevel().registryAccess())), "Schema 5 migration must be idempotent");
             }
         }
         h.succeed();
@@ -387,7 +387,7 @@ public class CitizenshipTests implements FabricGameTest {
     }
 
     /** Synthetic server players exist in PlayerList only during each synchronous test, never across ticks. */
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final GameTestHelper h;
         final KingdomSavedData data;
         final KingdomService kingdoms;

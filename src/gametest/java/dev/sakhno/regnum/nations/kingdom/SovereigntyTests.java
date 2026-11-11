@@ -49,7 +49,7 @@ public class SovereigntyTests implements FabricGameTest {
         var historical=player(h.getLevel(),first.capitalPos(),first.founderId());
         reject(h,migrated,DOMAIN_REPAIR,() -> new ClaimService(migrated).manage(historical,false));
         CompoundTag saved=migrated.save(new CompoundTag(),h.getLevel().registryAccess());
-        h.assertTrue(saved.getInt("Version")==4,"Migrated data must write schema 4");
+        h.assertTrue(saved.getInt("Version")==5,"Migrated data must write schema 5");
         var reloaded=KingdomSavedData.load(saved,h.getLevel().registryAccess()); reloaded.requireAvailable();
         h.assertTrue(reloaded.settlements().size()==3&&reloaded.kingdoms().size()==3&&!reloaded.isDirty()
                 &&reloaded.save(new CompoundTag(),h.getLevel().registryAccess()).equals(saved),"Schema 3 reload must be idempotent with no duplicate cities or changed history");

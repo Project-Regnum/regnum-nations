@@ -40,6 +40,9 @@ this rename received manual visual testing.
 The subsequent [v0.7.0 citizenship migration](cities-and-sovereignty.md#persistence-and-migration)
 adds schema-4 `Citizens` in the same saved-data file. All legacy identities and
 records remain. Rollback from schema 4 requires the pre-upgrade world backup.
+[v0.7.1 roles](cities-and-sovereignty.md#schema-5-upgrade-and-rollback) adds a role
+inside each existing membership and writes schema 5. Schema-4 citizens default to
+`CITIZEN`; rollback to v0.7.0 likewise requires the pre-upgrade world backup.
 
 ## Upgrade and rollback
 

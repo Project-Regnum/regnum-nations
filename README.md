@@ -17,9 +17,12 @@ unchanged. Rendered checks cover City, Found City and the independent Kingdom st
 the remaining screens await manual visual review (see the design system).
 Use City and State Obelisks, the compact `/nations menu`, and M for the political map.
 The v0.7.0 citizenship milestone adds owner-issued player invitations, persistent
-UUID membership and citizen building access. Use `/nations citizen` for help.
+UUID membership and citizen building access. v0.7.1 adds fixed owner/officer/citizen
+roles and centralized permissions; officers may invite while owners retain claim
+and membership management. Use `/nations citizen` for help.
 One personal city/domain and membership in at most one city are enforced.
-City affiliation is implemented; full roles, diplomacy, economy and warfare are not.
+City affiliation is implemented; configurable role permissions, diplomacy, economy
+and warfare are not.
 
 See [UI design system, Living Atlas reference and screenshot steps](docs/ui-design-system.md).
 
@@ -30,7 +33,7 @@ Diorama; no mapping mod is required. See the [assessment, cache behavior and
 verification instructions](docs/living-atlas-terrain.md) and
 [third-party attribution](THIRD_PARTY_NOTICES.md).
 
-See [cities, v0.7.0 citizenship, migration, permissions and manual checks](docs/cities-and-sovereignty.md).
+See [cities, v0.7.1 roles, citizenship, migration, permissions and manual checks](docs/cities-and-sovereignty.md).
 
 See [v0.5.1 UX, administration, safety, and manual checks](docs/ux-and-administration.md).
 
@@ -48,7 +51,7 @@ World registry IDs, UUIDs, saved-data filenames, map configuration and the saved
 binding stay compatible. `/nations` is the preferred command; `/reigns` remains an
 alias. Presentation assets and Java packages now use the Regnum Nations name.
 See the [migration contract and upgrade steps](docs/rename-migration.md) before
-upgrading a player world. Build output is `build/libs/regnum-nations-0.7.0.jar`.
+upgrading a player world. Build output is `build/libs/regnum-nations-0.7.1.jar`.
 
 ## Development
 

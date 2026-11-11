@@ -30,19 +30,19 @@ public final class CitizenshipService {
         this.clock = clock;
     }
 
-    public Settlement invite(ServerPlayer owner, ServerPlayer recipient) throws FoundingException {
-        kingdoms.validatePlayer(owner);
+    public Settlement invite(ServerPlayer inviter, ServerPlayer recipient) throws FoundingException {
+        kingdoms.validatePlayer(inviter);
         kingdoms.validatePlayer(recipient);
-        Settlement city = managed(owner);
+        Settlement city = authorized(inviter, CityPermission.INVITE);
         if (!server.getPlayerList().getPlayers().contains(recipient)) throw new FoundingException(PLAYER_OFFLINE);
         if (data.citizenCity(recipient.getUUID()) != null) throw new FoundingException(ALREADY_CITIZEN);
         long now = clock.getAsLong();
-        Long previous = invitedAt.get(owner.getUUID());
+        Long previous = invitedAt.get(inviter.getUUID());
         if (previous != null && now - previous < INVITE_INTERVAL_NANOS) throw new FoundingException(CITIZEN_RATE_LIMIT);
         invitations.entrySet().removeIf(e -> !valid(e.getKey(), e.getValue(), now));
         invitations.put(new Key(recipient.getUUID(), city.id()),
-                new Invitation(recipient, owner.getUUID(), city.obeliskId(), now));
-        invitedAt.put(owner.getUUID(), now);
+                new Invitation(recipient, inviter.getUUID(), city.obeliskId(), now));
+        invitedAt.put(inviter.getUUID(), now);
         return city;
     }
 
@@ -67,18 +67,20 @@ public final class CitizenshipService {
     private boolean valid(Key key, Invitation invitation, long now) {
         Settlement city = data.settlement(key.city());
         long age = now - invitation.at();
-        return age >= 0 && age < INVITATION_NANOS && CityPermissions.canManage(city, invitation.inviter())
+        return age >= 0 && age < INVITATION_NANOS && CityPermissions.allows(data, city, invitation.inviter(), CityPermission.INVITE)
                 && city.obeliskId().equals(invitation.anchor());
     }
 
     public void leave(ServerPlayer player) throws FoundingException {
         Settlement city = current(player);
         data.removeCitizen(city.id(), player.getUUID());
+        revokeIssued(player.getUUID());
     }
 
     public void kick(ServerPlayer owner, UUID target) throws FoundingException {
-        Settlement city = managed(owner);
+        Settlement city = authorized(owner, CityPermission.MANAGE_MEMBERS);
         data.removeCitizen(city.id(), target);
+        revokeIssued(target);
     }
 
     public List<UUID> list(ServerPlayer player) throws FoundingException {
@@ -92,10 +94,31 @@ public final class CitizenshipService {
         return city;
     }
 
-    private Settlement managed(ServerPlayer player) throws FoundingException {
+    public void assignRole(ServerPlayer owner, UUID target, CityRole role) throws FoundingException {
+        Settlement city = authorized(owner, CityPermission.MANAGE_MEMBERS);
+        data.assignRole(city.id(), target, role);
+        if (!CityPermissions.allows(data, city, target, CityPermission.INVITE)) revokeIssued(target);
+    }
+
+    public CityRole role(ServerPlayer viewer, UUID member) throws FoundingException {
+        Settlement city = current(viewer);
+        CityRole role = data.role(city.id(), member);
+        if (role == null) throw new FoundingException(NOT_CITIZEN);
+        return role;
+    }
+
+    public boolean permits(ServerPlayer player, CityPermission permission) throws FoundingException {
+        return CityPermissions.allows(data, current(player), player.getUUID(), permission);
+    }
+
+    private Settlement authorized(ServerPlayer player, CityPermission permission) throws FoundingException {
         Settlement city = current(player);
-        if (!CityPermissions.canManage(city, player.getUUID())) throw new FoundingException(NOT_OWNER);
+        if (!CityPermissions.allows(data, city, player.getUUID(), permission)) throw new FoundingException(NOT_OWNER);
         return city;
+    }
+
+    private void revokeIssued(UUID player) {
+        invitations.values().removeIf(invitation -> invitation.inviter().equals(player));
     }
 
     void disconnect(UUID player) {

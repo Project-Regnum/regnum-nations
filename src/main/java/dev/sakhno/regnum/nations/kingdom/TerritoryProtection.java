@@ -31,15 +31,19 @@ public final class TerritoryProtection {
 						&& (obelisk.getKingdomId() == null || capital.id().equals(obelisk.getKingdomId()))) return InteractionResult.PASS;
 			}
 			// Check the clicked block and adjacent effect/placement location, including offhand/sneaking use.
-			if (denied(level, player, hit.getBlockPos())
-					|| denied(level, player, hit.getBlockPos().relative(hit.getDirection()))) return InteractionResult.FAIL;
+			if (denied(level, player, hit.getBlockPos(), CityPermission.INTERACT)
+					|| denied(level, player, hit.getBlockPos().relative(hit.getDirection()), CityPermission.INTERACT)) return InteractionResult.FAIL;
 			return InteractionResult.PASS;
 		});
 	}
 
 	public static boolean denied(Level level, Player player, BlockPos pos) {
+		return denied(level, player, pos, CityPermission.BUILD);
+	}
+
+	private static boolean denied(Level level, Player player, BlockPos pos, CityPermission permission) {
 		if (!(level instanceof ServerLevel serverLevel)) return false;
-		if (ClaimService.canBuild(serverLevel, player, pos)) return false;
+		if (ClaimService.canAccess(serverLevel, player, pos, permission)) return false;
 		if (player != null) player.displayClientMessage(Component.translatable("message.regnum-nations.territory.protected"), true);
 		return true;
 	}

@@ -13,6 +13,7 @@
       "dev.sakhno.regnum.nations.kingdom.KingdomAdminTests",
       "dev.sakhno.regnum.nations.kingdom.SovereigntyTests",
       "dev.sakhno.regnum.nations.kingdom.CitizenshipTests",
+      "dev.sakhno.regnum.nations.kingdom.CityRoleTests",
       "dev.sakhno.regnum.nations.kingdom.RoyalCartographyTests",
       "dev.sakhno.regnum.nations.kingdom.RenameCompatibilityTests",
       "dev.sakhno.regnum.nations.kingdom.AtlasWorldTests"

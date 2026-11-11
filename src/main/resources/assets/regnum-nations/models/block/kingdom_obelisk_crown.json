@@ -1,0 +1,5184 @@
+{
+  "credit": "Regnum Nations original obelisk art",
+  "parent": "minecraft:block/block",
+  "ambientocclusion": true,
+  "textures": {
+    "stone": "regnum-nations:block/obelisk/kingdom_stone",
+    "base": "regnum-nations:block/obelisk/kingdom_base",
+    "metal": "regnum-nations:block/obelisk/kingdom_metal",
+    "rune": "regnum-nations:block/obelisk/kingdom_rune",
+    "core": "regnum-nations:block/obelisk/kingdom_core",
+    "particle": "#stone"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        210,
+        0
+      ],
+      "translation": [
+        0,
+        -3.84,
+        0
+      ],
+      "scale": [
+        0.48,
+        0.48,
+        0.48
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -3.6,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    }
+  },
+  "elements": [
+    {
+      "name": "Shaft / tapered course 12",
+      "from": [
+        1.5,
+        -4,
+        1.5
+      ],
+      "to": [
+        14.5,
+        2,
+        14.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.75,
+            6.5,
+            11.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            4.75,
+            6.5,
+            11.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            4.75,
+            6.5,
+            11.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            4.75,
+            6.5,
+            11.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            4.75,
+            4.75,
+            11.25,
+            11.25
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            4.75,
+            4.75,
+            11.25,
+            11.25
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Shaft / tapered course 18",
+      "from": [
+        2.5,
+        2,
+        2.5
+      ],
+      "to": [
+        13.5,
+        8,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5.25,
+            6.5,
+            10.75,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            5.25,
+            6.5,
+            10.75,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            5.25,
+            6.5,
+            10.75,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            5.25,
+            6.5,
+            10.75,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            5.25,
+            5.25,
+            10.75,
+            10.75
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            5.25,
+            5.25,
+            10.75,
+            10.75
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Shaft / tapered course 24",
+      "from": [
+        3.5,
+        8,
+        3.5
+      ],
+      "to": [
+        12.5,
+        14,
+        12.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5.75,
+            6.5,
+            10.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            5.75,
+            6.5,
+            10.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            5.75,
+            6.5,
+            10.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            5.75,
+            6.5,
+            10.25,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            5.75,
+            5.75,
+            10.25,
+            10.25
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            5.75,
+            5.75,
+            10.25,
+            10.25
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 15 at 1/1",
+      "from": [
+        1,
+        -1,
+        1
+      ],
+      "to": [
+        3,
+        4,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 15 at 1/1",
+      "from": [
+        0.875,
+        -1,
+        0.875
+      ],
+      "to": [
+        1.625,
+        4,
+        3.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 15 at 1/13",
+      "from": [
+        1,
+        -1,
+        13
+      ],
+      "to": [
+        3,
+        4,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 15 at 1/13",
+      "from": [
+        0.875,
+        -1,
+        12.875
+      ],
+      "to": [
+        1.625,
+        4,
+        15.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 15 at 13/1",
+      "from": [
+        13,
+        -1,
+        1
+      ],
+      "to": [
+        15,
+        4,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 15 at 13/1",
+      "from": [
+        12.875,
+        -1,
+        0.875
+      ],
+      "to": [
+        13.625,
+        4,
+        3.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 15 at 13/13",
+      "from": [
+        13,
+        -1,
+        13
+      ],
+      "to": [
+        15,
+        4,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 15 at 13/13",
+      "from": [
+        12.875,
+        -1,
+        12.875
+      ],
+      "to": [
+        13.625,
+        4,
+        15.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 20 at 2/2",
+      "from": [
+        2,
+        4,
+        2
+      ],
+      "to": [
+        4,
+        9,
+        4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 20 at 2/2",
+      "from": [
+        1.875,
+        4,
+        1.875
+      ],
+      "to": [
+        2.625,
+        9,
+        4.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 20 at 2/12",
+      "from": [
+        2,
+        4,
+        12
+      ],
+      "to": [
+        4,
+        9,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 20 at 2/12",
+      "from": [
+        1.875,
+        4,
+        11.875
+      ],
+      "to": [
+        2.625,
+        9,
+        14.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 20 at 12/2",
+      "from": [
+        12,
+        4,
+        2
+      ],
+      "to": [
+        14,
+        9,
+        4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 20 at 12/2",
+      "from": [
+        11.875,
+        4,
+        1.875
+      ],
+      "to": [
+        12.625,
+        9,
+        4.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 20 at 12/12",
+      "from": [
+        12,
+        4,
+        12
+      ],
+      "to": [
+        14,
+        9,
+        14
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 20 at 12/12",
+      "from": [
+        11.875,
+        4,
+        11.875
+      ],
+      "to": [
+        12.625,
+        9,
+        14.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 25 at 3/3",
+      "from": [
+        3,
+        9,
+        3
+      ],
+      "to": [
+        5,
+        14,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 25 at 3/3",
+      "from": [
+        2.875,
+        9,
+        2.875
+      ],
+      "to": [
+        3.625,
+        14,
+        5.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 25 at 3/11",
+      "from": [
+        3,
+        9,
+        11
+      ],
+      "to": [
+        5,
+        14,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 25 at 3/11",
+      "from": [
+        2.875,
+        9,
+        10.875
+      ],
+      "to": [
+        3.625,
+        14,
+        13.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 25 at 11/3",
+      "from": [
+        11,
+        9,
+        3
+      ],
+      "to": [
+        13,
+        14,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 25 at 11/3",
+      "from": [
+        10.875,
+        9,
+        2.875
+      ],
+      "to": [
+        11.625,
+        14,
+        5.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 25 at 11/11",
+      "from": [
+        11,
+        9,
+        11
+      ],
+      "to": [
+        13,
+        14,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.75,
+            8.5,
+            9.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / gilded edge 25 at 11/11",
+      "from": [
+        10.875,
+        9,
+        10.875
+      ],
+      "to": [
+        11.625,
+        14,
+        13.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.8125,
+            6.75,
+            8.1875,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.75,
+            8.5625,
+            9.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.8125,
+            7.4375,
+            8.1875,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Shoulder / architectural clasp 3/3",
+      "from": [
+        2.75,
+        11,
+        2.75
+      ],
+      "to": [
+        5.25,
+        13,
+        5.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Shoulder / architectural clasp 3/10.5",
+      "from": [
+        2.75,
+        11,
+        10.25
+      ],
+      "to": [
+        5.25,
+        13,
+        12.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Shoulder / architectural clasp 10.5/3",
+      "from": [
+        10.25,
+        11,
+        2.75
+      ],
+      "to": [
+        12.75,
+        13,
+        5.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Shoulder / architectural clasp 10.5/10.5",
+      "from": [
+        10.25,
+        11,
+        10.25
+      ],
+      "to": [
+        12.75,
+        13,
+        12.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.375,
+            7.5,
+            8.625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.375,
+            7.375,
+            8.625,
+            8.625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / north course 12",
+      "from": [
+        5.75,
+        -4,
+        1.3125
+      ],
+      "to": [
+        10.25,
+        2,
+        1.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.875,
+            9.5,
+            9.125,
+            12.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / east course 12",
+      "from": [
+        14.5,
+        -4,
+        5.75
+      ],
+      "to": [
+        14.6875,
+        2,
+        10.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            6.875,
+            9.5,
+            9.125,
+            12.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / south course 12",
+      "from": [
+        5.75,
+        -4,
+        14.5
+      ],
+      "to": [
+        10.25,
+        2,
+        14.6875
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            6.875,
+            9.5,
+            9.125,
+            12.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / west course 12",
+      "from": [
+        1.3125,
+        -4,
+        5.75
+      ],
+      "to": [
+        1.5,
+        2,
+        10.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            6.875,
+            9.5,
+            9.125,
+            12.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / north course 18",
+      "from": [
+        5.75,
+        2,
+        2.3125
+      ],
+      "to": [
+        10.25,
+        8,
+        2.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / east course 18",
+      "from": [
+        13.5,
+        2,
+        5.75
+      ],
+      "to": [
+        13.6875,
+        8,
+        10.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / south course 18",
+      "from": [
+        5.75,
+        2,
+        13.5
+      ],
+      "to": [
+        10.25,
+        8,
+        13.6875
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / west course 18",
+      "from": [
+        2.3125,
+        2,
+        5.75
+      ],
+      "to": [
+        2.5,
+        8,
+        10.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / north course 24",
+      "from": [
+        5.75,
+        8,
+        3.3125
+      ],
+      "to": [
+        10.25,
+        14,
+        3.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.875,
+            3.5,
+            9.125,
+            6.5
+          ],
+          "texture": "#rune"
+        },
+        "east": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / east course 24",
+      "from": [
+        12.5,
+        8,
+        5.75
+      ],
+      "to": [
+        12.6875,
+        14,
+        10.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            6.875,
+            3.5,
+            9.125,
+            6.5
+          ],
+          "texture": "#rune"
+        },
+        "south": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / south course 24",
+      "from": [
+        5.75,
+        8,
+        12.5
+      ],
+      "to": [
+        10.25,
+        14,
+        12.6875
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            6.875,
+            3.5,
+            9.125,
+            6.5
+          ],
+          "texture": "#rune"
+        },
+        "west": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            6.875,
+            7.953125,
+            9.125,
+            8.046875
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Carved inscription / west course 24",
+      "from": [
+        3.3125,
+        8,
+        5.75
+      ],
+      "to": [
+        3.5,
+        14,
+        10.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            6.875,
+            6.5,
+            9.125,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.953125,
+            6.5,
+            8.046875,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            6.875,
+            3.5,
+            9.125,
+            6.5
+          ],
+          "texture": "#rune"
+        },
+        "up": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.953125,
+            6.875,
+            8.046875,
+            9.125
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Capital / shadow reveal",
+      "from": [
+        2.5,
+        13.5,
+        2.5
+      ],
+      "to": [
+        13.5,
+        14.5,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5.25,
+            7.75,
+            10.75,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            5.25,
+            7.75,
+            10.75,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            5.25,
+            7.75,
+            10.75,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            5.25,
+            7.75,
+            10.75,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            5.25,
+            5.25,
+            10.75,
+            10.75
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            5.25,
+            5.25,
+            10.75,
+            10.75
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Capital / projecting gold cornice",
+      "from": [
+        0,
+        14.5,
+        0
+      ],
+      "to": [
+        16,
+        15.5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Capital / blackstone tray",
+      "from": [
+        -0.5,
+        15.5,
+        -0.5
+      ],
+      "to": [
+        16.5,
+        16.5,
+        16.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.75,
+            7.75,
+            12.25,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            3.75,
+            7.75,
+            12.25,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            3.75,
+            7.75,
+            12.25,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            3.75,
+            7.75,
+            12.25,
+            8.25
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            3.75,
+            3.75,
+            12.25,
+            12.25
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            3.75,
+            3.75,
+            12.25,
+            12.25
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Capital / upper gold rim",
+      "from": [
+        0,
+        16.5,
+        0
+      ],
+      "to": [
+        16,
+        17.25,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            7.8125,
+            12.0,
+            8.1875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            7.8125,
+            12.0,
+            8.1875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            7.8125,
+            12.0,
+            8.1875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            7.8125,
+            12.0,
+            8.1875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / north root",
+      "from": [
+        6.875,
+        17.25,
+        1.25
+      ],
+      "to": [
+        9.125,
+        19.5,
+        3.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / north sloping outward knee",
+      "from": [
+        6.875,
+        19.5,
+        0.5
+      ],
+      "to": [
+        9.125,
+        24,
+        2.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": -45,
+        "axis": "x",
+        "origin": [
+          8.0,
+          19.5,
+          1.5
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / north open upright",
+      "from": [
+        6.875,
+        22,
+        -2.5
+      ],
+      "to": [
+        9.125,
+        29.5,
+        -0.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / north sloping inward tip",
+      "from": [
+        6.875,
+        29.25,
+        -2.5
+      ],
+      "to": [
+        9.125,
+        32,
+        -0.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8.0,
+          29.25,
+          -1.5
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / north outer stone inlay",
+      "from": [
+        7.25,
+        22.75,
+        -2.625
+      ],
+      "to": [
+        8.75,
+        28.75,
+        -2.49
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.033750000000001
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.033750000000001
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / north inner stone inlay",
+      "from": [
+        7.25,
+        22.75,
+        -0.51
+      ],
+      "to": [
+        8.75,
+        28.75,
+        -0.375
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.033750000000001
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.033750000000001
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / east root",
+      "from": [
+        12.75,
+        17.25,
+        6.875
+      ],
+      "to": [
+        14.75,
+        19.5,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / east sloping outward knee",
+      "from": [
+        13.5,
+        19.5,
+        6.875
+      ],
+      "to": [
+        15.5,
+        24,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": -45,
+        "axis": "z",
+        "origin": [
+          14.5,
+          19.5,
+          8.0
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / east open upright",
+      "from": [
+        16.5,
+        22,
+        6.875
+      ],
+      "to": [
+        18.5,
+        29.5,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / east sloping inward tip",
+      "from": [
+        16.5,
+        29.25,
+        6.875
+      ],
+      "to": [
+        18.5,
+        32,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "z",
+        "origin": [
+          17.5,
+          29.25,
+          8.0
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / east outer stone inlay",
+      "from": [
+        18.49,
+        22.75,
+        7.25
+      ],
+      "to": [
+        18.625,
+        28.75,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.03375,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.03375,
+            8.375
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / east inner stone inlay",
+      "from": [
+        16.375,
+        22.75,
+        7.25
+      ],
+      "to": [
+        16.51,
+        28.75,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.03375,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.03375,
+            8.375
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / south root",
+      "from": [
+        6.875,
+        17.25,
+        12.75
+      ],
+      "to": [
+        9.125,
+        19.5,
+        14.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / south sloping outward knee",
+      "from": [
+        6.875,
+        19.5,
+        13.5
+      ],
+      "to": [
+        9.125,
+        24,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8.0,
+          19.5,
+          14.5
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / south open upright",
+      "from": [
+        6.875,
+        22,
+        16.5
+      ],
+      "to": [
+        9.125,
+        29.5,
+        18.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / south sloping inward tip",
+      "from": [
+        6.875,
+        29.25,
+        16.5
+      ],
+      "to": [
+        9.125,
+        32,
+        18.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.4375,
+            7.5,
+            8.5625,
+            8.5
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": -45,
+        "axis": "x",
+        "origin": [
+          8.0,
+          29.25,
+          17.5
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / south outer stone inlay",
+      "from": [
+        7.25,
+        22.75,
+        18.49
+      ],
+      "to": [
+        8.75,
+        28.75,
+        18.625
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.03375
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.03375
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / south inner stone inlay",
+      "from": [
+        7.25,
+        22.75,
+        16.375
+      ],
+      "to": [
+        8.75,
+        28.75,
+        16.51
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.03375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.03375
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.625,
+            7.9662500000000005,
+            8.375,
+            8.03375
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / west root",
+      "from": [
+        1.25,
+        17.25,
+        6.875
+      ],
+      "to": [
+        3.25,
+        19.5,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            7.4375,
+            8.5625,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / west sloping outward knee",
+      "from": [
+        0.5,
+        19.5,
+        6.875
+      ],
+      "to": [
+        2.5,
+        24,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.875,
+            8.5,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.875,
+            8.5625,
+            9.125
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "z",
+        "origin": [
+          1.5,
+          19.5,
+          8.0
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / west open upright",
+      "from": [
+        -2.5,
+        22,
+        6.875
+      ],
+      "to": [
+        -0.5,
+        29.5,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            6.125,
+            8.5,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            6.125,
+            8.5625,
+            9.875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Crown / west sloping inward tip",
+      "from": [
+        -2.5,
+        29.25,
+        6.875
+      ],
+      "to": [
+        -0.5,
+        32,
+        9.125
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.3125,
+            8.5,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.4375,
+            7.3125,
+            8.5625,
+            8.6875
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.4375,
+            8.5,
+            8.5625
+          ],
+          "texture": "#metal"
+        }
+      },
+      "rotation": {
+        "angle": -45,
+        "axis": "z",
+        "origin": [
+          -1.5,
+          29.25,
+          8.0
+        ],
+        "rescale": false
+      }
+    },
+    {
+      "name": "Crown / west outer stone inlay",
+      "from": [
+        -2.625,
+        22.75,
+        7.25
+      ],
+      "to": [
+        -2.49,
+        28.75,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.033750000000001,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.033750000000001,
+            8.375
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Crown / west inner stone inlay",
+      "from": [
+        -0.51,
+        22.75,
+        7.25
+      ],
+      "to": [
+        -0.375,
+        28.75,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.9662500000000005,
+            6.5,
+            8.033750000000001,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.625,
+            6.5,
+            8.375,
+            9.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.033750000000001,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.9662500000000005,
+            7.625,
+            8.033750000000001,
+            8.375
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Core / levitation socket",
+      "from": [
+        5.5,
+        17.25,
+        5.5
+      ],
+      "to": [
+        10.5,
+        18,
+        10.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.75,
+            7.8125,
+            9.25,
+            8.1875
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            6.75,
+            7.8125,
+            9.25,
+            8.1875
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            6.75,
+            7.8125,
+            9.25,
+            8.1875
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            6.75,
+            7.8125,
+            9.25,
+            8.1875
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            6.75,
+            6.75,
+            9.25,
+            9.25
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            6.75,
+            6.75,
+            9.25,
+            9.25
+          ],
+          "texture": "#base"
+        }
+      }
+    }
+  ]
+}

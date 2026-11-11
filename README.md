@@ -23,6 +23,8 @@ and membership management. Use `/nations citizen` for help.
 v0.8.0 adds safe owner-confirmed obelisk relocation, active-anchor destruction
 protection and explicit administrator recovery. See [relocation and settlement
 integrity](docs/obelisk-relocation.md) for commands, restrictions and crash recovery.
+v0.8.1 adds [in-game citizen management](docs/citizen-management-ui.md): open
+City → Citizens for the private roster, invitations, roles, removal and leaving.
 One personal city/domain and membership in at most one city are enforced.
 City affiliation is implemented; configurable role permissions, diplomacy, economy
 and warfare are not.
@@ -54,7 +56,7 @@ World registry IDs, UUIDs, saved-data filenames, map configuration and the saved
 binding stay compatible. `/nations` is the preferred command; `/reigns` remains an
 alias. Presentation assets and Java packages now use the Regnum Nations name.
 See the [migration contract and upgrade steps](docs/rename-migration.md) before
-upgrading a player world. Build output is `build/libs/regnum-nations-0.8.0.jar`.
+upgrading a player world. Build output is `build/libs/regnum-nations-0.8.1.jar`.
 
 ## Development
 

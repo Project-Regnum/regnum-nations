@@ -21,7 +21,7 @@ public final class CitizenshipService {
     private final Map<Key, Invitation> invitations = new HashMap<>();
     private final Map<UUID, Long> invitedAt = new HashMap<>();
     private record Key(UUID recipient, UUID city) { }
-    private record Invitation(ServerPlayer recipient, UUID inviter, UUID anchor, long at) { }
+    private record Invitation(ServerPlayer recipient, UUID inviter, UUID anchor, long at, UUID id) { }
 
     CitizenshipService(KingdomService kingdoms, MinecraftServer server, KingdomSavedData data, LongSupplier clock) {
         this.kingdoms = kingdoms;
@@ -41,9 +41,22 @@ public final class CitizenshipService {
         if (previous != null && now - previous < INVITE_INTERVAL_NANOS) throw new FoundingException(CITIZEN_RATE_LIMIT);
         invitations.entrySet().removeIf(e -> !valid(e.getKey(), e.getValue(), now));
         invitations.put(new Key(recipient.getUUID(), city.id()),
-                new Invitation(recipient, inviter.getUUID(), city.obeliskId(), now));
+                new Invitation(recipient, inviter.getUUID(), city.obeliskId(), now, UUID.randomUUID()));
         invitedAt.put(inviter.getUUID(), now);
         return city;
+    }
+
+    /** Read-only presentation of the existing ephemeral invitations; never grants private roster access. */
+    public record PendingInvitation(UUID id,UUID city,UUID recipient,UUID inviter,int remainingSeconds) { }
+    public List<PendingInvitation> pending(ServerPlayer viewer,boolean outgoing) throws FoundingException {
+        kingdoms.validatePlayer(viewer);
+        Settlement city=outgoing?authorized(viewer,CityPermission.INVITE):null;
+        long now=clock.getAsLong();
+        return invitations.entrySet().stream().filter(e -> valid(e.getKey(),e.getValue(),now))
+                .filter(e -> outgoing?e.getKey().city().equals(city.id()):e.getKey().recipient().equals(viewer.getUUID())&&e.getValue().recipient()==viewer)
+                .map(e -> new PendingInvitation(e.getValue().id(),e.getKey().city(),e.getKey().recipient(),e.getValue().inviter(),
+                        (int)((INVITATION_NANOS-(now-e.getValue().at())+999_999_999L)/1_000_000_000L)))
+                .sorted(java.util.Comparator.comparing(PendingInvitation::id)).toList();
     }
 
     public void accept(ServerPlayer player, UUID city) throws FoundingException {

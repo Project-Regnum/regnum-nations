@@ -13,10 +13,13 @@ import net.minecraft.world.phys.Vec3;
 
 /** Regressions first run against v0.7.1 before implementing the protection fixes. */
 public class ObeliskIntegrityTests implements FabricGameTest {
+    private static final java.util.concurrent.atomic.AtomicInteger NEXT=new java.util.concurrent.atomic.AtomicInteger();
+    // GameTest cells can share a chunk. Live founding fixtures need independent claim chunks.
+    private static BlockPos location() { return new BlockPos(6_000_008+NEXT.getAndIncrement()*48,64,6_000_008); }
     @GameTest(template = EMPTY_STRUCTURE, batch = "obelisk_integrity")
     public void activeCityCannotBeMinedByItsOwner(GameTestHelper h) throws Exception {
         try (var f = new Fixture(h, true)) {
-            var owner = f.player(); var pos = h.absolutePos(new BlockPos(1, 1, 1));
+            var owner = f.player(); var pos = location();
             h.getLevel().setBlockAndUpdate(pos, ModBlocks.CITY_OBELISK.defaultBlockState());
             owner.setPos(Vec3.atCenterOf(pos));
             f.kingdoms.cities().select(owner, pos);
@@ -39,7 +42,7 @@ public class ObeliskIntegrityTests implements FabricGameTest {
     public void copiedCityIdentityCannotFoundAnotherKingdom(GameTestHelper h) throws Exception {
         try (var f = new Fixture(h, true)) {
             var owner = f.player(); var outsider = f.player(); var level = h.getLevel();
-            var pos = h.absolutePos(new BlockPos(1, 1, 1));
+            var pos = location();
             level.setBlockAndUpdate(pos, ModBlocks.CITY_OBELISK.defaultBlockState()); owner.setPos(Vec3.atCenterOf(pos));
             var block = (CityObeliskBlockEntity) level.getBlockEntity(pos);
             f.kingdoms.cities().select(owner, pos); f.kingdoms.cities().found(owner, block.getObeliskId(), "Original City", 1);

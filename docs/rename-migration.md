@@ -66,3 +66,7 @@ player-world upgrade and interactive client visual checks still require manual r
 v0.8.0 [obelisk relocation](obelisk-relocation.md) retains schema 5, all registry
 identities and existing packet layouts. Anchor positions may change within owned
 territory; canonical recovery uses the same saved records. No migration is needed.
+
+v0.8.1 [citizen management](citizen-management-ui.md) retains schema 5 and all
+existing wire contracts. UI concurrency stamps and invitation IDs are ephemeral;
+only two additive citizen UI channels are introduced. No migration is required.

@@ -42,7 +42,8 @@ public final class KingdomManagementScreen extends RoyalScreen {
             refresh=atlas.refresh; readout=atlas.record;
             setInitialFocus(atlas.initialFocus);
         } else {
-            civic=new CityAtlasView(font,width,height,state,section==Section.TERRITORIES,expandedCityRecord,this::request,this::onClose,this::relocate,this::navigate,
+            civic=new CityAtlasView(font,width,height,state,section==Section.TERRITORIES,expandedCityRecord,this::request,this::onClose,this::relocate,
+                    () -> minecraft.setScreen(new CitizenManagementScreen(this)),this::navigate,
                     () -> { expandedCityRecord=!expandedCityRecord; rebuildWidgets(); if (civic.disclosure!=null) setInitialFocus(civic.disclosure); },requested!=0,failed);
             for (AbstractWidget widget:civic.widgets()) addRenderableWidget(widget);
             refresh=civic.refresh; readout=civic.record;

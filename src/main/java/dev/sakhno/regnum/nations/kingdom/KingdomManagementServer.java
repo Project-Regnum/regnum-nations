@@ -103,7 +103,7 @@ public final class KingdomManagementServer {
         var service = KingdomService.get(player.serverLevel().getServer());
         var data = service.data();
         data.requireAvailable();
-        Settlement own=data.byOwner(player.getUUID());
+        Settlement own=data.citizenCity(player.getUUID());
         Settlement city=target==null?own:data.settlement(target);
         if (city==null&&target!=null&&data.byId(target)!=null) city=data.settlement(data.byId(target).capitalSettlementId());
         if (target!=null&&city==null) return error(sequence,"ui.regnum-nations.kingdom_missing");

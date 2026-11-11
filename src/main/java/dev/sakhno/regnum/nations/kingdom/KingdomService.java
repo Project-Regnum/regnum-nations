@@ -37,6 +37,9 @@ public final class KingdomService {
 	private final MinecraftServer server;
 	private final KingdomSavedData data;
 	private final SettlementService cities;
+	private final CitizenshipService citizenship;
+    private final ObeliskRelocationService relocation;
+    private final CitizenManagement citizenManagement;
 	private final Map<String,DeleteConfirmation> confirmations=new HashMap<>();
 	private record DeleteConfirmation(UUID kingdom,UUID token,Object actor,long at) { }
 	private final Map<UUID, Pending> pending = new HashMap<>();
@@ -48,6 +51,9 @@ public final class KingdomService {
 		this.server = server;
 		this.data = data;
 		this.cities = new SettlementService(this,server,data);
+		this.citizenship = new CitizenshipService(this,server,data,System::nanoTime);
+        this.relocation = new ObeliskRelocationService(this,server,System::nanoTime);
+        this.citizenManagement = new CitizenManagement(this,citizenship,System::nanoTime);
 	}
 
 	public static void initialize() {
@@ -55,6 +61,9 @@ public final class KingdomService {
 			KingdomService service = SERVICES.get(server);
 			if (service != null) {
 				service.forget(handler.player.getUUID()); service.cities.disconnect(handler.player.getUUID());
+				service.citizenship.disconnect(handler.player.getUUID());
+                service.relocation.disconnect(handler.player.getUUID());
+                service.citizenManagement.disconnect(handler.player.getUUID());
 				service.confirmations.remove(handler.player.getUUID().toString());
 			}
 		});
@@ -97,7 +106,7 @@ public final class KingdomService {
 		checkDistance(player, pos);
 		if (data.byOwner(player.getUUID())!=null) cities.stateAnchor(player,pos);
 		KingdomObeliskBlockEntity obelisk = obeliskAt(player.serverLevel(), pos);
-		if (obelisk.getKingdomId() != null || data.atCapital(player.level().dimension(), pos) != null) {
+		if (obelisk.getKingdomId() != null || data.atCapital(player.level().dimension(), pos) != null || data.stateIdentityOccupied(player.level().dimension(),pos,obelisk.getObeliskId())) {
 			throw new FoundingException(ALREADY_BOUND);
 		}
 		long now = server.overworld().getGameTime();
@@ -160,6 +169,12 @@ public final class KingdomService {
 		}
 		return foundWithColor(player, inputName, color);
 	}
+
+	public CitizenManagement citizenManagement() { checkThread(); return citizenManagement; }
+
+	public ObeliskRelocationService relocation() { checkThread(); return relocation; }
+
+	public CitizenshipService citizenship() { checkThread(); return citizenship; }
 
 	public SettlementService cities() { checkThread(); return cities; }
 	public void cityRemoved(Settlement city) { checkThread(); data.settlementStatus(city,Kingdom.CapitalStatus.MISSING); }

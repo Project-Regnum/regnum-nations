@@ -37,10 +37,9 @@ public final class ClaimService {
 		if (!player.serverLevel().getServer().isSameThread()) throw new IllegalStateException("Server thread required");
 		if (!player.isAlive() || player.isRemoved() || player.isSpectator()) throw new FoundingException(INVALID_PLAYER);
 		data.requireAvailable();
-		var owned=data.ownedSettlements(player.getUUID());
-		if (owned.size()>1) throw new FoundingException(DOMAIN_REPAIR);
-		Settlement kingdom = owned.isEmpty()?null:owned.getFirst();
+		Settlement kingdom = data.citizenCity(player.getUUID());
 		if (kingdom == null) throw new FoundingException(NO_KINGDOM);
+		if (!CityPermissions.allows(data,kingdom,player.getUUID(),CityPermission.MANAGE_CLAIMS)) throw new FoundingException(NOT_OWNER);
 		if (viewedKingdom != null && !kingdom.id().equals(viewedKingdom) && !viewedKingdom.equals(kingdom.sovereign())) throw new FoundingException(NOT_OWNER);
 		ClaimPos capital = ClaimPos.at(kingdom.dimension(), kingdom.obeliskPos());
 		if (!kingdom.id().equals(data.claimOwner(capital))) throw new FoundingException(CAPITAL_CONFLICT);
@@ -87,6 +86,11 @@ public final class ClaimService {
 
 	/** Fail closed on unreadable registry data. No OP or Creative bypass. */
 	public static boolean canBuild(ServerLevel level, Player player, BlockPos pos) {
+		return canAccess(level,player,pos,CityPermission.BUILD);
+	}
+
+	/** Block-action gate shared by build and interaction hooks. Wilderness needs no municipal permission. */
+	public static boolean canAccess(ServerLevel level, Player player, BlockPos pos, CityPermission permission) {
 		KingdomSavedData data = KingdomService.get(level.getServer()).data();
 		try {
 			data.requireAvailable();
@@ -95,6 +99,6 @@ public final class ClaimService {
 		}
 		UUID ownerId=data.claimOwner(ClaimPos.at(level.dimension(),pos));
 		Settlement owner=data.settlement(ownerId);
-		return ownerId==null || (owner!=null && player!=null && owner.ownerId().equals(player.getUUID()));
+		return ownerId==null || CityPermissions.allows(data,owner,player==null?null:player.getUUID(),permission);
 	}
 }

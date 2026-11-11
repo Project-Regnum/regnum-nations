@@ -25,7 +25,9 @@ public class RegnumNations implements ModInitializer {
 	public void onInitialize() {
 		dev.sakhno.regnum.nations.kingdom.PoliticalMapServer.initialize();
 		dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.initialize();
-		ModBlocks.initialize();
+		dev.sakhno.regnum.nations.kingdom.ObeliskRelocationServer.initialize();
+        dev.sakhno.regnum.nations.kingdom.CitizenManagementServer.initialize();
+        ModBlocks.initialize();
 		KingdomService.initialize();
 		KingdomCommands.initialize();
 		TerritoryProtection.initialize();

@@ -34,7 +34,7 @@ public final class CityObeliskBlock extends KingdomObeliskBlock {
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState next,boolean moving) {
         if (!state.is(next.getBlock())&&level instanceof ServerLevel serverLevel) {
             var data=KingdomService.get(serverLevel.getServer()).data(); Settlement city=data.cityAt(level.dimension(),pos);
-            if (city!=null) KingdomService.get(serverLevel.getServer()).cityRemoved(city);
+            if (city!=null&&!KingdomService.get(serverLevel.getServer()).relocation().transferring(serverLevel,pos)) KingdomService.get(serverLevel.getServer()).cityRemoved(city);
         }
         super.onRemove(state,level,pos,next,moving);
     }

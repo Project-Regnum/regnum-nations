@@ -1,7 +1,245 @@
-# v0.6.0 — Cities and sovereignty
+# Cities, sovereignty and citizenship
+
+[v0.8.1 citizen management UI](citizen-management-ui.md) exposes the existing
+citizenship and role actions in game, with UUID-based offline management,
+permission-gated invitation views and explicit destructive-action confirmations.
+
+
+Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
+earlier anchor destruction and recovery behavior described below.
+
 
 For the current v0.6.1 visual standard and clickable dissolution UX, see
-[Royal Cartography](ui-design-system.md). Gameplay and persistence below remain in effect.
+[Royal Cartography](ui-design-system.md). v0.7.0 extends the v0.6 city model with
+player citizenship. v0.7.1 adds fixed city roles and named permissions below.
+The existing affiliation and ownership workflows remain in effect.
+
+## v0.7.1 — City roles and permissions
+
+This milestone extends the existing citizenship system. Each non-owner membership
+now contains one assigned role: `CITIZEN` by default or `OFFICER` when the owner
+promotes that citizen. `OWNER` is derived from the city's existing `ownerId`, never
+stored or assigned. Outsiders have no role or role record. There are no new cities,
+secondary membership tables, configurable role permissions or role editors.
+
+`CityPermissions` evaluates the authenticated player's current municipal role
+against a named `CityPermission`. Owner permissions are immutable and include all
+five actions; the other two roles have fixed defaults:
+
+| Permission | Owner | Officer | Citizen | Outsider |
+| --- | --- | --- | --- | --- |
+| `BUILD` (place/break, buckets) | Yes | Yes | Yes | No |
+| `INTERACT` (protected block use) | Yes | Yes | Yes | No |
+| `MANAGE_CLAIMS` | Yes | No | No | No |
+| `INVITE` | Yes | Yes | No | No |
+| `MANAGE_MEMBERS` (kick/assign roles) | Yes | No | No | No |
+
+The permission vocabulary and policy resolver are the extension point for future
+configurable member permissions. There is no configuration surface in v0.7.1 and
+ownership is not editable through this policy. Existing claim adjacency, dimension,
+position, capital and legacy-owner repair checks still apply. Kingdom leadership
+and affiliation never grant municipal permissions. Verified obelisk viewing stays
+public; the existing environment/automation protection limits remain.
+
+New commands, also available through `/reigns citizen`:
+
+| Command | Behavior |
+| --- | --- |
+| `/nations citizen role <player> <role>` | Owner assigns `officer` or `citizen` to an existing citizen of their city. Role names are case-insensitive. Accepts online/local citizen names or an offline player's listed UUID. |
+| `/nations citizen roles` | City member reads the three role definitions. |
+| `/nations citizen permissions` | City member reads all five effective permissions for their current role. |
+
+`citizen list` now shows a role beside every UUID, including the implicit owner.
+Requests to demote/reassign an owner or grant `OWNER` reject without changing saved
+state. Officers cannot kick, modify claims or assign roles, including promoting
+themselves. An owner's reassignment of a role to its existing value is a no-op.
+
+All v0.7.0 commands and invitation safeguards remain. Owners **and officers** can
+invite online players; acceptance always creates `CITIZEN`, never `OFFICER`.
+Invitations still expire after 60 elapsed seconds, are single-use and session-bound,
+and obey the existing 500 ms sender throttle. Acceptance rechecks the inviter's
+current `INVITE` permission. Demotion, leaving or kicking an officer revokes their
+issued invitations, so re-promotion does not revive them. Disconnects and server
+restarts still discard temporary invitations while preserving membership/roles.
+
+### Schema 5 upgrade and rollback
+
+The retained `data/project-reigns-kingdoms.dat` now writes **schema 5**. Each existing
+`Citizens` compound keeps `Player` and `Settlement` UUIDs and gains a `Role` string
+(`CITIZEN` or `OFFICER`). In memory this is one membership record containing city
+and role, rather than a separate role-assignment table. Leaving, kicking and city
+deletion remove that record; rejoining defaults to `CITIZEN` again.
+
+Schema 4 loads missing roles as `CITIZEN`, keeps ownership implicit and is marked
+dirty for a schema-5 save. Earlier schemas retain their existing city/citizenship
+migrations, then write schema 5. Existing UUIDs, ownership, affiliations, claims,
+anchor identities, tombstones, file paths, registry IDs and wire formats remain.
+A role field present in an older schema is validated rather than silently discarded.
+Schema 5 requires a known non-owner role on every explicit membership. Missing,
+malformed, unknown or stored `OWNER` roles preserve the original NBT and disable
+mutations/build access, just like conflicting membership records. Schema-5 reload
+is idempotent.
+
+Back up the entire world before upgrading. v0.7.0 does not understand schema 5;
+rollback requires restoring the pre-upgrade world backup and matching v0.7.0 JARs
+on server and clients. Editing `Version` to downgrade can lose role information
+and is unsupported. SavedData and chunk NBT remain separate, non-atomic disk writes.
+
+### Manual checklist for v0.7.0 and v0.7.1
+
+These are checks to perform on a disposable dedicated world, not claims of completed
+manual multiplayer testing:
+
+1. **Citizenship baseline:** A founds a city and invites B; B accepts. Both can
+   place/break and use a chest. A non-citizen remains blocked. Decline, expire and
+   replay invitations; check that none grants membership. A can manage claims;
+   ordinary citizen B cannot. A cannot leave or kick themselves.
+2. **Roles:** A assigns B `officer`. List shows `OWNER`/`OFFICER`; B's permissions
+   show build, interact and invite only. B invites C, who accepts as `CITIZEN`.
+   B cannot kick C, claim/unclaim or change any role. C cannot promote themselves.
+3. **Revocation/cleanup:** B invites another player; A demotes B before acceptance.
+   Acceptance rejects, including after re-promotion. Kick/leave and rejoin B;
+   their old officer role must not return. Try role assignment by offline UUID.
+4. **Persistence/affiliation:** Save, stop, restart and reconnect; check all roles,
+   permissions and building rights. Affiliate the city to a kingdom, then dissolve
+   that kingdom; municipal roles remain. Verify outsider public obelisk inspection
+   still works and does not grant building rights.
+
+The full Gradle build runs both the existing citizenship/kingdom regression suite
+and new role GameTests. The new cases cover the permission matrix, owner immutability,
+officer invitations and revocation, unauthorized roles, block protection, claims,
+actual SavedData disk reload, schema-4 migration, role cleanup, invalid NBT, affiliation
+and registered commands/role output. Full process restart, live multi-client play,
+and rendered UI are manual checks; automated disk reload is not a process restart.
+
+Validation for v0.7.1: `./gradlew build --no-daemon --console=plain` passed all
+**72 required GameTests** (13 new role tests) and kingdom-name checks.
+`python3 tools/verify_mod_jar.py build/libs/regnum-nations-0.7.1.jar` also passed.
+The initial run failed two new tests due to synthetic-player sound delivery and
+an unordered NBT comparison; both test issues were fixed before the passing run.
+Invalid-role/corruption tests deliberately log errors while checking NBT preservation.
+
+## v0.7.0 — City citizenship (baseline)
+
+Ownership, citizenship and kingdom affiliation are separate. The owner is an
+implicit citizen and retains all existing authority. Other players join a city as
+citizens; joining grants no ownership or kingdom leadership. A kingdom leader has
+no rights in another owner's city merely because it belongs to that kingdom.
+Players can belong to one city, including a city they own. A citizen must leave
+before joining or founding another city; an owner cannot leave or kick themselves.
+
+`CitizenshipService` validates authenticated server players and performs all actions
+on the server thread. `KingdomSavedData` owns the membership records; there is no
+second settlement registry or client-authoritative membership state. `CityPermissions`
+provides the initial policy used by citizenship administration and `ClaimService`.
+Existing `TerritoryProtection` events, placement and bucket mixins continue through
+`ClaimService.canBuild`, so accepted citizens receive the same block access as owners.
+
+| Command | Behavior |
+| --- | --- |
+| `/nations citizen invite <player>` | Owner invites one online player who does not belong to a city. |
+| `/nations citizen accept <cityUUID>` | Recipient consumes their invitation and joins that city. |
+| `/nations citizen decline <cityUUID>` | Recipient consumes their invitation without joining. |
+| `/nations citizen leave` | Non-owner leaves only their current city. |
+| `/nations citizen list` | Shows the current city's citizens, including the owner, with UUIDs and locally known names. |
+| `/nations citizen kick <player>` | Owner removes a citizen by online name, locally cached citizen name, or UUID. UUIDs work for offline citizens. |
+
+`/nations citizen` prints command help. `/reigns citizen ...` shares the same handlers
+and checks. UUIDs in invitation messages are **city UUIDs**. `/nations invite` and
+`/nations join <kingdomUUID>` remain separate 30-second city-to-kingdom affiliation
+commands; neither can accept a citizenship invitation.
+
+Citizenship invitations last **60 elapsed seconds**, measured with a monotonic clock
+independently of server tick rate. They are temporary and bound to the recipient's
+player session. Accept/decline attempts consume that recipient's invitation to the
+specified city; another player's attempts cannot consume it. Acceptance rechecks
+membership, city existence, city anchor identity and the inviter's current ownership.
+A successful acceptance clears the player's other invitations. Duplicate invitations
+replace the same pending entry and never duplicate membership. Owners may send an
+invitation at most once per 500 ms. Disconnecting either participant revokes their
+pending invitations; accepted citizenship survives disconnects and restarts.
+
+| Action | Owner | Citizen | Outsider |
+| --- | --- | --- | --- |
+| Place/build, break, use protected blocks in city claims | Yes | Yes | No |
+| Claim/unclaim city territory | Yes | No | No |
+| Invite/kick citizens | Yes | No | No |
+| Manage ownership or kingdom leadership | Existing behavior | No | No |
+
+Verified obelisk viewing stays public. Existing territory limitations, capital
+reservations and administrative commands remain. Joining, leaving and being kicked
+change building rights immediately. Kingdom affiliation changes and kingdom deletion
+never remove city citizens. Breaking an obelisk still marks its anchor missing;
+it does **not** delete the city, its claims or membership.
+
+### Persistence and migration
+
+Schema **4** adds `Citizens`, a list of `{Player: UUID, Settlement: UUID}` compounds,
+to the existing `data/project-reigns-kingdoms.dat`. Only non-owner membership is
+stored. The player UUID is the unique key; citizen lists are derived from this table
+plus the city's owner. Usernames are presentation/target-resolution hints only.
+Existing IDs, keys, kingdoms, cities, claims and deletion tombstones remain intact.
+No channels or client payload layouts change.
+
+Versions 1/2 still migrate through the existing settlement conversion. Version 3
+loads without explicit citizen records; owners immediately retain implicit citizenship.
+All older valid versions are marked dirty and next save as version 4. Reloading
+version 4 is idempotent. If a citizenship field is present in an older-version tag,
+it is also validated and retained. Duplicate player records (even identical ones),
+owner/explicit-member conflicts, missing cities, malformed UUIDs/lists and missing
+version-4 membership lists preserve the original NBT and disable mutations/build
+access using the existing fail-closed behavior. No conflicting record is selected
+or overwritten silently.
+
+Historical multiple-city owners remain the existing explicit repair exception:
+all ownership records and owner build privileges are preserved, but ambiguous
+citizenship actions and claim management report `DOMAIN_REPAIR`. No new operation
+can create another such conflict. The internal city-deletion operation removes all
+citizenship and claims for that city in the same server-thread operation and pending
+invitations subsequently fail validation. It rejects capital-city deletion until
+its state is dissolved. There is no new player/admin city-deletion or ownership
+transfer command in this release.
+
+Back up the whole world before upgrading. Chunk NBT and SavedData remain separate
+writes rather than a crash-atomic transaction. To roll back to v0.6, restore the
+pre-upgrade backup: v0.6 cannot safely interpret schema 4.
+
+### Verification and limitations
+
+The citizenship GameTests cover invitations/consent, exact expiration, replay,
+duplicates, recipient/session isolation, unauthorized actions, competing joins,
+founding restrictions, leaving/offline kicks, disk persistence, schemas 1–3,
+malformed/conflicting NBT, city deletion, affiliation isolation, registered commands
+and aliases, and actual block protection/placement hooks. The full build also runs
+the pre-existing kingdom, claim, public-obelisk and compatibility tests.
+
+Validation: `./gradlew build --no-daemon --console=plain` passed all **59 GameTests**
+(17 citizenship tests) and kingdom-name checks. Packaged JAR verification also passed.
+The first full run failed one command test because the headless server lacks a
+profile cache; local name/UUID resolution fixed it before the passing run. Corruption
+tests intentionally emit invalid-data error logs while asserting preservation.
+
+Manual acceptance on a disposable dedicated world:
+
+1. Owner A founds a city; non-owner B cannot build in its claims. A runs
+   `/nations citizen invite B`; B runs the acceptance command from the invitation.
+2. Both players place/break blocks and use a chest. A third, non-citizen player
+   remains denied. B cannot claim/unclaim, invite, or kick; A can manage claims.
+3. Stop and restart the server, reconnect both players, and check citizen lists
+   and building rights. This validates an actual process restart in addition to
+   the automated SavedData disk reload.
+4. A kicks B (also try B offline using their listed UUID). B loses access. Repeat
+   joining and leaving; confirm expired/declined invitations cannot be replayed.
+
+Citizenship is command-driven; existing atlas/menu ownership markers still show
+ownership. No citizenship GUI, role editor, ownership transfer, diplomacy, taxes or
+kingdom-wide citizenship is added in the v0.7.0 baseline. The fixed roles and
+named permissions introduced by v0.7.1 are described above; configurable role
+policies remain future work. Live two-client play,
+full Minecraft process restart of an upgraded player world and rendered UI checks
+remain manual validation tasks; automated disk reload is not a full process restart.
+
+## Existing city and sovereignty architecture (v0.6)
 
 Implementation architecture:
 
@@ -13,8 +251,8 @@ Implementation architecture:
 3. City obelisks found independent city-states. A directly adjacent state obelisk
    in the same chunk elevates an existing city without another domain slot.
    The old /nations found path remains a combined city/kingdom compatibility flow.
-4. Claim management/build rights follow personal settlement ownership. Sovereignty
-   supplies political color/identity only. Invitations and explicit acceptance are
+4. Claim management follows personal settlement ownership; v0.7 also grants citizens
+   block access. Sovereignty supplies political color/identity only. Invitations and explicit acceptance are
    the minimal mechanism for different owners to affiliate their cities.
 5. Confirmed administrative deletion preserves cities/claims, detaches sovereignty
    and tombstones only the exact former state binding. Physical blocks survive.
@@ -74,7 +312,7 @@ legacy state anchor **with empty hands** to select it for establishing a new sta
 ## Persistence and migration
 
 `data/project-reigns-kingdoms.dat` remains the one authoritative SavedData file.
-Schema 3 stores:
+Schema 3 introduced the following records, retained in schema 4 alongside `Citizens`:
 
 - **Kingdoms:** existing stable UUID, name, founder, state location/dimension/obelisk
   UUID, creation time/status; plus capital settlement UUID, validated palette index
@@ -122,7 +360,8 @@ do not downgrade an active schema-3 world to an older gameplay implementation.
 ## Ownership, claims and map
 
 City owners administer their own claims, regardless of political affiliation.
-Kingdom leadership does not grant build, container or claim rights in another
+Citizens also have build/container access as described above. Kingdom leadership
+does not grant build, container or claim rights in another
 owner's city. Claims require cardinal adjacency to **that settlement's** land,
 not merely another city in the same kingdom. The player must stand in the selected
 chunk/dimension. Overlap and every city/state capital release are forbidden.

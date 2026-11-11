@@ -27,6 +27,13 @@ public final class KingdomSavedData extends SavedData {
     private final Map<GlobalPos,UUID> capitals=new HashMap<>();
     private final Map<UUID,Settlement> settlements=new HashMap<>();
     private final Map<ClaimPos,UUID> claims=new HashMap<>();
+    // Non-owner citizenship only. Owners remain implicit citizens, never duplicate records.
+    private final Map<UUID,Membership> citizens=new HashMap<>();
+    private record Membership(UUID city, CityRole role) { }
+    // Transient UI concurrency stamp; no schema or gameplay rule change.
+    private final Map<UUID,Long> membershipRevisions=new HashMap<>();
+    long membershipRevision(UUID city) { return membershipRevisions.getOrDefault(city,0L); }
+    private void membershipChanged(UUID city) { membershipRevisions.merge(city,1L,Long::sum); }
     private final Map<UUID,DeletedAnchor> deleted=new HashMap<>();
     private CompoundTag unreadableData;
     public record DeletedAnchor(UUID kingdom, ResourceKey<Level> dimension, BlockPos pos, UUID obelisk) { }
@@ -42,8 +49,91 @@ public final class KingdomSavedData extends SavedData {
                 .sorted(Comparator.comparingLong(Settlement::createdAt).thenComparing(Settlement::id)).toList();
     }
     public Settlement byOwner(UUID owner) { var owned=ownedSettlements(owner); return owned.isEmpty()?null:owned.getFirst(); }
+    public Settlement citizenCity(UUID player) throws FoundingException {
+        requireAvailable();
+        var owned=ownedSettlements(player);
+        if (owned.size()>1) throw new FoundingException(DOMAIN_REPAIR);
+        Membership member=citizens.get(player);
+        return owned.isEmpty()?(member==null?null:settlement(member.city())):owned.getFirst();
+    }
+    public boolean isCitizen(UUID city,UUID player) {
+        return role(city,player)!=null;
+    }
+    /** A null role means outsider; ownership is always resolved from the current city record. */
+    public CityRole role(UUID city,UUID player) {
+        Settlement current=settlement(city);
+        if (current==null) return null;
+        if (current.ownerId().equals(player)) return CityRole.OWNER;
+        Membership member=citizens.get(player);
+        return member!=null&&city.equals(member.city())?member.role():null;
+    }
+    void assignRole(UUID city,UUID player,CityRole role) throws FoundingException {
+        requireAvailable();
+        Settlement current=settlement(city);
+        if (current==null) throw new FoundingException(CITY_MISSING);
+        if (current.ownerId().equals(player)||role==CityRole.OWNER) throw new FoundingException(OWNER_ROLE_IMMUTABLE);
+        if (role==null) throw new FoundingException(INVALID_CITY_ROLE);
+        Membership member=citizens.get(player);
+        if (member==null||!city.equals(member.city())) throw new FoundingException(NOT_CITIZEN);
+        if (member.role()==role) return;
+        citizens.put(player,new Membership(city,role)); membershipChanged(city); setDirty();
+    }
+    public List<UUID> citizens(UUID city) {
+        Settlement current=settlement(city);
+        if (current==null) return List.of();
+        var members=new TreeSet<UUID>(); members.add(current.ownerId());
+        citizens.forEach((player,member) -> { if (city.equals(member.city())) members.add(player); });
+        return List.copyOf(members);
+    }
+    void addCitizen(UUID city,UUID player) throws FoundingException {
+        requireAvailable();
+        if (settlement(city)==null) throw new FoundingException(CITY_MISSING);
+        if (citizenCity(player)!=null) throw new FoundingException(ALREADY_CITIZEN);
+        citizens.put(player,new Membership(city,CityRole.CITIZEN)); membershipChanged(city); setDirty();
+    }
+    void removeCitizen(UUID city,UUID player) throws FoundingException {
+        requireAvailable();
+        Settlement current=settlement(city);
+        if (current==null) throw new FoundingException(CITY_MISSING);
+        if (current.ownerId().equals(player)) throw new FoundingException(OWNER_CANNOT_LEAVE);
+        if (role(city,player)==null) throw new FoundingException(NOT_CITIZEN);
+        citizens.remove(player); membershipChanged(city); setDirty();
+    }
+    /** Internal lifecycle operation. Capital cities must survive until their state is dissolved. */
+    void deleteSettlement(UUID city) throws FoundingException {
+        requireAvailable();
+        if (settlement(city)==null) throw new FoundingException(CITY_MISSING);
+        if (kingdoms.values().stream().anyMatch(k -> k.capitalSettlementId().equals(city))) throw new FoundingException(CITY_IS_CAPITAL);
+        citizens.values().removeIf(member -> city.equals(member.city()));
+        claims.values().removeIf(city::equals);
+        settlements.remove(city); membershipChanged(city); setDirty();
+    }
     public Settlement cityAt(ResourceKey<Level> dimension,BlockPos pos) {
         return settlements.values().stream().filter(s -> s.dimension().equals(dimension)&&s.obeliskPos().equals(pos)).findFirst().orElse(null);
+    }
+    /** Identity checks span both kinds of anchors, including migrated shared anchors. */
+    public boolean usesObelisk(UUID identity) {
+        return obelisks.containsKey(identity)||settlements.values().stream().anyMatch(s -> s.obeliskId().equals(identity));
+    }
+    boolean stateIdentityOccupied(ResourceKey<Level> dimension,BlockPos pos,UUID identity) {
+        if (obelisks.containsKey(identity)) return true;
+        return settlements.values().stream().anyMatch(s -> s.obeliskId().equals(identity)
+                && !(s.legacyAnchor()&&s.sovereign()==null&&s.dimension().equals(dimension)&&s.obeliskPos().equals(pos)));
+    }
+    public boolean anchorAt(ResourceKey<Level> dimension,BlockPos pos) {
+        return cityAt(dimension,pos)!=null||atCapital(dimension,pos)!=null;
+    }
+    /** Only position/status change; claims, memberships and political references are untouched. */
+    void relocate(Settlement city,Kingdom state,BlockPos destination) throws FoundingException {
+        requireAvailable();
+        if (city!=null&&!city.equals(settlement(city.id()))||state!=null&&!state.equals(byId(state.id()))) throw new FoundingException(OBELISK_UNAVAILABLE);
+        if (city!=null) settlements.put(city.id(),city.withObeliskPos(destination));
+        if (state!=null) {
+            capitals.remove(GlobalPos.of(state.dimension(),state.capitalPos()),state.id());
+            Kingdom moved=state.withCapitalPos(destination);
+            kingdoms.put(state.id(),moved); capitals.put(GlobalPos.of(moved.dimension(),destination),moved.id());
+        }
+        setDirty();
     }
     public UUID claimOwner(ClaimPos pos) { return claims.get(pos); }
     public List<ClaimPos> settlementClaims(UUID id) { return claims.entrySet().stream().filter(e -> e.getValue().equals(id)).map(Map.Entry::getKey).toList(); }
@@ -65,12 +155,13 @@ public final class KingdomSavedData extends SavedData {
         requireAvailable();
         if (founders.containsKey(founder)) throw new FoundingException(ALREADY_FOUNDER);
         if (names.containsKey(name.key())) throw new FoundingException(DUPLICATE_NAME);
-        if (obelisks.containsKey(obelisk)||capitals.containsKey(GlobalPos.of(dim,pos))) throw new FoundingException(ALREADY_BOUND);
+        if (stateIdentityOccupied(dim,pos,obelisk)||capitals.containsKey(GlobalPos.of(dim,pos))) throw new FoundingException(ALREADY_BOUND);
     }
     /** Historical/command combined founding, still one personal domain. */
     void add(Kingdom kingdom) throws FoundingException {
         validate(kingdom.founderId(),kingdom.name(),kingdom.dimension(),kingdom.capitalPos(),kingdom.capitalObeliskId());
         if (byOwner(kingdom.founderId())!=null) throw new FoundingException(DOMAIN_LIMIT);
+        if (citizens.containsKey(kingdom.founderId())) throw new FoundingException(ALREADY_CITIZEN);
         if (kingdoms.containsKey(kingdom.id())||deleted.containsKey(kingdom.id())||settlements.containsKey(kingdom.id())||!kingdom.capitalSettlementId().equals(kingdom.id())||kingdom.id().equals(kingdom.capitalObeliskId())) throw new IllegalArgumentException("Duplicate identity");
         ClaimPos capital=ClaimPos.at(kingdom.dimension(),kingdom.capitalPos());
         if (claims.containsKey(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
@@ -80,8 +171,9 @@ public final class KingdomSavedData extends SavedData {
     void addSettlement(Settlement city) throws FoundingException {
         requireAvailable();
         if (byOwner(city.ownerId())!=null) throw new FoundingException(DOMAIN_LIMIT);
+        if (citizens.containsKey(city.ownerId())) throw new FoundingException(ALREADY_CITIZEN);
         if (settlements.containsKey(city.id())||kingdoms.containsKey(city.id())||city.id().equals(city.obeliskId())
-                || cityAt(city.dimension(),city.obeliskPos())!=null || settlements.values().stream().anyMatch(s -> s.obeliskId().equals(city.obeliskId()))) throw new FoundingException(ALREADY_BOUND);
+                || anchorAt(city.dimension(),city.obeliskPos()) || usesObelisk(city.obeliskId())) throw new FoundingException(ALREADY_BOUND);
         if (city.sovereign()!=null||city.legacyAnchor()) throw new IllegalArgumentException("Native city must start independent");
         ClaimPos capital=ClaimPos.at(city.dimension(),city.obeliskPos());
         if (claims.containsKey(capital)||isCapital(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
@@ -151,7 +243,7 @@ public final class KingdomSavedData extends SavedData {
     }
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries) {
         if (unreadableData!=null) return unreadableData.copy();
-        tag.putInt("Version",3);
+        tag.putInt("Version",5);
         ListTag list=new ListTag();
         for (Kingdom k:kingdoms.values()) {
             CompoundTag e=anchor(k.id(),k.name(),k.founderId(),k.dimension(),k.capitalPos(),k.capitalObeliskId(),k.createdAt(),k.capitalStatus());
@@ -170,7 +262,12 @@ public final class KingdomSavedData extends SavedData {
         }
         tag.put("Claims",list); list=new ListTag();
         for (DeletedAnchor d:deleted.values()) { CompoundTag e=new CompoundTag(); e.putUUID("Id",d.kingdom()); e.putString("Dimension",d.dimension().location().toString()); e.putLong("Position",d.pos().asLong()); e.putUUID("Obelisk",d.obelisk()); list.add(e); }
-        tag.put("DeletedStateAnchors",list); return tag;
+        tag.put("DeletedStateAnchors",list); list=new ListTag();
+        for (var member:citizens.entrySet()) {
+            CompoundTag e=new CompoundTag(); e.putUUID("Player",member.getKey()); e.putUUID("Settlement",member.getValue().city());
+            e.putString("Role",member.getValue().role().name()); list.add(e);
+        }
+        tag.put("Citizens",list); return tag;
     }
     private static CompoundTag anchor(UUID id,KingdomName name,UUID founder,ResourceKey<Level> dim,BlockPos pos,UUID obelisk,long time,Kingdom.CapitalStatus status) {
         CompoundTag e=new CompoundTag(); e.putUUID("Id",id); e.putString("Name",name.display()); e.putUUID("Founder",founder);
@@ -189,13 +286,13 @@ public final class KingdomSavedData extends SavedData {
     static KingdomSavedData load(CompoundTag tag,HolderLookup.Provider registries) {
         var data=new KingdomSavedData();
         try {
-            int version=tag.getInt("Version"); if (version<1||version>3) throw new IllegalArgumentException("Unknown kingdom saved-data schema");
+            int version=tag.getInt("Version"); if (version<1||version>5) throw new IllegalArgumentException("Unknown kingdom saved-data schema");
             List<Kingdom> parsed=new ArrayList<>();
             for (Tag entry:list(tag,"Kingdoms")) {
                 CompoundTag e=(CompoundTag)entry; UUID id=e.getUUID("Id");
                 if (e.contains("Color")&&!e.contains("Color",Tag.TAG_INT)||e.contains("Government")&&!e.contains("Government",Tag.TAG_STRING)) throw new IllegalArgumentException("Malformed political fields");
                 parsed.add(new Kingdom(id,new KingdomName(e.getString("Name")),e.getUUID("Founder"),dimension(e),BlockPos.of(e.getLong("Position")),e.getUUID("Obelisk"),e.getLong("CreatedAt"),status(e),
-                        version==3?e.getUUID("CapitalSettlement"):id,e.contains("Color",Tag.TAG_INT)?e.getInt("Color"):PoliticalColors.fallback(id),e.contains("Government",Tag.TAG_STRING)?e.getString("Government"):"unspecified"));
+                        version>=3?e.getUUID("CapitalSettlement"):id,e.contains("Color",Tag.TAG_INT)?e.getInt("Color"):PoliticalColors.fallback(id),e.contains("Government",Tag.TAG_STRING)?e.getString("Government"):"unspecified"));
             }
             for (Kingdom k:parsed.stream().sorted(order()).toList()) {
                 if (data.kingdoms.containsKey(k.id())||k.id().equals(k.capitalObeliskId())||data.names.containsKey(k.name().key())
@@ -228,10 +325,21 @@ public final class KingdomSavedData extends SavedData {
             if (version>=2) for (Tag entry:list(tag,"Claims")) {
                 CompoundTag e=(CompoundTag)entry;
                 if (!e.contains("X",Tag.TAG_INT)||!e.contains("Z",Tag.TAG_INT)) throw new IllegalArgumentException("Missing claim position");
-                UUID owner=e.getUUID(version==3?"Settlement":"Kingdom"); ClaimPos pos=new ClaimPos(dimension(e),e.getInt("X"),e.getInt("Z"));
+                UUID owner=e.getUUID(version>=3?"Settlement":"Kingdom"); ClaimPos pos=new ClaimPos(dimension(e),e.getInt("X"),e.getInt("Z"));
                 if (!data.settlements.containsKey(owner)||data.claims.putIfAbsent(pos,owner)!=null) throw new IllegalArgumentException("Unknown owner or duplicate claim");
             }
-            data.setDirty(version<3); data.repairAffiliations(); data.reconcileCapitals();
+            if (version>=4||tag.contains("Citizens")) for (Tag entry:list(tag,"Citizens")) {
+                CompoundTag e=(CompoundTag)entry; UUID player=e.getUUID("Player"), city=e.getUUID("Settlement");
+                CityRole role=CityRole.CITIZEN;
+                if (version>=5||e.contains("Role")) {
+                    if (!e.contains("Role",Tag.TAG_STRING)) throw new IllegalArgumentException("Missing or malformed citizen role");
+                    role=CityRole.valueOf(e.getString("Role"));
+                }
+                if (role==CityRole.OWNER||!data.settlements.containsKey(city)||data.byOwner(player)!=null
+                        ||data.citizens.putIfAbsent(player,new Membership(city,role))!=null)
+                    throw new IllegalArgumentException("Conflicting or orphaned citizenship/role");
+            }
+            data.setDirty(version<5); data.repairAffiliations(); data.reconcileCapitals();
             var owners=data.settlements.values().stream().collect(java.util.stream.Collectors.groupingBy(Settlement::ownerId,java.util.stream.Collectors.counting()));
             owners.forEach((owner,count) -> { if (count>1) RegnumNations.LOGGER.warn("Historical multiple domains for owner {}: {} records retained; claim management requires repair",owner,count); });
         } catch (RuntimeException exception) {

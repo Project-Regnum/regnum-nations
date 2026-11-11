@@ -1,8 +1,13 @@
 # Regnum Nations v0.3 — Basic territory claims
 
+Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
+earlier anchor destruction and recovery behavior described below.
+
+
 For the current founding GUI, kingdom menu and interactive map controls, see
 [kingdom management v0.5.0](kingdom-management.md). This document retains the
-earlier milestone behavior and verification history.
+earlier milestone behavior and verification history. For current citizen building
+access and owner-only claim management, see [city roles and permissions v0.7.1](cities-and-sovereignty.md#v071--city-roles-and-permissions).
 
 Founding a kingdom automatically claims the capital's entire chunk, at all heights.
 Ownership is a kingdom UUID indexed by dimension and chunk X/Z, independent of the

@@ -36,7 +36,7 @@ public final class KingdomManagementScreen extends RoyalScreen {
     @Override protected void init() {
         atlas=null; civic=null;
         if (section==Section.KINGDOM) {
-            atlas=new KingdomAtlasView(font,width,height,state,expandedAtlasRecord,this::request,this::onClose,this::relocate,this::navigate,
+            atlas=new KingdomAtlasView(font,width,height,state,expandedAtlasRecord,this::request,this::onClose,this::relocate,() -> minecraft.setScreen(new DiplomacyScreen(this)),this::navigate,
                     () -> { expandedAtlasRecord=!expandedAtlasRecord; rebuildWidgets(); if (atlas.disclosure!=null) setInitialFocus(atlas.disclosure); },requested!=0,failed);
             for (AbstractWidget widget:atlas.widgets()) addRenderableWidget(widget);
             refresh=atlas.refresh; readout=atlas.record;

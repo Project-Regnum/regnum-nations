@@ -19,7 +19,8 @@
       "dev.sakhno.regnum.nations.kingdom.AtlasWorldTests",
       "dev.sakhno.regnum.nations.kingdom.ObeliskIntegrityTests",
       "dev.sakhno.regnum.nations.kingdom.ObeliskRelocationTests",
-      "dev.sakhno.regnum.nations.kingdom.CitizenManagementTests"
+      "dev.sakhno.regnum.nations.kingdom.CitizenManagementTests",
+      "dev.sakhno.regnum.nations.kingdom.DiplomacyTests"
     ]
   },
   "depends": {

@@ -33,7 +33,7 @@ final class KingdomAtlasView {
     final Readout record;
 
     KingdomAtlasView(Font font,int screenWidth,int screenHeight,State state,boolean expanded,
-                     Runnable refreshAction,Runnable closeAction,Runnable relocateAction,IntConsumer navigate,Runnable toggle,boolean loading,boolean failed) {
+                     Runnable refreshAction,Runnable closeAction,Runnable relocateAction,Runnable diplomacyAction,IntConsumer navigate,Runnable toggle,boolean loading,boolean failed) {
         this.font=font; this.expanded=expanded;
         kingdom=state==null?null:state.overview();
         bounds=folioBounds(screenWidth,screenHeight,MAX_WIDTH,screenWidth-MARGIN*2>=500?MAX_HEIGHT:256);
@@ -76,9 +76,9 @@ final class KingdomAtlasView {
         initialFocus=tabs.get(1);
         if (kingdom==null) {
             record=null; disclosure=null;
-            widgets.add(paragraph(font,bounds.left(),bodyY,bodyWidth-GAP,Math.max(CONTROL,bounds.footerY()-GAP-bodyY),empty));
+            widgets.add(paragraph(font,bounds.left(),bodyY,bodyWidth-GAP,Math.max(CONTROL,bounds.contentBottom()-bodyY),empty));
         } else {
-            disclosure=new RoyalButton(bounds.left(),bounds.disclosureY(),Math.min(kingdom.manager()?bodyWidth/2-GAP:bodyWidth,font.width(recordLabel)+PAD*2),recordLabel,b -> toggle.run());
+            disclosure=new RoyalButton(bounds.left(),bounds.disclosureY(),Math.min(bodyWidth/3-GAP,font.width(recordLabel)+PAD*2),recordLabel,b -> toggle.run());
             widgets.add(disclosure);
             var technical=new ArrayList<Component>();
             technical.add(text("identity_uuid",kingdom.id().toString()));
@@ -89,10 +89,14 @@ final class KingdomAtlasView {
             record=expanded?new Readout(font,bounds.left(),bodyY,bodyWidth-GAP,Math.max(CONTROL,bounds.contentBottom()-bodyY),technical):null;
             if (record!=null) widgets.add(record);
         }
+        int diplomacyWidth=(bodyWidth-2*GAP)/3;
+        var diplomacyButton=new RoyalButton(bounds.right()-diplomacyWidth,bounds.disclosureY(),diplomacyWidth,
+                Component.translatable("diplomacy.regnum-nations.title"),b -> diplomacyAction.run());
+        diplomacyButton.setTooltip(null); widgets.add(diplomacyButton);
         int[] actions=AtlasWidgets.rowWidths(font,bodyWidth,CONTROL*3,text("refresh"),text("close"));
         if (kingdom!=null&&kingdom.manager()) {
-            int relocationWidth=Math.min(bodyWidth/2,font.width(Component.translatable("relocation.regnum-nations.title"))+PAD*2);
-            widgets.add(new RoyalButton(bounds.right()-relocationWidth,bounds.disclosureY(),relocationWidth,
+            int relocationWidth=diplomacyWidth;
+            widgets.add(new RoyalButton(bounds.left()+diplomacyWidth+GAP,bounds.disclosureY(),relocationWidth,
                     Component.translatable("relocation.regnum-nations.title"),b -> relocateAction.run()));
         }
         refresh=new RoyalButton(bounds.left(),bounds.footerY(),actions[0],text("refresh"),b -> refreshAction.run());

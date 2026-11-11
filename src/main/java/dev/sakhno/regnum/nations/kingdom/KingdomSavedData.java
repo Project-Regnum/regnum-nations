@@ -36,6 +36,7 @@ public final class KingdomSavedData extends SavedData {
     private void membershipChanged(UUID city) { membershipRevisions.merge(city,1L,Long::sum); }
     private final Map<UUID,DeletedAnchor> deleted=new HashMap<>();
     private CompoundTag unreadableData;
+    final DiplomacyData diplomacy=new DiplomacyData();
     public record DeletedAnchor(UUID kingdom, ResourceKey<Level> dimension, BlockPos pos, UUID obelisk) { }
     static KingdomSavedData get(MinecraftServer server) { return server.overworld().getDataStorage().computeIfAbsent(FACTORY,FILE_ID); }
     public Collection<Kingdom> kingdoms() { return List.copyOf(kingdoms.values()); }
@@ -207,6 +208,7 @@ public final class KingdomSavedData extends SavedData {
         kingdoms.remove(id); names.remove(current.name().key(),id); obelisks.remove(current.capitalObeliskId(),id);
         capitals.remove(GlobalPos.of(current.dimension(),current.capitalPos()),id);
         founders.remove(current.founderId(),id);
+        diplomacy.delete(id);
         kingdoms.values().stream().filter(k -> k.founderId().equals(current.founderId())).sorted(order()).findFirst().ifPresent(k -> founders.put(k.founderId(),k.id()));
         setDirty();
     }
@@ -243,7 +245,7 @@ public final class KingdomSavedData extends SavedData {
     }
     @Override public CompoundTag save(CompoundTag tag,HolderLookup.Provider registries) {
         if (unreadableData!=null) return unreadableData.copy();
-        tag.putInt("Version",5);
+        tag.putInt("Version",6);
         ListTag list=new ListTag();
         for (Kingdom k:kingdoms.values()) {
             CompoundTag e=anchor(k.id(),k.name(),k.founderId(),k.dimension(),k.capitalPos(),k.capitalObeliskId(),k.createdAt(),k.capitalStatus());
@@ -267,7 +269,7 @@ public final class KingdomSavedData extends SavedData {
             CompoundTag e=new CompoundTag(); e.putUUID("Player",member.getKey()); e.putUUID("Settlement",member.getValue().city());
             e.putString("Role",member.getValue().role().name()); list.add(e);
         }
-        tag.put("Citizens",list); return tag;
+        tag.put("Citizens",list); tag.put("Diplomacy",diplomacy.save()); return tag;
     }
     private static CompoundTag anchor(UUID id,KingdomName name,UUID founder,ResourceKey<Level> dim,BlockPos pos,UUID obelisk,long time,Kingdom.CapitalStatus status) {
         CompoundTag e=new CompoundTag(); e.putUUID("Id",id); e.putString("Name",name.display()); e.putUUID("Founder",founder);
@@ -286,7 +288,7 @@ public final class KingdomSavedData extends SavedData {
     static KingdomSavedData load(CompoundTag tag,HolderLookup.Provider registries) {
         var data=new KingdomSavedData();
         try {
-            int version=tag.getInt("Version"); if (version<1||version>5) throw new IllegalArgumentException("Unknown kingdom saved-data schema");
+            int version=tag.getInt("Version"); if (version<1||version>6) throw new IllegalArgumentException("Unknown kingdom saved-data schema");
             List<Kingdom> parsed=new ArrayList<>();
             for (Tag entry:list(tag,"Kingdoms")) {
                 CompoundTag e=(CompoundTag)entry; UUID id=e.getUUID("Id");
@@ -339,7 +341,9 @@ public final class KingdomSavedData extends SavedData {
                         ||data.citizens.putIfAbsent(player,new Membership(city,role))!=null)
                     throw new IllegalArgumentException("Conflicting or orphaned citizenship/role");
             }
-            data.setDirty(version<5); data.repairAffiliations(); data.reconcileCapitals();
+            data.setDirty(version<6);
+            if (data.diplomacy.load(tag.get("Diplomacy"),data)) data.setDirty();
+            data.repairAffiliations(); data.reconcileCapitals();
             var owners=data.settlements.values().stream().collect(java.util.stream.Collectors.groupingBy(Settlement::ownerId,java.util.stream.Collectors.counting()));
             owners.forEach((owner,count) -> { if (count>1) RegnumNations.LOGGER.warn("Historical multiple domains for owner {}: {} records retained; claim management requires repair",owner,count); });
         } catch (RuntimeException exception) {

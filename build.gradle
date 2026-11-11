@@ -122,6 +122,27 @@ tasks.named('check') {
 	dependsOn tasks.named('testKingdomNames')
 }
 
+// Opt-in asset review in a disposable client world. Never uses the player's run/.
+sourceSets {
+	obeliskTest {
+		compileClasspath += sourceSets.client.compileClasspath + sourceSets.client.output + sourceSets.main.output
+		runtimeClasspath += sourceSets.client.runtimeClasspath + sourceSets.client.output + sourceSets.main.output
+	}
+}
+loom {
+	mods { "regnum-nations-obelisk-test" { sourceSet sourceSets.obeliskTest } }
+	runs {
+		obeliskTest {
+			client()
+			name 'Obelisk visual checks'
+			source sourceSets.obeliskTest
+			runDir 'build/run/obeliskTest'
+			vmArg '-Dregnum.obeliskTest=true'
+			programArgs '--width', '1280', '--height', '900'
+		}
+	}
+}
+
 jar {
 	def projectName = project.name
 	inputs.property "projectName", projectName

@@ -1,6 +1,1171 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "credit": "Exported from authoritative Blockbench source",
+  "parent": "minecraft:block/block",
+  "ambientocclusion": true,
   "textures": {
-    "all": "regnum-nations:block/kingdom_obelisk"
-  }
+    "stone": "regnum-nations:block/obelisk/kingdom_stone",
+    "base": "regnum-nations:block/obelisk/kingdom_base",
+    "metal": "regnum-nations:block/obelisk/kingdom_metal",
+    "rune": "regnum-nations:block/obelisk/kingdom_rune",
+    "core": "regnum-nations:block/obelisk/kingdom_core",
+    "particle": "#stone"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        210,
+        0
+      ],
+      "translation": [
+        0,
+        -3.84,
+        0
+      ],
+      "scale": [
+        0.48,
+        0.48,
+        0.48
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -3.6,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    }
+  },
+  "elements": [
+    {
+      "name": "Foundation / course 1",
+      "from": [
+        -4,
+        0,
+        -4
+      ],
+      "to": [
+        20,
+        3,
+        20
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            2.0,
+            7.25,
+            14.0,
+            8.75
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            2.0,
+            2.0,
+            14.0,
+            14.0
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Foundation / course 2",
+      "from": [
+        -3,
+        3,
+        -3
+      ],
+      "to": [
+        19,
+        4.5,
+        19
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2.5,
+            7.625,
+            13.5,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            2.5,
+            7.625,
+            13.5,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            2.5,
+            7.625,
+            13.5,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            2.5,
+            7.625,
+            13.5,
+            8.375
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            2.5,
+            2.5,
+            13.5,
+            13.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            2.5,
+            2.5,
+            13.5,
+            13.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Foundation / course 3",
+      "from": [
+        -2,
+        4.5,
+        -2
+      ],
+      "to": [
+        18,
+        6.5,
+        18
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            3.0,
+            7.5,
+            13.0,
+            8.5
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Foundation / course 4",
+      "from": [
+        -1,
+        6.5,
+        -1
+      ],
+      "to": [
+        17,
+        8.5,
+        17
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            3.5,
+            7.5,
+            12.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Foundation / course 5",
+      "from": [
+        -2,
+        8.5,
+        -2
+      ],
+      "to": [
+        18,
+        9.5,
+        18
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.0,
+            7.75,
+            13.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            3.0,
+            7.75,
+            13.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            3.0,
+            7.75,
+            13.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            3.0,
+            7.75,
+            13.0,
+            8.25
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            3.0,
+            3.0,
+            13.0,
+            13.0
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Foundation / course 6",
+      "from": [
+        -1,
+        9.5,
+        -1
+      ],
+      "to": [
+        17,
+        11,
+        17
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.5,
+            7.625,
+            12.5,
+            8.375
+          ],
+          "texture": "#base"
+        },
+        "east": {
+          "uv": [
+            3.5,
+            7.625,
+            12.5,
+            8.375
+          ],
+          "texture": "#base"
+        },
+        "south": {
+          "uv": [
+            3.5,
+            7.625,
+            12.5,
+            8.375
+          ],
+          "texture": "#base"
+        },
+        "west": {
+          "uv": [
+            3.5,
+            7.625,
+            12.5,
+            8.375
+          ],
+          "texture": "#base"
+        },
+        "up": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": "#base"
+        },
+        "down": {
+          "uv": [
+            3.5,
+            3.5,
+            12.5,
+            12.5
+          ],
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "name": "Foundation / course 7",
+      "from": [
+        0,
+        11,
+        0
+      ],
+      "to": [
+        16,
+        12,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            4.0,
+            7.75,
+            12.0,
+            8.25
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            12.0
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Foundation / metal corner boss -3/-3",
+      "from": [
+        -3.1,
+        2.5,
+        -3.2
+      ],
+      "to": [
+        0,
+        4.6,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Foundation / metal corner boss -3/16",
+      "from": [
+        -3.1,
+        2.5,
+        16
+      ],
+      "to": [
+        0,
+        4.6,
+        19.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Foundation / metal corner boss 16/-3",
+      "from": [
+        16,
+        2.5,
+        -3.2
+      ],
+      "to": [
+        19.1,
+        4.7,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Foundation / metal corner boss 16/16",
+      "from": [
+        16,
+        2.5,
+        16
+      ],
+      "to": [
+        19.1,
+        4.7,
+        19.2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "east": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "south": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "west": {
+          "uv": [
+            7.25,
+            7.5,
+            8.75,
+            8.5
+          ],
+          "texture": "#metal"
+        },
+        "up": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        },
+        "down": {
+          "uv": [
+            7.25,
+            7.25,
+            8.75,
+            8.75
+          ],
+          "texture": "#metal"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 11 at -0.25/-0.25",
+      "from": [
+        -0.25,
+        11,
+        -0.25
+      ],
+      "to": [
+        1.75,
+        14.9,
+        1.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 11 at -0.25/14.25",
+      "from": [
+        -0.25,
+        11,
+        14.25
+      ],
+      "to": [
+        1.75,
+        14.9,
+        16.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 11 at 14.25/-0.25",
+      "from": [
+        14.25,
+        11,
+        -0.25
+      ],
+      "to": [
+        16.25,
+        14.9,
+        1.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "name": "Buttress / stone tier 11 at 14.25/14.25",
+      "from": [
+        14.25,
+        11,
+        14.25
+      ],
+      "to": [
+        16.25,
+        14.9,
+        16.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "east": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "south": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "west": {
+          "uv": [
+            7.5,
+            7.0,
+            8.5,
+            9.0
+          ],
+          "texture": "#stone"
+        },
+        "up": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        },
+        "down": {
+          "uv": [
+            7.5,
+            7.5,
+            8.5,
+            8.5
+          ],
+          "texture": "#stone"
+        }
+      }
+    }
+  ]
 }

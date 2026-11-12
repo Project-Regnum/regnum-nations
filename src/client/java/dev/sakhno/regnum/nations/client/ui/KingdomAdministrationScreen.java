@@ -53,6 +53,9 @@ public final class KingdomAdministrationScreen extends RoyalScreen {
     @Override protected void init() {
         availability.clear(); bounds=folioBounds(width,height,720,440);
         int content=bounds.contentWidth();
+        control(bounds.right()-100,bounds.y()+9,100,HeraldryScreen.message("title"),
+                () -> minecraft.setScreen(new HeraldryScreen(this,state==null?null:state.kingdom())),
+                () -> !busy()&&state!=null&&state.kingdom()!=null);
         for (Tab value:Tab.values()) {
             int index=value.ordinal(),w=(content-GAP*4)/5;
             var button=(RoyalButton)control(bounds.left()+index*(w+GAP),bounds.y()+43,w,message("tab."+value.name().toLowerCase(Locale.ROOT)),
@@ -191,7 +194,9 @@ public final class KingdomAdministrationScreen extends RoyalScreen {
             .append(". ").append(confirmation==null?Component.empty():confirmationText); }
     @Override public void render(GuiGraphics g,int mx,int my,float delta) {
         g.fill(0,0,width,height,BACKGROUND); AtlasGraphics.folio(g,bounds.x(),bounds.y(),bounds.width(),bounds.height());
-        heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth());
+        heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth()-108);
+        if (state!=null&&state.kingdom()!=null) dev.sakhno.regnum.nations.client.heraldry.HeraldryTextures.draw(g,
+                dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(state.kingdom()),bounds.right()-120,bounds.y()+9,16,20);
         Component summary=summary();
         g.drawString(font,ellipsize(font,summary,bounds.contentWidth()),bounds.left(),bounds.y()+27,INK,false);
         g.drawString(font,ellipsize(font,feedback,bounds.contentWidth()),bounds.left(),bounds.y()+94,failed?ERROR:MUTED,false);

@@ -95,3 +95,10 @@ Existing registry IDs, UUIDs, key bindings, config names and wire layouts remain
 Back up world/config first; old binaries cannot safely write schema 7. Recover
 an older release only by restoring the pre-upgrade backup. See the
 [integration compatibility contract](integration-audit-v0.8.5.md#final-persistence-contract).
+
+
+v0.9.0 [heraldry and royal banners](heraldry-royal-banners.md) depends on the
+unmerged v0.8.5 integration (schema 7) and adds schema 8. The saved filename and
+legacy contracts remain; official arms key off kingdom UUIDs. New banner IDs use
+`regnum-nations`. Back up the entire stopped world before upgrading; restoring the
+pre-upgrade backup is required for rollback.

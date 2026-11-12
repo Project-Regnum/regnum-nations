@@ -76,6 +76,28 @@ def verify(path):
             require(f'assets/regnum-nations/models/block/{obelisk}_glow.json')
             loot = read_json(f'data/project-reigns/loot_table/blocks/{obelisk}.json')
             assert loot['pools'][0]['entries'][0]['name'] == f'project-reigns:{obelisk}'
+        for kind, options in {
+            'shields': ('heater', 'kite', 'round', 'french', 'bouche'),
+            'charges': ('lion', 'eagle', 'wolf', 'stag', 'crown', 'sword', 'fleur_de_lis', 'tower', 'sun', 'star', 'rose')
+        }.items():
+            for option in options:
+                shape = read_json(f'assets/regnum-nations/heraldry/{kind}/{option}.json')
+                assert shape['solid'], f'Empty silhouette: {option}'
+                for polygons in shape.values():
+                    for polygon in polygons:
+                        assert len(polygon) >= 3 and all(len(p) == 2 and all(isinstance(v, (int, float)) and 0 <= v <= 100 for v in p) for p in polygon)
+                assert f'heraldry.regnum-nations.{"shield" if kind == "shields" else "charge"}.{option}' in languages[0]
+        for variant in ('royal_banner', 'wall_royal_banner'):
+            blockstate = read_json(f'assets/regnum-nations/blockstates/{variant}.json')
+            assert set(blockstate['variants']) == {f'facing={d}' for d in ('north', 'south', 'west', 'east')}
+            require(f'assets/regnum-nations/models/block/{variant}.json')
+            assert f'block.regnum-nations.{variant}' in languages[0]
+        assert read_json('assets/regnum-nations/models/item/royal_banner.json')['parent'] == 'minecraft:builtin/entity'
+        recipe = read_json('data/regnum-nations/recipe/royal_banner.json')
+        assert recipe['result'] == {'id': 'regnum-nations:royal_banner', 'count': 1}
+        assert recipe['pattern'] == ['WWW', 'WWW', ' S ']
+        require('dev/sakhno/regnum/nations/block/RoyalBannerBlockEntity.class')
+        require('dev/sakhno/regnum/nations/client/heraldry/RoyalBannerRenderer.class')
         require('assets/regnum-nations/models/block/kingdom_obelisk_crown.json')
         require('assets/regnum-nations/obelisk_animation.json')
         assert {n for n in names if n.startswith('assets/project-reigns/') and not n.endswith('/')} == legacy_assets

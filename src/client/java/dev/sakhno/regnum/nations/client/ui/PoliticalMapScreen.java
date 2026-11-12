@@ -390,6 +390,8 @@ public final class PoliticalMapScreen extends RoyalScreen {
             g.fill(legendX,y,legendX+9,y+9,BORDER); g.fill(legendX+1,y+1,legendX+8,y+8,subdued(c.color()));
             // A square denotes a sovereign kingdom; a notch denotes an independent city-state.
             if (c.sovereign()==null) g.fill(legendX+3,y,legendX+6,y+2,INK);
+            else dev.sakhno.regnum.nations.client.heraldry.HeraldryTextures.draw(g,
+                    dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(c.sovereign()),legendX,y-1,10,12);
             g.drawString(font,legendNames.get(i),legendX+15,y+1,INK,false);
             y+=LEGEND_ROW;
         }

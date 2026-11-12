@@ -108,6 +108,24 @@ public final class KingdomSavedData extends SavedData {
         protectRuler(city);
         settlements.put(cityId,city.withSovereign(null)); pruneGovernment(); setDirty(); politicalChanged();
     }
+    private final Map<UUID,Heraldry> heraldry=new HashMap<>();
+    private final Map<UUID,CompoundTag> heraldryExtensions=new HashMap<>();
+    private final Map<UUID,Tag> retainedHeraldry=new HashMap<>();
+    private byte[] bannerSecret;
+    public Heraldry heraldry(UUID kingdom) {
+        return byId(kingdom)==null?null:heraldry.getOrDefault(kingdom,Heraldry.defaults(kingdom));
+    }
+    void setHeraldry(UUID kingdom,Heraldry arms) throws FoundingException {
+        requireAvailable();
+        if (byId(kingdom)==null) throw new FoundingException(NO_KINGDOM);
+        // An explicit edit replaces the display fallback; original unknown data stays in the recovery field.
+        heraldry.put(kingdom,Objects.requireNonNull(arms)); setDirty();
+    }
+    byte[] bannerSecret() throws FoundingException {
+        requireAvailable();
+        if (bannerSecret==null) { bannerSecret=new byte[32]; new java.security.SecureRandom().nextBytes(bannerSecret); setDirty(); }
+        return bannerSecret.clone();
+    }
     private CompoundTag unreadableData;
     private CompoundTag extensionSource=new CompoundTag();
     private Runnable politicalChange=() -> { };
@@ -286,6 +304,7 @@ public final class KingdomSavedData extends SavedData {
         if (current==null) throw new IllegalArgumentException("Unknown kingdom");
         deleted.put(id,new DeletedAnchor(id,current.dimension(),current.capitalPos(),current.capitalObeliskId()));
         settlements.replaceAll((key,city) -> id.equals(city.sovereign())?city.withSovereign(null):city);
+        heraldry.remove(id); retainedHeraldry.remove(id); heraldryExtensions.remove(id);
         kingdoms.remove(id); names.remove(current.name().key(),id); obelisks.remove(current.capitalObeliskId(),id);
         capitals.remove(GlobalPos.of(current.dimension(),current.capitalPos()),id);
         founders.remove(current.founderId(),id);
@@ -330,6 +349,17 @@ public final class KingdomSavedData extends SavedData {
         ListTag list=new ListTag();
         for (Kingdom k:kingdoms.values().stream().sorted(Comparator.comparing(Kingdom::id)).toList()) {
             CompoundTag e=anchor(k.id(),k.name(),k.founderId(),k.dimension(),k.capitalPos(),k.capitalObeliskId(),k.createdAt(),k.capitalStatus());
+            if (retainedHeraldry.containsKey(k.id())) e.put("HeraldryRecovery",retainedHeraldry.get(k.id()).copy());
+            var arms=heraldry(k.id()).toTag();
+            var extensions=heraldryExtensions.get(k.id());
+            if (extensions!=null) {
+                for (String key:extensions.getAllKeys()) if (!arms.contains(key)) arms.put(key,extensions.get(key).copy());
+                var before=extensions.getList("Charges",Tag.TAG_COMPOUND); var after=arms.getList("Charges",Tag.TAG_COMPOUND);
+                for (int i=0;i<Math.min(before.size(),after.size());i++)
+                    for (String key:before.getCompound(i).getAllKeys()) if (!after.getCompound(i).contains(key))
+                        after.getCompound(i).put(key,before.getCompound(i).get(key).copy());
+            }
+            e.put("Heraldry",arms);
             e.putUUID("Ruler",k.rulerId()); e.putUUID("CapitalSettlement",k.capitalSettlementId()); e.putInt("Color",k.color()); e.putString("Government",k.government()); list.add(e);
         }
         tag.put("Kingdoms",list); list=new ListTag();
@@ -363,6 +393,7 @@ public final class KingdomSavedData extends SavedData {
             e.putUUID("City",invitation.city()); e.putUUID("Inviter",invitation.inviter()); e.putLong("CreatedAt",invitation.createdAt()); list.add(e);
         }
         tag.put("CityInvitations",list); tag.put("Diplomacy",diplomacy.save());
+        if (bannerSecret!=null) tag.putByteArray("BannerSecret",bannerSecret);
         KingdomSchema.retainExtensions(extensionSource,tag); return tag;
     }
     private static CompoundTag anchor(UUID id,KingdomName name,UUID founder,ResourceKey<Level> dim,BlockPos pos,UUID obelisk,long time,Kingdom.CapitalStatus status) {
@@ -395,6 +426,24 @@ public final class KingdomSavedData extends SavedData {
                 if (data.kingdoms.containsKey(k.id())||k.id().equals(k.capitalObeliskId())||data.names.containsKey(k.name().key())
                         ||data.obelisks.containsKey(k.capitalObeliskId())||data.capitals.containsKey(GlobalPos.of(k.dimension(),k.capitalPos()))) throw new IllegalArgumentException("Duplicate kingdom identity/name/anchor");
                 data.index(k);
+            }
+            for (Tag entry:list(tag,"Kingdoms")) {
+                var e=(CompoundTag)entry; UUID id=e.getUUID("Id");
+                if (e.contains("HeraldryRecovery")) data.retainedHeraldry.put(id,e.get("HeraldryRecovery").copy());
+                if (e.contains("Heraldry")) {
+                    try {
+                        if (!(e.get("Heraldry") instanceof CompoundTag arms)) throw new IllegalArgumentException("Malformed heraldry");
+                        data.heraldry.put(id,Heraldry.fromTag(arms)); data.heraldryExtensions.put(id,arms.copy());
+                    } catch (RuntimeException invalid) {
+                        data.retainedHeraldry.put(id,e.get("Heraldry").copy()); data.setDirty();
+                        RegnumNations.LOGGER.warn("Recovered invalid heraldry for kingdom {}; original retained",id);
+                    }
+                }
+            }
+            if (tag.contains("BannerSecret")) {
+                if (!tag.contains("BannerSecret",Tag.TAG_BYTE_ARRAY)||tag.getByteArray("BannerSecret").length!=32)
+                    throw new IllegalArgumentException("Malformed banner signing key");
+                data.bannerSecret=tag.getByteArray("BannerSecret").clone();
             }
             if (version<3) {
                 for (Kingdom k:parsed) data.settlements.put(k.id(),legacyCity(k));
@@ -436,7 +485,7 @@ public final class KingdomSavedData extends SavedData {
                         ||data.citizens.putIfAbsent(player,new Membership(city,role))!=null)
                     throw new IllegalArgumentException("Conflicting or orphaned citizenship/role");
             }
-            data.setDirty(version<KingdomSchema.CURRENT||!tag.equals(original)); data.repairAffiliations(); data.reconcileCapitals();
+            data.setDirty(data.isDirty()||version<KingdomSchema.CURRENT||!tag.equals(original)); data.repairAffiliations(); data.reconcileCapitals();
             {
                 for (Tag entry:list(tag,"KingdomRoles")) {
                     CompoundTag e=(CompoundTag)entry; UUID kingdom=e.getUUID("Kingdom"),player=e.getUUID("Player");

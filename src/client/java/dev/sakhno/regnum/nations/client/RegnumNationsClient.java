@@ -16,6 +16,7 @@ import org.lwjgl.glfw.GLFW;
 public class RegnumNationsClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         ObeliskRenderer.initialize();
+        dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.initialize();
         dev.sakhno.regnum.nations.client.terrain.AtlasTerrain.initialize();
         ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.AtlasPayloads.Session.TYPE,
                 (payload, context) -> dev.sakhno.regnum.nations.client.terrain.diorama.MapSession.setWorld(payload.world()));
@@ -48,6 +49,7 @@ public class RegnumNationsClient implements ClientModInitializer {
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.KingdomAdministrationScreen screen) screen.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.DiplomacyScreen screen) screen.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.CitizenManagementScreen screen) screen.invalidate();
+                else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.HeraldryScreen screen) screen.invalidate();
             } else if (payload.intent() == KingdomManagementPayloads.OPEN_FOUNDING || payload.intent() == KingdomManagementPayloads.OPEN_CITY_FOUNDING) {
                 client.setScreen(new KingdomFoundingScreen(payload.obelisk(),payload.intent()==KingdomManagementPayloads.OPEN_CITY_FOUNDING));
             } else if (payload.intent() == KingdomManagementPayloads.OPEN_MENU || payload.intent() == KingdomManagementPayloads.OPEN_CITY_MENU) {

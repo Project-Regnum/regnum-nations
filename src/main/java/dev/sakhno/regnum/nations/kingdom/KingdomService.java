@@ -53,7 +53,7 @@ public final class KingdomService {
 	KingdomService(MinecraftServer server, KingdomSavedData data) {
 		this.server = server;
 		this.data = data;
-        data.onPoliticalChange(() -> KingdomManagementServer.invalidate(server));
+        data.onPoliticalChange(() -> { KingdomManagementServer.invalidate(server); HeraldryServer.reconcile(server,data); });
 		this.cities = new SettlementService(this,server,data);
 		this.citizenship = new CitizenshipService(this,server,data,System::nanoTime);
         this.relocation = new ObeliskRelocationService(this,server,System::nanoTime);

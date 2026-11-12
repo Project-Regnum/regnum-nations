@@ -133,3 +133,5 @@ Build output, IDE files, and development runtime data are excluded by `.gitignor
 ## License
 
 CC0-1.0; see [LICENSE](LICENSE).
+
+See [Heraldry and royal banners (v0.9.0)](docs/heraldry-royal-banners.md) for the editor, crafting/sealing, migration and multiplayer rules.

@@ -3,12 +3,12 @@ package dev.sakhno.regnum.nations.kingdom;
 import java.util.*;
 import net.minecraft.nbt.*;
 
-/** Additive, deterministic schema-7 normalization and lossless extension-field retention. */
+/** Additive, deterministic schema-8 normalization and lossless extension-field retention. */
 final class KingdomSchema {
-    static final int CURRENT=7;
-    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy");
+    static final int CURRENT=8;
+    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret");
     private static final Map<String,Set<String>> FIELDS=Map.of(
-            "Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler"),
+            "Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler Heraldry HeraldryRecovery"),
             "Settlements",fields("Id Name Founder Owner Dimension Position Obelisk CreatedAt CapitalStatus Sovereign Color LegacyAnchor"),
             "Claims",fields("Dimension X Z Kingdom Settlement"),
             "DeletedStateAnchors",fields("Id Dimension Position Obelisk"),

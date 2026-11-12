@@ -6,9 +6,9 @@ Verification performed on 2026-11-12, from feature branch
 
 | Check | Executed result |
 | --- | --- |
-| `./gradlew clean build --no-daemon --console=plain` | PASS: 212/212 required GameTests (193 existing + 19 heraldry), and 21 kingdom-name checks |
+| `./gradlew clean build --no-daemon --console=plain` | PASS: initial clean run, 212/212 required GameTests (193 existing + 19 heraldry), and 21 kingdom-name checks |
 | Gameplay runtime | Java 21 (Temurin 21.0.12.1); Gradle/Loom runs on the existing JDK 25; all production classfiles target Java 21 |
-| `./gradlew build --no-daemon --console=plain` | PASS: full post-review build, same 212/212 GameTests |
+| `./gradlew build --no-daemon --console=plain` | PASS: full post-review build, 213/213 GameTests (193 existing + 20 heraldry), including the post-login deletion regression |
 | `./gradlew runIntegrationLayoutTest --no-daemon --console=plain` | PASS: 456 native widget layouts in English/Ukrainian at 320×240, 640×360 and 1100×760 logical sizes |
 | Editor layout coverage | Three pages × zero/one/two/three charges × ruler/read-only states, sequence rejection; existing government/diplomacy/citizen layouts preserved |
 | `./gradlew runHeraldryVisualTest --no-daemon --console=plain` | PASS: actual integrated client/server, real insignia packets, deterministic raster, resource reload, editor and banner framebuffer captures |
@@ -17,6 +17,9 @@ Verification performed on 2026-11-12, from feature branch
 | Existing obelisk validators | PASS: 7 models, 10 textures and continuous crystal clearances |
 | Localization | 547 English/Ukrainian keys with matching placeholder types |
 | `git diff --check` | No whitespace errors |
+
+A regression also covers deletion as the first post-login political change after a
+server restart: the server emits exactly one public tombstone.
 
 The new GameTests exercise 2,310 combinations of shield/division/ordinary/emblem
 through NBT and bounded wire serialization. Additional cases cover schema-7

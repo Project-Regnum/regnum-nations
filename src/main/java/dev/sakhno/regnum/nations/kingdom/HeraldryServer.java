@@ -57,14 +57,25 @@ public final class HeraldryServer {
     static State error(int sequence,String key) { return new State(sequence,null,"",null,false,null,key,false); }
     static void login(ServerPlayer player,KingdomSavedData data) {
         var entries=data.kingdoms().stream().sorted(Comparator.comparing(Kingdom::id)).map(k -> new Entry(k.id(),data.heraldry(k.id()))).toList();
+        // Seed the baseline even when no political change has happened since server startup.
+        // Otherwise the first deletion cannot emit a tombstone for arms already sent at login.
+        PUBLISHED.computeIfAbsent(player.serverLevel().getServer(),server -> {
+            var snapshot=new HashMap<UUID,Heraldry>();
+            for (var entry:entries) snapshot.put(entry.kingdom(),entry.arms());
+            return snapshot;
+        });
         send(player,true,entries);
     }
     public static void reconcile(MinecraftServer server,KingdomSavedData data) {
+        var changed=changes(server,data);
+        if (!changed.isEmpty()) for (var player:server.getPlayerList().getPlayers()) send(player,false,changed);
+    }
+    static List<Entry> changes(MinecraftServer server,KingdomSavedData data) {
         var previous=PUBLISHED.computeIfAbsent(server,key -> new HashMap<>()); var current=new HashMap<UUID,Heraldry>(); var changed=new ArrayList<Entry>();
         for (var k:data.kingdoms()) { var arms=data.heraldry(k.id()); current.put(k.id(),arms); if (!arms.equals(previous.get(k.id()))) changed.add(new Entry(k.id(),arms)); }
         for (var id:previous.keySet()) if (!current.containsKey(id)) changed.add(new Entry(id,null));
         previous.clear(); previous.putAll(current);
-        if (!changed.isEmpty()) for (var player:server.getPlayerList().getPlayers()) send(player,false,changed);
+        return List.copyOf(changed);
     }
     private static void send(ServerPlayer player,boolean reset,List<Entry> entries) {
         if (player.connection==null||!ServerPlayNetworking.canSend(player,Sync.TYPE)) return;

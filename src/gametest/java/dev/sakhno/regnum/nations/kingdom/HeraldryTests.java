@@ -208,6 +208,24 @@ public final class HeraldryTests implements FabricGameTest {
         h.assertTrue(KingdomManagementServer.gate(f.ruler,100,true)==null&&KingdomManagementServer.gate(f.ruler,100,true).endsWith("duplicate")
                 &&KingdomManagementServer.gate(f.ruler,101,true).endsWith("rate_limit"),"Shared mutation gate prevents replay and spam"); h.succeed();
     }
+    @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
+    public void deletionAsFirstChangeAfterRestartEmitsPublicTombstone(GameTestHelper h) throws Exception {
+        var f=new Fixture(h,false); var server=f.level.getServer();
+        var field=HeraldryServer.class.getDeclaredField("PUBLISHED"); field.setAccessible(true);
+        @SuppressWarnings("unchecked") var published=(Map<net.minecraft.server.MinecraftServer,Map<UUID,Heraldry>>)field.get(null);
+        var previous=published.remove(server);
+        try {
+            HeraldryServer.login(f.ruler,f.data);
+            f.data.deleteKingdom(f.realm.id());
+            var changes=HeraldryServer.changes(server,f.data);
+            h.assertTrue(changes.equals(List.of(new Entry(f.realm.id(),null))),
+                    "First post-login deletion removes arms that clients received before any political event");
+            h.assertTrue(HeraldryServer.changes(server,f.data).isEmpty(),"Deletion is published once, with no repeated traffic");
+        } finally {
+            published.remove(server); if (previous!=null) published.put(server,previous);
+        }
+        h.succeed();
+    }
     private static RegistryFriendlyByteBuf buffer(GameTestHelper h) { return new RegistryFriendlyByteBuf(Unpooled.buffer(),h.getLevel().registryAccess()); }
     private interface Attempt { void run() throws Exception; }
     private static void rejects(GameTestHelper h,Attempt attempt) { try { attempt.run(); } catch (Exception expected) { return; } h.fail("Malformed request unexpectedly accepted"); }

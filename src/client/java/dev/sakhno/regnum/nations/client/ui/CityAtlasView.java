@@ -53,7 +53,8 @@ final class CityAtlasView {
             case "present" -> "atlas_anchor_present"; case "missing" -> "atlas_anchor_missing"; default -> "atlas_anchor_unresolved";
         }),column-12);
         colorName=city==null?"":ellipsize(font,text("color_"+city.color()),column-24);
-        var tabs=AtlasWidgets.tabs(font,x+pad,y+13,width-pad*2,territories?2:0,color,navigate);
+        var tabs=AtlasWidgets.tabs(font,x+pad,y+13,width-pad*2,territories?2:0,color,navigate,
+                city!=null&&dev.sakhno.regnum.nations.api.client.v1.EconomyUi.available(dev.sakhno.regnum.nations.api.v1.EntityRef.Scope.CITY));
         widgets.addAll(tabs); initialFocus=tabs.get(territories?2:0);
         int bodyWidth=width-pad*2;
         int actionColumns=city==null?1:city.manager()?3:2;

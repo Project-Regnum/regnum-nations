@@ -27,6 +27,9 @@ public final class KingdomAdministration {
     public void assignRole(ServerPlayer actor,UUID kingdom,UUID target,KingdomRole role) throws FoundingException {
         authorized(actor,kingdom,role==KingdomRole.MEMBER?MANAGE_KINGDOM_MEMBERS:MANAGE_KINGDOM_ROLES);
         if (!KingdomPermissions.canAssign(data.kingdomRole(kingdom,actor.getUUID()),data.kingdomRole(kingdom,target),role)) throw new FoundingException(KINGDOM_ROLE_FORBIDDEN);
+        var scope = dev.sakhno.regnum.nations.api.v1.EntityRef.kingdom(kingdom);
+        if (!data.economyPermissions(scope, data.economyRole(scope, actor.getUUID()))
+                .containsAll(data.economyPermissions(scope, role.name()))) throw new FoundingException(KINGDOM_ROLE_FORBIDDEN);
         data.setKingdomRole(kingdom,target,role);
     }
     public Kingdom rename(ServerPlayer actor,UUID kingdom,String name) throws FoundingException {
@@ -42,6 +45,7 @@ public final class KingdomAdministration {
     }
     public KingdomSavedData.CityInvitation inviteCity(ServerPlayer actor,UUID kingdom,UUID cityId) throws FoundingException {
         authorized(actor,kingdom,INVITE_CITY);
+        if (!data.canInviteCity(kingdom, actor.getUUID())) throw new FoundingException(KINGDOM_ROLE_FORBIDDEN);
         Settlement city=data.settlement(cityId);
         if (city==null) throw new FoundingException(CITY_MISSING);
         if (city.sovereign()!=null) throw new FoundingException(ALREADY_AFFILIATED);
@@ -62,7 +66,7 @@ public final class KingdomAdministration {
         if (invitation==null) throw new FoundingException(INVITATION_REQUIRED);
         Settlement city=representative(actor,invitation.city());
         if (city.sovereign()!=null) throw new FoundingException(ALREADY_AFFILIATED);
-        if (!KingdomPermissions.allows(data,invitation.kingdom(),invitation.inviter(),INVITE_CITY)) throw new FoundingException(INVITATION_REQUIRED);
+        if (!data.canInviteCity(invitation.kingdom(),invitation.inviter())) throw new FoundingException(INVITATION_REQUIRED);
         if (accept) data.affiliate(city,invitation.kingdom());
         else data.removeCityInvitation(invitationId);
     }

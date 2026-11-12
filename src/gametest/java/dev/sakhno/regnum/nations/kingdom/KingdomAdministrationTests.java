@@ -29,7 +29,7 @@ public class KingdomAdministrationTests implements FabricGameTest {
         f.admin.assignRole(f.ruler,f.realm.id(),officer.getUUID(),OFFICER);
         for (KingdomPermission permission:KingdomPermission.values()) {
             h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),f.ruler.getUUID(),permission),"Ruler has every political permission");
-            h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),chancellor.getUUID(),permission),"Chancellor has every administrative permission");
+            h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),chancellor.getUUID(),permission)==!permission.name().startsWith("ECONOMY_"),"Chancellor retains political authority without financial defaults");
             h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),officer.getUUID(),permission)==(permission==INVITE_CITY),"Officer may only invite cities");
             h.assertFalse(KingdomPermissions.allows(f.data,f.realm.id(),member.getUUID(),permission),"Ordinary members have no administration permissions");
         }

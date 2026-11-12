@@ -34,6 +34,7 @@ public final class CitizenshipService {
         kingdoms.validatePlayer(inviter);
         kingdoms.validatePlayer(recipient);
         Settlement city = authorized(inviter, CityPermission.INVITE);
+        if (!canInviteEconomically(city, inviter.getUUID())) throw new FoundingException(NOT_OWNER);
         if (!server.getPlayerList().getPlayers().contains(recipient)) throw new FoundingException(PLAYER_OFFLINE);
         if (data.citizenCity(recipient.getUUID()) != null) throw new FoundingException(ALREADY_CITIZEN);
         long now = clock.getAsLong();
@@ -81,7 +82,13 @@ public final class CitizenshipService {
         Settlement city = data.settlement(key.city());
         long age = now - invitation.at();
         return age >= 0 && age < INVITATION_NANOS && CityPermissions.allows(data, city, invitation.inviter(), CityPermission.INVITE)
-                && city.obeliskId().equals(invitation.anchor());
+                && city.obeliskId().equals(invitation.anchor()) && canInviteEconomically(city, invitation.inviter());
+    }
+
+    private boolean canInviteEconomically(Settlement city, UUID inviter) {
+        var scope = dev.sakhno.regnum.nations.api.v1.EntityRef.city(city.id());
+        return data.economyPermissions(scope, data.economyRole(scope, inviter))
+                .containsAll(data.economyPermissions(scope, CityRole.CITIZEN.name()));
     }
 
     public void leave(ServerPlayer player) throws FoundingException {

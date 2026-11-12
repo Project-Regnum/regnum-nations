@@ -5,8 +5,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 /** Shared native lifecycle policy; individual screens own their composition and background. */
-abstract class RoyalScreen extends Screen {
-    RoyalScreen(Component title) { super(title); }
+public abstract class RoyalScreen extends Screen {
+    protected RoyalScreen(Component title) { super(title); }
     @Override public final void renderBackground(GuiGraphics graphics,int mouseX,int mouseY,float delta) {
         // Screen.render() calls this after our foreground; vanilla blur would blur that foreground.
     }

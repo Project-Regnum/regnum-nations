@@ -5,6 +5,8 @@ Run ./gradlew runHeraldryVisualTest first. No production/run worlds are accepted
 Logs and a copied world remain under build/run/heraldryRestart-* for inspection.
 """
 import gzip
+import hashlib
+import hmac
 import json
 from pathlib import Path
 import queue
@@ -40,7 +42,7 @@ class Nbt:
     def read(cls,path):
         probe=cls(gzip.decompress(path.read_bytes())); kind=probe.number('B'); probe.string(); return probe.value(kind)
 
-def run_server(directory,init,number,realm_id):
+def run_server(directory,init,number,realm_id,*,rename=True):
     command=['./gradlew','runServer','--no-daemon','--console=plain','--no-configuration-cache','-I',str(init)]
     process=subprocess.Popen(command,cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
     lines=queue.Queue()
@@ -61,7 +63,7 @@ def run_server(directory,init,number,realm_id):
                 send('forceload add -4 -3 4 0'); phase=1; action_at=time.monotonic()
             if phase==1 and time.monotonic()-action_at>=3:
                 send('nations admin list')
-                if number==1: send(f'nations admin rename {realm_id} Restart Heraldry Verified')
+                if number==1 and rename: send(f'nations admin rename {realm_id} Restart Heraldry Verified')
                 send('data get block -4 161 0'); send('data get block 0 162 -3'); phase=2; action_at=time.monotonic()
             if phase==2 and time.monotonic()-action_at>=3:
                 send('save-all flush'); phase=3; action_at=time.monotonic()
@@ -101,11 +103,23 @@ def main():
     file=directory/'world/data/project-reigns-kingdoms.dat'
     original=Nbt.read(file)['data']; assert original['Version']==8 and len(original['Kingdoms'])==1
     kingdom=original['Kingdoms'][0]; bits=b''.join(struct.pack('>i',v) for v in kingdom['Id']); realm_id=str(uuid.UUID(bytes=bits))
+    signing_key=original.get('BannerSecret'); assert isinstance(signing_key,bytes) and len(signing_key)==32, 'Visual fixture must issue an authentic banner'
+    captured=[]
+    for player_file in (directory/'world/playerdata').glob('*.dat'):
+        for item in Nbt.read(player_file).get('Inventory',[]):
+            if item.get('id')=='regnum-nations:royal_banner':
+                custom=item['components']['minecraft:custom_data']
+                identity=str(uuid.UUID(bytes=b''.join(struct.pack('>i',v) for v in custom['KingdomId'])))
+                captured.append((identity,custom['RoyalSeal']))
+    assert captured, 'Visual fixture has no saved authenticated item'
     print('Disposable verification directory:',directory,flush=True)
     for number in (1,2):
         run_server(directory,init,number,realm_id)
         saved=Nbt.read(file)['data']; current=saved['Kingdoms'][0]
         assert saved['Version']==8 and current['Heraldry']==kingdom['Heraldry'] and current['Id']==kingdom['Id']
+        assert saved.get('BannerSecret')==signing_key, 'Signing key changed across restart'
+        for identity,seal in captured:
+            assert hmac.compare_digest(hmac.new(saved['BannerSecret'],('regnum-royal-banner-v1:'+identity).encode(),hashlib.sha256).hexdigest(),seal), 'Captured item no longer authenticates'
         assert current['Name']=='Restart Heraldry Verified'
         for key in ('Settlements','Claims','Citizens','KingdomRoles','CityInvitations','Diplomacy','DeletedStateAnchors'):
             assert saved[key]==original[key],f'{key} changed across restart'

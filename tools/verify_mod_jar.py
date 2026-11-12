@@ -13,6 +13,10 @@ def verify(path):
     with ZipFile(path) as jar:
         names = set(jar.namelist())
 
+        for name in names:
+            if name.endswith('.class'):
+                assert int.from_bytes(jar.read(name)[6:8], 'big') == 65, f'Non-Java-21 class: {name}'
+
         def require(name):
             if name not in names:
                 raise ValueError(f"Missing packaged resource: {name}")

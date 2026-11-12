@@ -1,6 +1,7 @@
 package dev.sakhno.regnum.nations.kingdom;
 
 import dev.sakhno.regnum.nations.networking.HeraldryPayloads.*;
+import static dev.sakhno.regnum.nations.networking.HeraldryPayloads.BATCH_SIZE;
 import java.util.*;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.*;
@@ -79,7 +80,14 @@ public final class HeraldryServer {
     }
     private static void send(ServerPlayer player,boolean reset,List<Entry> entries) {
         if (player.connection==null||!ServerPlayNetworking.canSend(player,Sync.TYPE)) return;
-        if (entries.isEmpty()) { if (reset) ServerPlayNetworking.send(player,new Sync(true,List.of())); return; }
-        for (int i=0;i<entries.size();i+=32) ServerPlayNetworking.send(player,new Sync(reset&&i==0,entries.subList(i,Math.min(i+32,entries.size()))));
+        for (var packet:batches(reset,entries)) ServerPlayNetworking.send(player,packet);
+    }
+    /** Shared by login and deltas. Only the first login batch clears the client's cache. */
+    static List<Sync> batches(boolean reset,List<Entry> entries) {
+        if (entries.isEmpty()) return reset?List.of(new Sync(true,List.of())):List.of();
+        var packets=new ArrayList<Sync>();
+        for (int i=0;i<entries.size();i+=BATCH_SIZE)
+            packets.add(new Sync(reset&&i==0,entries.subList(i,Math.min(i+BATCH_SIZE,entries.size()))));
+        return List.copyOf(packets);
     }
 }

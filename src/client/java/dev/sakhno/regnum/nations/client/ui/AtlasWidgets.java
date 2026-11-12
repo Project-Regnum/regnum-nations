@@ -27,7 +27,11 @@ final class AtlasWidgets {
         return widths;
     }
     static List<Button> tabs(Font font,int x,int y,int width,int selected,int color,IntConsumer navigate) {
-        String[] keys={"city_section","kingdom_section","territories","map_section"};
+        return tabs(font,x,y,width,selected,color,navigate,false);
+    }
+    static List<Button> tabs(Font font,int x,int y,int width,int selected,int color,IntConsumer navigate,boolean economy) {
+        String[] keys=economy?new String[]{"city_section","kingdom_section","territories","map_section","economy_section"}
+                :new String[]{"city_section","kingdom_section","territories","map_section"};
         Component[] labels=java.util.Arrays.stream(keys).map(KingdomUi::text).toArray(Component[]::new);
         int[] widths=rowWidths(font,width,CONTROL,labels);
         int used=0;

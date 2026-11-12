@@ -30,11 +30,17 @@ public class RegnumNations implements ModInitializer {
         dev.sakhno.regnum.nations.kingdom.KingdomAdministrationServer.initialize();
         dev.sakhno.regnum.nations.kingdom.DiplomacyServer.initialize();
         dev.sakhno.regnum.nations.kingdom.HeraldryServer.initialize();
+        dev.sakhno.regnum.nations.kingdom.EconomyNavigationServer.initialize();
         ModBlocks.initialize();
 		KingdomService.initialize();
 		KingdomCommands.initialize();
 		TerritoryProtection.initialize();
-		LOGGER.info("Regnum Nations initialized");
+		for (var integration : net.fabricmc.loader.api.FabricLoader.getInstance().getEntrypointContainers(
+                "regnum-nations:integration", dev.sakhno.regnum.nations.api.v1.NationsIntegration.class)) {
+            try { integration.getEntrypoint().initialize(); }
+            catch (RuntimeException failure) { LOGGER.error("Nations integration failed: {}", integration.getProvider().getMetadata().getId(), failure); }
+        }
+        LOGGER.info("Regnum Nations initialized");
 	}
 
 	public static ResourceLocation id(String path) {

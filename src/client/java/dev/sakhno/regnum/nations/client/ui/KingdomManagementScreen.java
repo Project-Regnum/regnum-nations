@@ -58,7 +58,14 @@ public final class KingdomManagementScreen extends RoyalScreen {
         if (target!=null) minecraft.setScreen(new ObeliskRelocationScreen(this,target,kingdom));
     }
     private void navigate(int index) {
-        if (index==3) minecraft.setScreen(new PoliticalMapScreen(this,false));
+        if (index==4) {
+            if (state==null) return;
+            var target=section==Section.KINGDOM
+                    ?state.overview()==null?null:dev.sakhno.regnum.nations.api.v1.EntityRef.kingdom(state.overview().id())
+                    :state.city()==null?null:dev.sakhno.regnum.nations.api.v1.EntityRef.city(state.city().id());
+            if (target!=null&&dev.sakhno.regnum.nations.api.client.v1.EconomyUi.available(target.scope()))
+                minecraft.setScreen(dev.sakhno.regnum.nations.api.client.v1.EconomyUi.screen(this,target));
+        } else if (index==3) minecraft.setScreen(new PoliticalMapScreen(this,false));
         else { section=Section.values()[index]; rebuildWidgets(); }
     }
     private void request() {

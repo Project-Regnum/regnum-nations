@@ -13,7 +13,7 @@ public final class CityPermissions {
 
     private CityPermissions() { }
 
-    /** Immutable defaults. Future configurable member policies belong here; OWNER always has every permission. */
+    /** Immutable defaults. Per-city economic overrides are evaluated by allows; OWNER retains every permission. */
     public static Set<CityPermission> permissions(CityRole role) {
         return switch (role) {
             case OWNER -> OWNER_PERMISSIONS;
@@ -23,7 +23,10 @@ public final class CityPermissions {
     }
 
     public static boolean allows(KingdomSavedData data, Settlement city, UUID player, CityPermission permission) {
-        if (city == null || player == null) return false;
+        if (city == null || player == null || !data.available()) return false;
+        if (permission.name().startsWith("ECONOMY_")) return data.economyAllows(
+                dev.sakhno.regnum.nations.api.v1.EntityRef.city(city.id()), player,
+                dev.sakhno.regnum.nations.api.v1.EconomyPermission.valueOf(permission.name()));
         CityRole role = data.role(city.id(), player);
         return role != null && permissions(role).contains(permission);
     }

@@ -53,6 +53,7 @@ public final class KingdomService {
 	KingdomService(MinecraftServer server, KingdomSavedData data) {
 		this.server = server;
 		this.data = data;
+        data.onLifecycleChange(change -> dev.sakhno.regnum.nations.api.v1.NationsEvents.CHANGED.invoker().changed(server, change));
         data.onPoliticalChange(() -> { KingdomManagementServer.invalidate(server); HeraldryServer.reconcile(server,data); });
 		this.cities = new SettlementService(this,server,data);
 		this.citizenship = new CitizenshipService(this,server,data,System::nanoTime);
@@ -157,7 +158,7 @@ public final class KingdomService {
 		Kingdom kingdom = new Kingdom(kingdomId, name, player.getUUID(), selection.dimension(), selection.pos(),
 				selection.obeliskId(), System.currentTimeMillis(), Kingdom.CapitalStatus.PRESENT,
 				city==null?kingdomId:city.id(),color,"unspecified");
-		// No callbacks, waits or world changes between registry insertion and binding on this thread.
+		// Identity events describe the committed registry; anchor binding follows on this server thread.
 		if (city==null) data.add(kingdom); else data.elevate(kingdom,city);
 		obelisk.bindKingdom(kingdomId);
 		return kingdom;

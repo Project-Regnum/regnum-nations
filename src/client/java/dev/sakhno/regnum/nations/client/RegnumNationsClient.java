@@ -15,6 +15,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class RegnumNationsClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
+        dev.sakhno.regnum.nations.api.client.v1.EconomyUi.initialize();
         ObeliskRenderer.initialize();
         dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.initialize();
         dev.sakhno.regnum.nations.client.terrain.AtlasTerrain.initialize();
@@ -44,7 +45,8 @@ public class RegnumNationsClient implements ClientModInitializer {
             var client = context.client();
             if (client.player == null || client.level == null) return;
             if (payload.intent() == KingdomManagementPayloads.INVALIDATE) {
-                if (client.screen instanceof KingdomManagementScreen menu) menu.invalidate();
+                if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.EconomyScreen economy) economy.invalidate();
+                else if (client.screen instanceof KingdomManagementScreen menu) menu.invalidate();
                 else if (client.screen instanceof PoliticalMapScreen map) map.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.KingdomAdministrationScreen screen) screen.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.DiplomacyScreen screen) screen.invalidate();

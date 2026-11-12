@@ -71,7 +71,8 @@ final class KingdomAtlasView {
         claimedLabel=ellipsize(font,text("atlas_claimed_chunks"),column-16);
         colorLabel=kingdom==null?"":ellipsize(font,text("color_"+kingdom.color()),column-24);
 
-        var tabs=AtlasWidgets.tabs(font,bounds.left(),y+NAV_Y,bodyWidth,1,color,navigate);
+        var tabs=AtlasWidgets.tabs(font,bounds.left(),y+NAV_Y,bodyWidth,1,color,navigate,
+                kingdom!=null&&dev.sakhno.regnum.nations.api.client.v1.EconomyUi.available(dev.sakhno.regnum.nations.api.v1.EntityRef.Scope.KINGDOM));
         widgets.addAll(tabs);
         initialFocus=tabs.get(1);
         if (kingdom==null) {

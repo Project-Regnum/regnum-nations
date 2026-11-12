@@ -1,5 +1,8 @@
 # Kingdom diplomacy — v0.8.5 integration
 
+Historical foundation. Current rules and migration are documented in
+[Diplomacy and interstate relations v0.10.0](diplomacy-interstate-relations.md).
+
 ## Base and boundaries
 
 Integrated from PR #13 (`f6cc91f`) with administration #14 and protection #15.

@@ -84,6 +84,8 @@ public final class KingdomService {
 		return SERVICES.computeIfAbsent(server, key -> new KingdomService(key, KingdomSavedData.get(key)));
 	}
 
+    MinecraftServer server() { checkThread(); return server; }
+
 	public KingdomSavedData data() {
 		checkThread();
 		return data;

@@ -6,7 +6,7 @@ import net.minecraft.nbt.*;
 /** Additive, deterministic schema-9 normalization and lossless extension-field retention. */
 final class KingdomSchema {
     static final int CURRENT=9;
-    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies");
+    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies Warfare");
     private static final Map<String,Set<String>> FIELDS=Map.of(
             "Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler Heraldry HeraldryRecovery"),
             "Settlements",fields("Id Name Founder Owner Dimension Position Obelisk CreatedAt CapitalStatus Sovereign Color LegacyAnchor"),
@@ -47,7 +47,8 @@ final class KingdomSchema {
     static void retainExtensions(CompoundTag source,CompoundTag target) {
         copyUnknown(source,target,ROOT);
         for (String key:ROOT) {
-            if (source.get(key) instanceof ListTag old && target.get(key) instanceof ListTag current)
+            // Warfare owns its nested extensions and malformed-tag retention.
+            if (!key.equals("Warfare") && source.get(key) instanceof ListTag old && target.get(key) instanceof ListTag current)
                 retainRecords(key,old,current);
         }
     }

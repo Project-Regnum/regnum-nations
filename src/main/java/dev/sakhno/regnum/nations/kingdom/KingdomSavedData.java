@@ -210,6 +210,7 @@ public final class KingdomSavedData extends SavedData {
         changes.forEach(lifecycle);
     }
     final DiplomacyData diplomacy=new DiplomacyData();
+    final WarfareData warfare=new WarfareData();
     public record DeletedAnchor(UUID kingdom, ResourceKey<Level> dimension, BlockPos pos, UUID obelisk) { }
     static KingdomSavedData get(MinecraftServer server) { return server.overworld().getDataStorage().computeIfAbsent(FACTORY,FILE_ID); }
     public Collection<Kingdom> kingdoms() { return List.copyOf(kingdoms.values()); }
@@ -501,7 +502,7 @@ public final class KingdomSavedData extends SavedData {
             CompoundTag e=new CompoundTag(); e.putUUID("Id",invitation.id()); e.putUUID("Kingdom",invitation.kingdom());
             e.putUUID("City",invitation.city()); e.putUUID("Inviter",invitation.inviter()); e.putLong("CreatedAt",invitation.createdAt()); list.add(e);
         }
-        tag.put("CityInvitations",list); tag.put("Diplomacy",diplomacy.save());
+        tag.put("CityInvitations",list); tag.put("Diplomacy",diplomacy.save()); tag.put("Warfare",warfare.save());
         if (bannerSecret!=null) tag.putByteArray("BannerSecret",bannerSecret);
         tag.put("EconomyPolicies", economyPolicies.save());
         KingdomSchema.retainExtensions(extensionSource,tag); return tag;
@@ -622,6 +623,7 @@ public final class KingdomSavedData extends SavedData {
                 if (!before.equals(data.governmentRoles.toString())) data.setDirty();
             }
             if (data.diplomacy.load(tag.get("Diplomacy"),data)) data.setDirty();
+            data.warfare.load(tag.get("Warfare"));
             data.economyPolicies.load(tag.get("EconomyPolicies"), data);
             var owners=data.settlements.values().stream().collect(java.util.stream.Collectors.groupingBy(Settlement::ownerId,java.util.stream.Collectors.counting()));
             owners.forEach((owner,count) -> { if (count>1) RegnumNations.LOGGER.warn("Historical multiple domains for owner {}: {} records retained; claim management requires repair",owner,count); });

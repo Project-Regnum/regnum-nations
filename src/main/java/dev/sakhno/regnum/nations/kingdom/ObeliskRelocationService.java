@@ -116,6 +116,7 @@ public final class ObeliskRelocationService {
     }
     private void authorize(ServerPlayer player,Anchor anchor) throws FoundingException {
         Settlement city=owner(anchor);
+        if (kingdoms.warfare().blocksRelocation(city.id())) throw new FoundingException(RELOCATION_CONFLICT);
         if (!city.ownerId().equals(player.getUUID())||anchor.state()!=null&&!anchor.state().rulerId().equals(player.getUUID())) throw new FoundingException(NOT_OWNER);
         if (data.ownedSettlements(player.getUUID()).size()!=1) throw new FoundingException(DOMAIN_REPAIR);
     }

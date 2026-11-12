@@ -27,16 +27,16 @@ public class RoyalBannerBlock extends BaseEntityBlock {
     }
     @Override protected MapCodec<? extends BaseEntityBlock> codec() { return CODEC; }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder) { builder.add(FACING); }
-    @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.MODEL; }
+    @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state) { return new RoyalBannerBlockEntity(pos,state); }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         if (!wall) return defaultBlockState().setValue(FACING,context.getHorizontalDirection().getOpposite());
-        for (var direction:context.getNearestLookingDirections()) if (direction.getAxis().isHorizontal()) {
-            var state=defaultBlockState().setValue(FACING,direction.getOpposite());
-            if (state.canSurvive(context.getLevel(),context.getClickedPos())) return state;
-        }
-        return null;
+        Direction face=context.getClickedFace();
+        if (!face.getAxis().isHorizontal()) return null;
+        var state=defaultBlockState().setValue(FACING,face);
+        return state.canSurvive(context.getLevel(),context.getClickedPos())?state:null;
     }
+
     @Override protected boolean canSurvive(BlockState state,LevelReader level,BlockPos pos) {
         Direction support=wall?state.getValue(FACING).getOpposite():Direction.DOWN;
         return level.getBlockState(pos.relative(support)).isFaceSturdy(level,pos.relative(support),support.getOpposite());
@@ -45,10 +45,10 @@ public class RoyalBannerBlock extends BaseEntityBlock {
         return !state.canSurvive(level,pos)?Blocks.AIR.defaultBlockState():super.updateShape(state,direction,neighbor,level,pos,neighborPos);
     }
     @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context) {
-        if (!wall) return Shapes.or(box(7,0,7,9,16,9),state.getValue(FACING).getAxis()==Direction.Axis.X?box(6,1,1,10,16,15):box(1,1,6,15,16,10));
+        if (!wall) return Shapes.or(box(6,0,6,10,16,10),state.getValue(FACING).getAxis()==Direction.Axis.X?box(5,4,0,11,16,16):box(0,4,5,16,16,11));
         return switch (state.getValue(FACING)) {
-            case NORTH -> box(1,1,11,15,16,16); case SOUTH -> box(1,1,0,15,16,5);
-            case WEST -> box(11,1,1,16,16,15); default -> box(0,1,1,5,16,15);
+            case NORTH -> box(0,0,9,16,16,16); case SOUTH -> box(0,0,0,16,16,7);
+            case WEST -> box(9,0,0,16,16,16); default -> box(0,0,0,7,16,16);
         };
     }
     @Override protected BlockState rotate(BlockState state,Rotation rotation) { return state.setValue(FACING,rotation.rotate(state.getValue(FACING))); }

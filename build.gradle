@@ -99,6 +99,14 @@ loom {
 			vmArg '-Dregnum.atlasTest=true'
 			programArgs '--width', '1100', '--height', '760'
 		}
+        integrationLayoutTest {
+            client()
+            name 'Nations integration UI layout checks'
+            source sourceSets.atlasTest
+            runDir 'build/run/integrationLayoutTest'
+            vmArg '-Dregnum.integrationLayout=true'
+            programArgs '--width', '1100', '--height', '760'
+        }
 	}
 }
 
@@ -174,4 +182,14 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+// Loom runs on the build JVM; execute gameplay/rule verification on the supported runtime.
+['runGameTest', 'testKingdomNames', 'runIntegrationLayoutTest'].each { taskName ->
+    tasks.named(taskName, JavaExec) {
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+        doFirst { logger.lifecycle("Verification runtime: Java ${javaLauncher.get().metadata.languageVersion}") }
+    }
 }

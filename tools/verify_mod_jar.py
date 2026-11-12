@@ -70,9 +70,14 @@ def verify(path):
             item = f'assets/project-reigns/models/item/{obelisk}.json'
             legacy_assets.update((state, item))
             assert read_json(state)['variants']['']['model'] == f'regnum-nations:block/{obelisk}'
-            assert read_json(item)['parent'] == f'regnum-nations:block/{obelisk}'
+            assert read_json(item)['parent'] == f'regnum-nations:item/{obelisk}'
+            require(f'assets/regnum-nations/models/item/{obelisk}.json')
+            require(f'assets/regnum-nations/models/block/{obelisk}.json')
+            require(f'assets/regnum-nations/models/block/{obelisk}_glow.json')
             loot = read_json(f'data/project-reigns/loot_table/blocks/{obelisk}.json')
             assert loot['pools'][0]['entries'][0]['name'] == f'project-reigns:{obelisk}'
+        require('assets/regnum-nations/models/block/kingdom_obelisk_crown.json')
+        require('assets/regnum-nations/obelisk_animation.json')
         assert {n for n in names if n.startswith('assets/project-reigns/') and not n.endswith('/')} == legacy_assets
         assert set(read_json('data/minecraft/tags/block/mineable/pickaxe.json')['values']) == {
             'project-reigns:city_obelisk', 'project-reigns:kingdom_obelisk'}

@@ -212,7 +212,7 @@ public class CitizenshipTests implements FabricGameTest {
                         "Every older schema must retain ownership, implicit citizenship and claims");
                 var saved = loaded.save(new CompoundTag(), h.getLevel().registryAccess());
                 var again = KingdomSavedData.load(saved, h.getLevel().registryAccess()); again.requireAvailable();
-                h.assertTrue(saved.getInt("Version") == 5 && !again.isDirty()
+                h.assertTrue(saved.getInt("Version") == KingdomSchema.CURRENT && !again.isDirty()
                         && saved.equals(again.save(new CompoundTag(), h.getLevel().registryAccess())), "Schema 5 migration must be idempotent");
             }
         }

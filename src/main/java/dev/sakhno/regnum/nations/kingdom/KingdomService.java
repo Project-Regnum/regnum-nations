@@ -40,6 +40,9 @@ public final class KingdomService {
 	private final CitizenshipService citizenship;
     private final ObeliskRelocationService relocation;
     private final CitizenManagement citizenManagement;
+    private final KingdomAdministration administration;
+    private final KingdomAdministrationView administrationView;
+    private final DiplomacyService diplomacy;
 	private final Map<String,DeleteConfirmation> confirmations=new HashMap<>();
 	private record DeleteConfirmation(UUID kingdom,UUID token,Object actor,long at) { }
 	private final Map<UUID, Pending> pending = new HashMap<>();
@@ -50,10 +53,14 @@ public final class KingdomService {
 	KingdomService(MinecraftServer server, KingdomSavedData data) {
 		this.server = server;
 		this.data = data;
+        data.onPoliticalChange(() -> KingdomManagementServer.invalidate(server));
 		this.cities = new SettlementService(this,server,data);
 		this.citizenship = new CitizenshipService(this,server,data,System::nanoTime);
         this.relocation = new ObeliskRelocationService(this,server,System::nanoTime);
         this.citizenManagement = new CitizenManagement(this,citizenship,System::nanoTime);
+        this.administration = new KingdomAdministration(this);
+        this.administrationView = new KingdomAdministrationView(this,System::nanoTime);
+        this.diplomacy = new DiplomacyService(this,System::currentTimeMillis,() -> DiplomacyConfig.invitationMillis);
 	}
 
 	public static void initialize() {
@@ -64,6 +71,7 @@ public final class KingdomService {
 				service.citizenship.disconnect(handler.player.getUUID());
                 service.relocation.disconnect(handler.player.getUUID());
                 service.citizenManagement.disconnect(handler.player.getUUID());
+                service.administrationView.disconnect(handler.player.getUUID());
 				service.confirmations.remove(handler.player.getUUID().toString());
 			}
 		});
@@ -170,7 +178,12 @@ public final class KingdomService {
 		return foundWithColor(player, inputName, color);
 	}
 
+
+    public KingdomAdministration administration() { checkThread(); return administration; }
+    public KingdomAdministrationView administrationView() { checkThread(); return administrationView; }
+
 	public CitizenManagement citizenManagement() { checkThread(); return citizenManagement; }
+	public DiplomacyService diplomacy() { checkThread(); return diplomacy; }
 
 	public ObeliskRelocationService relocation() { checkThread(); return relocation; }
 

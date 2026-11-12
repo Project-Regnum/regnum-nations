@@ -4,6 +4,13 @@
   "version": "1.0.0",
   "name": "Living Atlas Client Checks",
   "environment": "client",
-  "entrypoints": { "client": ["dev.sakhno.regnum.nations.kingdom.AtlasClientChecks"] },
-  "depends": { "regnum-nations": "*" }
+  "entrypoints": {
+    "client": [
+      "dev.sakhno.regnum.nations.kingdom.AtlasClientChecks",
+      "dev.sakhno.regnum.nations.client.ui.IntegrationLayoutChecks"
+    ]
+  },
+  "depends": {
+    "regnum-nations": "*"
+  }
 }

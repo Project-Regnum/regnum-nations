@@ -87,7 +87,7 @@ public final class KingdomManagementServer {
         return send(player, new State(0, OPEN_FOUNDING, obelisk, null, null, null, "", false,null,null));
     }
 
-    /** One event per confirmed dissolution; clients refresh only their currently open views. */
+    /** One event per political/membership change; clients refresh only their currently open views. */
     static void invalidate(MinecraftServer server) {
         for (ServerPlayer player:server.getPlayerList().getPlayers())
             send(player,new State(0,INVALIDATE,null,null,null,null,"",false,null,null));
@@ -111,8 +111,8 @@ public final class KingdomManagementServer {
         Overview overview=null; CityOverview cityView=null;
         if (kingdom!=null) {
             var status=service.resolveCapital(kingdom);
-            overview=new Overview(kingdom.id(),kingdom.name().display(),playerName(player,kingdom.founderId()),kingdom.dimension().location(),kingdom.capitalPos(),
-                    status.name().toLowerCase(Locale.ROOT),data.claimCount(kingdom.id()),kingdom.founderId().equals(player.getUUID()),
+            overview=new Overview(kingdom.id(),kingdom.name().display(),playerName(player,kingdom.rulerId()),kingdom.dimension().location(),kingdom.capitalPos(),
+                    status.name().toLowerCase(Locale.ROOT),data.claimCount(kingdom.id()),kingdom.rulerId().equals(player.getUUID()),
                     !kingdom.capitalSettlementId().equals(data.claimOwner(ClaimPos.at(kingdom.dimension(),kingdom.capitalPos()))),kingdom.color());
         }
         if (city!=null) {

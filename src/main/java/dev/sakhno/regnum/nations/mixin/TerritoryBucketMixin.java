@@ -1,6 +1,7 @@
 package dev.sakhno.regnum.nations.mixin;
 
 import dev.sakhno.regnum.nations.kingdom.TerritoryProtection;
+import dev.sakhno.regnum.nations.kingdom.CityPermission;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -26,8 +27,8 @@ public abstract class TerritoryBucketMixin extends Item {
 		// Buckets use an air-use packet, bypassing UseBlockCallback. Cover pickup and pour ray casts.
 		for (ClipContext.Fluid fluid : new ClipContext.Fluid[] {ClipContext.Fluid.SOURCE_ONLY, ClipContext.Fluid.NONE}) {
 			var hit = getPlayerPOVHitResult(level, player, fluid);
-			if (hit.getType() == HitResult.Type.BLOCK && (TerritoryProtection.denied(level, player, hit.getBlockPos())
-					|| TerritoryProtection.denied(level, player, hit.getBlockPos().relative(hit.getDirection())))) {
+			if (hit.getType() == HitResult.Type.BLOCK && (TerritoryProtection.denied(level, player, hit.getBlockPos(), CityPermission.INTERACT)
+					|| TerritoryProtection.denied(level, player, hit.getBlockPos().relative(hit.getDirection()), CityPermission.INTERACT))) {
 				cir.setReturnValue(InteractionResultHolder.fail(player.getItemInHand(hand)));
 				return;
 			}

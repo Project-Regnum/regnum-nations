@@ -3,21 +3,22 @@ package dev.sakhno.regnum.nations.kingdom;
 import java.util.*;
 import net.minecraft.nbt.*;
 
-/** Additive, deterministic schema-9 normalization and lossless extension-field retention. */
+/** Additive, deterministic schema-10 normalization and lossless extension-field retention. */
 final class KingdomSchema {
-    static final int CURRENT=9;
-    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies");
-    private static final Map<String,Set<String>> FIELDS=Map.of(
-            "Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler Heraldry HeraldryRecovery"),
-            "Settlements",fields("Id Name Founder Owner Dimension Position Obelisk CreatedAt CapitalStatus Sovereign Color LegacyAnchor"),
-            "Claims",fields("Dimension X Z Kingdom Settlement"),
-            "DeletedStateAnchors",fields("Id Dimension Position Obelisk"),
-            "Citizens",fields("Player Settlement Role"),
-            "KingdomRoles",fields("Kingdom Player Role"),
-            "CityInvitations",fields("Id Kingdom City Inviter CreatedAt"),
-            "Diplomacy",fields("First Second Revision Alliance AcceptedAt TreatyKind Hostility Invitation War DeclaredAt WarDeclarer NextProposalAt"),
-            "Invitation",fields("Id Sender Recipient CreatedAt ExpiresAt Inviter Type"),
-            "Hostility",fields("Declarer"));
+    static final int CURRENT=10;
+    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies PoliticalClaims");
+    private static final Map<String,Set<String>> FIELDS=Map.ofEntries(
+            Map.entry("Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler Heraldry HeraldryRecovery")),
+            Map.entry("Settlements",fields("Id Name Founder Owner Dimension Position Obelisk CreatedAt CapitalStatus Sovereign Color LegacyAnchor")),
+            Map.entry("Claims",fields("Dimension X Z Kingdom Settlement")),
+            Map.entry("DeletedStateAnchors",fields("Id Dimension Position Obelisk")),
+            Map.entry("Citizens",fields("Player Settlement Role")),
+            Map.entry("KingdomRoles",fields("Kingdom Player Role")),
+            Map.entry("CityInvitations",fields("Id Kingdom City Inviter CreatedAt")),
+            Map.entry("Diplomacy",fields("First Second Revision Alliance AcceptedAt TreatyKind Hostility Invitation War DeclaredAt WarDeclarer NextProposalAt")),
+            Map.entry("Invitation",fields("Id Sender Recipient CreatedAt ExpiresAt Inviter Type")),
+            Map.entry("Hostility",fields("Declarer")),
+            Map.entry("PoliticalClaims",fields("Id Claimant Owner City Dimension X Z CreatedAt ExpiresAt")));
     private KingdomSchema() { }
     private static Set<String> fields(String names) { return Set.of(names.split(" ")); }
 
@@ -39,6 +40,10 @@ final class KingdomSchema {
         // These collections are optional; a present value must still pass the strict reader.
         for (String key:List.of("KingdomRoles","CityInvitations","Diplomacy"))
             if (!tag.contains(key)) tag.put(key,new ListTag());
+        if (!tag.contains("PoliticalClaims")) {
+            if (version>=10) throw new IllegalArgumentException("Missing political claims");
+            tag.put("PoliticalClaims",new ListTag());
+        }
         tag.putInt("Version",CURRENT);
         return tag;
     }

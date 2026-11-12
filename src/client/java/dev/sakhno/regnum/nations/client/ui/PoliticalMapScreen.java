@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 public final class PoliticalMapScreen extends RoyalScreen {
     private static final int MAP_TOP=48,MAP_BOTTOM=60,LEGEND_ROW=16;
     private final KingdomManagementScreen parent;
+    private final net.minecraft.client.gui.screens.Screen returnTo;
     private boolean manageMode;
     private KingdomManagementPayloads.State management;
     private KingdomManagementPayloads.Selection details;
@@ -58,7 +59,10 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private int right,bottom,legendX,legendWidth,legendListY,legendKeyY,toolbarY,inspectorY,headerTextWidth;
     public PoliticalMapScreen() { this(null,false); }
     public PoliticalMapScreen(KingdomManagementScreen parent, boolean manageMode) {
-        super(text("title")); this.parent = parent; this.manageMode = manageMode;
+        this(parent,manageMode,parent);
+    }
+    public PoliticalMapScreen(KingdomManagementScreen parent,boolean manageMode,net.minecraft.client.gui.screens.Screen returnTo) {
+        super(text("title")); this.parent = parent; this.returnTo=returnTo; this.manageMode = manageMode;
         management = parent == null ? null : parent.state();
         if (management != null) {
             ownSettlement=management.ownSettlement(); viewedCity=management.city()==null?null:management.city().id();
@@ -493,6 +497,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         boolean mutation = action == Action.CLAIM || action == Action.UNCLAIM;
         if (!mutation && !KingdomUi.canRead()) { needsDetails = true; return; }
         if (mutation && (!manageMode || !territoryAction.active || !KingdomUi.canMutate())) return;
+        if (mutation) { minecraft.setScreen(new TerritoryScreen(this,selectedDimension,selectedX,selectedZ)); return; }
         if (!ClientPlayNetworking.canSend(KingdomManagementPayloads.Request.TYPE)) { needsDetails = false; feedback = KingdomUi.text("unavailable"); return; }
         needsDetails = false; detailsSequence = KingdomUi.nextSequence();
         detailsAt = detailsRequested = System.currentTimeMillis();
@@ -610,12 +615,14 @@ public final class PoliticalMapScreen extends RoyalScreen {
         }
     }
     private void showOverview() {
+        if (returnTo instanceof TerritoryScreen territory) { territory.invalidate(); minecraft.setScreen(territory); return; }
         // Reopen with a fresh on-demand read, including actions completed after navigation.
         KingdomManagementScreen menu = parent == null ? new KingdomManagementScreen(management) : parent;
         menu.refreshOnOpen(); minecraft.setScreen(menu);
     }
     @Override public void onClose() {
-        if (parent == null) minecraft.setScreen(null);
+        if (returnTo instanceof TerritoryScreen territory) { territory.invalidate(); minecraft.setScreen(territory); }
+        else if (parent == null) minecraft.setScreen(null);
         else { parent.refreshOnOpen(); minecraft.setScreen(parent); }
     }
 }

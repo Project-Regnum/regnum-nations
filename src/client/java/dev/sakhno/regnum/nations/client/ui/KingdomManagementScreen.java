@@ -65,7 +65,8 @@ public final class KingdomManagementScreen extends RoyalScreen {
                     :state.city()==null?null:dev.sakhno.regnum.nations.api.v1.EntityRef.city(state.city().id());
             if (target!=null&&dev.sakhno.regnum.nations.api.client.v1.EconomyUi.available(target.scope()))
                 minecraft.setScreen(dev.sakhno.regnum.nations.api.client.v1.EconomyUi.screen(this,target));
-        } else if (index==3) minecraft.setScreen(new PoliticalMapScreen(this,false));
+        } else if (index==2) minecraft.setScreen(new TerritoryScreen(this));
+        else if (index==3) minecraft.setScreen(new PoliticalMapScreen(this,false));
         else { section=Section.values()[index]; rebuildWidgets(); }
     }
     private void request() {

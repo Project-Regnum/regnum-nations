@@ -150,12 +150,19 @@ public final class CitizenManagementScreen extends RoyalScreen {
     }
     public void accept(State reply) {
         if (sent==0||reply.sequence()!=sequence) return;
-        sent=0; received=System.currentTimeMillis(); confirmation=null; state=reply; tab=reply.tab(); page=reply.page();
+        invalidated=false; sent=0; received=System.currentTimeMillis(); confirmation=null; state=reply; tab=reply.tab(); page=reply.page();
         failed=!reply.result().isEmpty()&&!reply.success(); feedback=reply.result().isEmpty()?Component.empty():Component.translatable(reply.result());
         if (reply.success()) { selected=null; parent.invalidate(); }
         rebuildWidgets(); triggerImmediateNarration(false);
     }
+    private boolean invalidated;
+    public void invalidate() {
+        invalidated=true; state=null; confirmation=null; selected=null;
+        parent.invalidate();
+        rebuildWidgets();
+    }
     @Override public void tick() {
+        if (invalidated&&sent==0) { invalidated=false; read(); }
         if (minecraft.player==null||minecraft.level==null) { onClose(); return; }
         if (pendingRead&&canRead()) read();
         if (sent!=0&&System.currentTimeMillis()-sent>10000) { sent=0; state=null; confirmation=null; feedback=text("timeout"); failed=true; rebuildWidgets(); }

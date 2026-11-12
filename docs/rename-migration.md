@@ -70,3 +70,28 @@ territory; canonical recovery uses the same saved records. No migration is neede
 v0.8.1 [citizen management](citizen-management-ui.md) retains schema 5 and all
 existing wire contracts. UI concurrency stamps and invitation IDs are ephemeral;
 only two additive citizen UI channels are introduced. No migration is required.
+
+v0.8.4 [kingdom administration](kingdom-administration.md) adds schema-6 ruler,
+kingdom-role and persistent city-invitation fields. Existing identities, municipal
+roles, affiliations, claims and legacy channels remain. Schema 1–5 founders migrate
+to rulers; downgrade requires restoring the pre-upgrade world backup.
+
+v0.8.3 [kingdom diplomacy](kingdom-diplomacy.md) writes schema 6 in the same saved
+file, adding UUID-based agreements, declarations, invitations and pair revisions.
+Schemas 1–5 migrate without replacing existing records. Registry IDs, filenames,
+key bindings and existing wire layouts remain unchanged; two diplomacy channels
+are additive. Rollback requires the pre-upgrade world backup.
+
+## v0.8.5 combined schema
+
+The integrated release writes **schema 7**, preserving both independently allocated
+schema-6 formats and schemas 1–5. Administration ruler/roles/city invitations and
+all diplomacy contracts coexist in the same legacy saved-data filename. Migration
+uses actual fields rather than release-number ordering, preserves transferred
+rulers and extension fields, and fails closed with original NBT retained when
+recognized data is invalid. Legacy diplomacy requests gain issuer attribution to
+the sender's ruler because the branch format did not store a player issuer.
+Existing registry IDs, UUIDs, key bindings, config names and wire layouts remain.
+Back up world/config first; old binaries cannot safely write schema 7. Recover
+an older release only by restoring the pre-upgrade backup. See the
+[integration compatibility contract](integration-audit-v0.8.5.md#final-persistence-contract).

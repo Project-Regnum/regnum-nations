@@ -1,5 +1,8 @@
 # Regnum Nations v0.3 — Basic territory claims
 
+Current [v0.8.2 territory protection hardening](territory-protection-hardening.md)
+supersedes the historical protection limits below.
+
 Current [v0.8.0 obelisk relocation and recovery](obelisk-relocation.md) supersedes
 earlier anchor destruction and recovery behavior described below.
 

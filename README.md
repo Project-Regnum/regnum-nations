@@ -25,9 +25,18 @@ protection and explicit administrator recovery. See [relocation and settlement
 integrity](docs/obelisk-relocation.md) for commands, restrictions and crash recovery.
 v0.8.1 adds [in-game citizen management](docs/citizen-management-ui.md): open
 City → Citizens for the private roster, invitations, roles, removal and leaving.
+v0.8.2 adds [territory protection hardening](docs/territory-protection-hardening.md):
+server-side guards for explosions, pistons, fluids, dispensers, fire, projectiles
+and entity terrain changes, with secure settings in the existing properties file.
 One personal city/domain and membership in at most one city are enforced.
-City affiliation is implemented; configurable role permissions, diplomacy, economy
-and warfare are not.
+v0.8.5 integrates [kingdom administration](docs/kingdom-administration.md) and
+[kingdom diplomacy](docs/kingdom-diplomacy.md) with protection: persistent government
+roles, leadership transfer, city membership and alliance/hostility management.
+Rulers and chancellors manage diplomacy; alliances grant no city/building rights.
+Schema 7 reads schemas 1–5 and both independently developed schema-6 formats.
+Back up the complete world/config before upgrading; downgrade requires that backup.
+See the [integration audit, compatibility limits, verification and multiplayer checklist](docs/integration-audit-v0.8.5.md).
+Configurable role permissions, economy and warfare remain unimplemented.
 
 See [UI design system, Living Atlas reference and screenshot steps](docs/ui-design-system.md).
 
@@ -58,13 +67,15 @@ World registry IDs, UUIDs, saved-data filenames, map configuration and the saved
 binding stay compatible. `/nations` is the preferred command; `/reigns` remains an
 alias. Presentation assets and Java packages now use the Regnum Nations name.
 See the [migration contract and upgrade steps](docs/rename-migration.md) before
-upgrading a player world. Build output is `build/libs/regnum-nations-0.8.1.jar`.
+upgrading a player world. Build output is `build/libs/regnum-nations-0.8.5.jar`.
 
 ## Development
 
 Use JDK 25 to run Gradle, matching the existing CI configuration. The mod compiles
-for Java 21 and requires Java 21 or newer in Minecraft. Set `JAVA_HOME` to your JDK
-and import the project as a Gradle project in your IDE.
+for Java 21 and requires Java 21 or newer in Minecraft. Install both JDK 25 and
+JDK 21: the build uses JDK 25, while rule checks, GameTests and integration UI checks
+select a Java 21 toolchain. CI installs both without changing mod dependencies.
+Set `JAVA_HOME` to JDK 25 and import the project as a Gradle project in your IDE.
 
 Use the included Gradle wrapper (`gradlew.bat` on Windows); no global Gradle
 installation is needed. Versions are defined in `gradle.properties` and
@@ -78,6 +89,7 @@ Mojang mappings, and separate common and client source sets.
 ./gradlew runGameTest # Run the isolated headless server tests
 ./gradlew runClient   # Launch the development client
 ./gradlew runAtlasTest # Opt-in real-client terrain checks (requires a display)
+./gradlew runIntegrationLayoutTest # Native integration widget checks, both locales (requires a display)
 ./gradlew runServer   # Launch the development server
 ./gradlew runDatagen  # Run data generation (no providers registered yet)
 python3 tools/verify_mod_jar.py # Check the built JAR and compatibility resources

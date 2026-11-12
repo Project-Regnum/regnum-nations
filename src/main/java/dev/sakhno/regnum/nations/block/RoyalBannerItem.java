@@ -24,6 +24,22 @@ public final class RoyalBannerItem extends StandingAndWallBlockItem {
         }
         return super.place(context);
     }
+    @Override protected BlockState getPlacementState(BlockPlaceContext context) {
+        Direction face=context.getClickedFace();
+        if (face==Direction.DOWN) return null;
+        var block=face==Direction.UP?ModBlocks.ROYAL_BANNER:ModBlocks.WALL_ROYAL_BANNER;
+        var state=block.getStateForPlacement(context);
+        if (state==null||!canPlace(context,state)) return null;
+        // Check visual clearance without creating or changing any additional blocks.
+        // This is a placement check only: existing schema-8 banners keep their anchors.
+        int step=face==Direction.UP?1:-1;
+        for (int i=1;i<=2;i++) {
+            BlockPos space=context.getClickedPos().offset(0,step*i,0);
+            if (context.getLevel().isOutsideBuildHeight(space)
+                    || !context.getLevel().getBlockState(space).getCollisionShape(context.getLevel(),space).isEmpty()) return null;
+        }
+        return state;
+    }
     /** Item-supplied BlockEntityTag must never override the authenticated kingdom. */
     @Override protected boolean updateCustomBlockEntityTag(BlockPos pos,Level level,Player player,ItemStack stack,BlockState state) { return false; }
     @Override public void appendHoverText(ItemStack stack,Item.TooltipContext context,java.util.List<Component> lines,TooltipFlag flag) {

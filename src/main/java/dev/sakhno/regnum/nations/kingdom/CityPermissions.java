@@ -8,8 +8,8 @@ import static dev.sakhno.regnum.nations.kingdom.CityPermission.*;
 /** Municipal policy only: roles come from current membership, never political affiliation. */
 public final class CityPermissions {
     private static final Set<CityPermission> OWNER_PERMISSIONS = Set.of(CityPermission.values());
-    private static final Set<CityPermission> OFFICER_PERMISSIONS = Set.of(BUILD, INTERACT, INVITE);
-    private static final Set<CityPermission> CITIZEN_PERMISSIONS = Set.of(BUILD, INTERACT);
+    private static final Set<CityPermission> OFFICER_PERMISSIONS = Set.of(BUILD, INTERACT, INVITE, VIEW_TERRITORY, EXPAND_TERRITORY);
+    private static final Set<CityPermission> CITIZEN_PERMISSIONS = Set.of(BUILD, INTERACT, VIEW_TERRITORY);
 
     private CityPermissions() { }
 

@@ -14,9 +14,9 @@ public final class KingdomPermissions {
             case RULER -> ADMIN;
             case CHANCELLOR -> Set.of(MANAGE_KINGDOM, MANAGE_KINGDOM_ROLES, INVITE_CITY, REMOVE_CITY,
                     MANAGE_KINGDOM_MEMBERS, MANAGE_DIPLOMACY, MANAGE_HERALDRY,
-                    VIEW_DIPLOMACY, PROPOSE_ALLIANCE, MANAGE_TREATIES, DECLARE_WAR, NEGOTIATE_PEACE);
-            case OFFICER -> Set.of(INVITE_CITY, VIEW_DIPLOMACY);
-            case MEMBER -> Set.of(VIEW_DIPLOMACY);
+                    VIEW_TERRITORY, MANAGE_TERRITORIAL_CLAIMS, VIEW_DIPLOMACY, PROPOSE_ALLIANCE, MANAGE_TREATIES, DECLARE_WAR, NEGOTIATE_PEACE);
+            case OFFICER -> Set.of(INVITE_CITY, VIEW_DIPLOMACY, VIEW_TERRITORY);
+            case MEMBER -> Set.of(VIEW_DIPLOMACY, VIEW_TERRITORY);
         };
     }
     public static boolean allows(KingdomSavedData data, UUID kingdom, UUID player, KingdomPermission permission) {

@@ -108,3 +108,11 @@ in the same saved-data file. Existing UUID contracts migrate without replacement
 proposal types, non-aggression treaties, wars and pair cooldowns are additive.
 Existing channels/codecs, financial policies and Nations API v1 remain intact;
 expanded diplomacy uses new channels. Rollback requires the pre-upgrade backup.
+
+v0.11.0 [territory and border management](territory-border-management.md) writes
+schema 10 in the same saved-data file, adding UUID-based political territorial
+claims. Schemas 1–9 migrate additively; existing cities, kingdoms, ownership,
+diplomacy and Economy policies remain. City claim indexes are derived and rebuilt
+on load. Legacy wire layouts and permission enum ordinals are retained; territory
+channels and the territory limits config are additive. Rollback requires restoring
+the pre-upgrade world backup with matching older binaries.

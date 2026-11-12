@@ -3,9 +3,9 @@ package dev.sakhno.regnum.nations.kingdom;
 import java.util.*;
 import net.minecraft.nbt.*;
 
-/** Additive, deterministic schema-8 normalization and lossless extension-field retention. */
+/** Additive, deterministic schema-9 normalization and lossless extension-field retention. */
 final class KingdomSchema {
-    static final int CURRENT=8;
+    static final int CURRENT=9;
     private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies");
     private static final Map<String,Set<String>> FIELDS=Map.of(
             "Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler Heraldry HeraldryRecovery"),
@@ -15,8 +15,8 @@ final class KingdomSchema {
             "Citizens",fields("Player Settlement Role"),
             "KingdomRoles",fields("Kingdom Player Role"),
             "CityInvitations",fields("Id Kingdom City Inviter CreatedAt"),
-            "Diplomacy",fields("First Second Revision Alliance AcceptedAt Hostility Invitation"),
-            "Invitation",fields("Id Sender Recipient CreatedAt ExpiresAt Inviter"),
+            "Diplomacy",fields("First Second Revision Alliance AcceptedAt TreatyKind Hostility Invitation War DeclaredAt WarDeclarer NextProposalAt"),
+            "Invitation",fields("Id Sender Recipient CreatedAt ExpiresAt Inviter Type"),
             "Hostility",fields("Declarer"));
     private KingdomSchema() { }
     private static Set<String> fields(String names) { return Set.of(names.split(" ")); }

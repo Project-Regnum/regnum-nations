@@ -102,3 +102,9 @@ unmerged v0.8.5 integration (schema 7) and adds schema 8. The saved filename and
 legacy contracts remain; official arms key off kingdom UUIDs. New banner IDs use
 `regnum-nations`. Back up the entire stopped world before upgrading; restoring the
 pre-upgrade backup is required for rollback.
+
+v0.10.0 [interstate diplomacy](diplomacy-interstate-relations.md) writes schema 9
+in the same saved-data file. Existing UUID contracts migrate without replacement;
+proposal types, non-aggression treaties, wars and pair cooldowns are additive.
+Existing channels/codecs, financial policies and Nations API v1 remain intact;
+expanded diplomacy uses new channels. Rollback requires the pre-upgrade backup.

@@ -38,7 +38,7 @@ public class RegnumNationsClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.KingdomAdministrationPayloads.State.TYPE,(payload,context) -> {
             if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.KingdomAdministrationScreen screen) screen.accept(payload);
         });
-        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.DiplomacyPayloads.State.TYPE,(payload,context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.InterstatePayloads.State.TYPE,(payload,context) -> {
             if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.DiplomacyScreen screen) screen.accept(payload);
         });
         ClientPlayNetworking.registerGlobalReceiver(KingdomManagementPayloads.State.TYPE, (payload, context) -> {

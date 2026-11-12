@@ -45,6 +45,8 @@ public final class DiplomacyScreen extends RoyalScreen {
             button(bounds.left()+index*(third+GAP),bounds.y()+43,third,message("tab."+key(value)),() -> { tab=value; page=offset=0; selected=null; detail=false; read(); },
                     () -> !busy()&&confirmation==null&&(value==Tab.KINGDOMS||state!=null&&state.manage()),ButtonStyle.NORMAL);
         }
+        button(bounds.right()-104,bounds.y()+12,104,WarfareScreen.message("title"),() -> minecraft.setScreen(new WarfareScreen(this)),
+                () -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
         listTop=bounds.y()+85; actionsY=bounds.footerY()-(1+(actions().size()+2)/3)*(CONTROL+GAP);
         visible=Math.clamp((actionsY-listTop-GAP)/(CONTROL+2),1,PAGE_SIZE);
         if (confirmation!=null) {
@@ -175,11 +177,11 @@ public final class DiplomacyScreen extends RoyalScreen {
     @Override public Component getNarrationMessage() { return title.copy().append(". ").append(feedback); }
     @Override public void render(GuiGraphics g,int mx,int my,float delta) {
         g.fill(0,0,width,height,BACKGROUND); AtlasGraphics.folio(g,bounds.x(),bounds.y(),bounds.width(),bounds.height());
-        heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth());
+        heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth()-114);
         Component own=state==null||state.kingdom()==null?message("no_kingdom"):message("kingdom",state.name());
         int identityWidth=state!=null&&state.kingdom()!=null?20:0;
         if (identityWidth>0) NationsIdentity.drawKingdomArms(g,state.kingdom(),bounds.left(),bounds.y()+25,12,15);
-        g.drawString(font,ellipsize(font,own,bounds.contentWidth()-identityWidth),bounds.left()+identityWidth,bounds.y()+27,INK,false);
+        g.drawString(font,ellipsize(font,own,bounds.contentWidth()-identityWidth-114),bounds.left()+identityWidth,bounds.y()+27,INK,false);
         g.drawString(font,ellipsize(font,feedback,bounds.contentWidth()),bounds.left(),bounds.y()+70,failed?ERROR:MUTED,false);
         if (state!=null&&confirmation==null&&!detail) g.drawCenteredString(font,message("page",page+1,Math.max(1,(state.matches()+PAGE_SIZE-1)/PAGE_SIZE)),bounds.left()+bounds.contentWidth()/2,bounds.footerY()-CONTROL-GAP+6,MUTED);
         super.render(g,mx,my,delta);

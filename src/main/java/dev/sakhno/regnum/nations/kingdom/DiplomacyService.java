@@ -207,6 +207,10 @@ public final class DiplomacyService {
     }
     private void changed(Pair pair,DiplomacyData.Entry before,DiplomacyData.Entry after,DiplomacyEvents.Kind kind) {
         schedule(pair,before,false); schedule(pair,after,true);
+        if (before!=null&&before.war()!=null&&(after==null||after.war()==null)) {
+            if (kind==ACCEPTED&&before.invitation()!=null&&before.invitation().type()==ProposalType.PEACE) kingdoms.warfare().peace(before.war().id());
+            kingdoms.warfare().reconcile();
+        }
         var data=kingdoms.data(); data.setDirty(); data.politicalChanged();
         DiplomacyEvents.CHANGED.invoker().changed(server,new DiplomacyEvents.Change(kind,snapshot(pair,before),Optional.ofNullable(after==null?null:snapshot(pair,after))));
         Invitation proposal=kind==PROPOSED?after.invitation():before==null?null:before.invitation();

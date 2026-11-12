@@ -41,6 +41,9 @@ public class RegnumNationsClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.InterstatePayloads.State.TYPE,(payload,context) -> {
             if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.DiplomacyScreen screen) screen.accept(payload);
         });
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.WarfarePayloads.Snapshot.TYPE,(payload,context) -> {
+            if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.WarfareScreen screen) screen.accept(payload);
+        });
         ClientPlayNetworking.registerGlobalReceiver(KingdomManagementPayloads.State.TYPE, (payload, context) -> {
             var client = context.client();
             if (client.player == null || client.level == null) return;
@@ -50,6 +53,7 @@ public class RegnumNationsClient implements ClientModInitializer {
                 else if (client.screen instanceof PoliticalMapScreen map) map.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.KingdomAdministrationScreen screen) screen.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.DiplomacyScreen screen) screen.invalidate();
+                else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.WarfareScreen screen) screen.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.CitizenManagementScreen screen) screen.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.HeraldryScreen screen) screen.invalidate();
             } else if (payload.intent() == KingdomManagementPayloads.OPEN_FOUNDING || payload.intent() == KingdomManagementPayloads.OPEN_CITY_FOUNDING) {

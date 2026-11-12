@@ -40,7 +40,8 @@ public final class KingdomCommands {
 								source.sendSuccess(() -> Component.translatable("city.regnum-nations.joined"),false); return 1;
 							} catch (FoundingException e) { return fail(source,e); }
 						})))
-						.then(ObeliskRelocationCommands.commands())
+						.then(WarfareCommands.commands())
+                        .then(ObeliskRelocationCommands.commands())
                         .then(CitizenshipCommands.commands())
 						.then(KingdomAdminCommands.commands())
 						.then(Commands.literal("claim").executes(context -> territory(context.getSource(), "claim")))

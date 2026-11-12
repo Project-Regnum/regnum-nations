@@ -60,7 +60,7 @@ public final class DiplomacyScreen extends RoyalScreen {
                     Entry entry=state.entries().get(i);
                     Component status=state.kingdom()==null?message("no_relation"):message("relation."+key(entry.relation()));
                     if (entry.invitation()!=null) status=status.copy().append(" · ").append(message(entry.incoming()?"incoming":"outgoing"));
-                    button(bounds.left(),listTop+(i-offset)*(CONTROL+2),w,message("row",entry.name(),status),
+                    button(bounds.left()+22,listTop+(i-offset)*(CONTROL+2),w-22,message("row",entry.name(),status),
                             () -> { selected=entry.kingdom(); feedback=details(entry); rebuildWidgets(); },() -> !busy(),entry.kingdom().equals(selected)?ButtonStyle.PRIMARY:ButtonStyle.NORMAL);
                 }
             }
@@ -146,5 +146,10 @@ public final class DiplomacyScreen extends RoyalScreen {
         g.drawString(font,ellipsize(font,feedback,bounds.contentWidth()),bounds.left(),bounds.y()+70,failed?ERROR:MUTED,false);
         if (state!=null&&confirmation==null) g.drawCenteredString(font,message("page",page+1,Math.max(1,(state.matches()+PAGE_SIZE-1)/PAGE_SIZE)),bounds.left()+bounds.contentWidth()/2,bounds.footerY()-CONTROL-GAP+6,MUTED);
         super.render(g,mx,my,delta);
+        if (state!=null&&confirmation==null) for (int i=offset;i<Math.min(state.entries().size(),offset+visible);i++) {
+            var e=state.entries().get(i);
+            dev.sakhno.regnum.nations.client.heraldry.HeraldryTextures.draw(g,dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(e.kingdom()),
+                    bounds.left()+1,listTop+(i-offset)*(CONTROL+2),16,20);
+        }
     }
 }

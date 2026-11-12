@@ -51,7 +51,7 @@ final class KingdomAtlasView {
         capital=kingdom==null?Component.empty():text("atlas_capital_in",dimension(kingdom.dimension()));
         access=kingdom==null?text("atlas_independent"):text(kingdom.manager()?"atlas_ruler_access":state.ownKingdom()!=null&&state.ownKingdom().equals(kingdom.id())?"atlas_affiliated_access":"visitor_access");
         status=kingdom==null?Component.empty():Component.translatable("message.regnum-nations.capital."+kingdom.status());
-        sealHint=kingdom==null?text("atlas_no_realm"):text("atlas_seal",text("atlas_charge_"+heraldry.charge()),text("color_"+kingdom.color()));
+        sealHint=kingdom==null?text("atlas_no_realm"):HeraldryScreen.message("title");
         claimsHint=kingdom==null?Component.empty():text("kingdom_claim_count",kingdom.claims());
         empty=loading?text("loading"):failed?text("view_error"):state==null||state.city()==null?text("no_city"):text(state.city().manager()?"city_state_hint":"city_state_visitor_hint");
         recordLabel=text(expanded?"atlas_record_close":"atlas_record_open");
@@ -120,7 +120,8 @@ final class KingdomAtlasView {
         g.fill(x+7,y+height,x+width-4,y+height+2,AtlasGraphics.SHADOW);
         AtlasGraphics.folio(g,x,y,width,height);
         g.fill(bounds.left(),y+36,bounds.right(),y+37,AtlasGraphics.ETCH);
-        AtlasGraphics.banner(g,bannerX,bannerY,bannerScale,color,heraldry);
+        if (kingdom!=null) dev.sakhno.regnum.nations.client.heraldry.HeraldryTextures.draw(g,
+                dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(kingdom.id()),bannerX,bannerY,36*bannerScale,45*bannerScale);
         g.drawString(font,realmLabel,textX,eyebrowY,AtlasGraphics.LIGHT,false);
         g.pose().pushPose(); g.pose().translate(textX,nameY,0); g.pose().scale(2,2,1);
         g.drawString(font,displayName,0,0,INK,false); g.pose().popPose();

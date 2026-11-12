@@ -107,6 +107,8 @@ final class CityAtlasView {
         AtlasGraphics.folio(g,x,y,width,height);
         g.fill(x+pad,y+36,x+width-pad,y+37,AtlasGraphics.ETCH);
         AtlasGraphics.civicSeal(g,x+pad,y+48,color);
+        if (city!=null&&city.sovereign()!=null) dev.sakhno.regnum.nations.client.heraldry.HeraldryTextures.draw(g,
+                dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(city.sovereign()),x+pad+25,y+75,14,18);
         g.drawString(font,eyebrow,textX,y+42,AtlasGraphics.LIGHT,false);
         g.pose().pushPose(); g.pose().translate(textX,y+56,0); g.pose().scale(nameScale,nameScale,1);
         g.drawString(font,displayName,0,0,INK,false); g.pose().popPose();

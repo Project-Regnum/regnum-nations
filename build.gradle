@@ -99,6 +99,14 @@ loom {
 			vmArg '-Dregnum.atlasTest=true'
 			programArgs '--width', '1100', '--height', '760'
 		}
+        heraldryVisualTest {
+            client()
+            name 'Heraldry and royal banner visual checks'
+            source sourceSets.atlasTest
+            runDir 'build/run/heraldryVisualTest'
+            vmArg '-Dregnum.heraldryVisual=true'
+            programArgs '--width', '1100', '--height', '760'
+        }
         integrationLayoutTest {
             client()
             name 'Nations integration UI layout checks'
@@ -185,7 +193,7 @@ publishing {
 }
 
 // Loom runs on the build JVM; execute gameplay/rule verification on the supported runtime.
-['runGameTest', 'testKingdomNames', 'runIntegrationLayoutTest'].each { taskName ->
+['runGameTest', 'testKingdomNames', 'runIntegrationLayoutTest', 'runHeraldryVisualTest'].each { taskName ->
     tasks.named(taskName, JavaExec) {
         javaLauncher = javaToolchains.launcherFor {
             languageVersion = JavaLanguageVersion.of(21)

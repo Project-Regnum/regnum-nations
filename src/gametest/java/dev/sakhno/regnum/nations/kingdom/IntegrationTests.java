@@ -44,7 +44,7 @@ public final class IntegrationTests implements FabricGameTest {
         h.assertTrue(data.byId(id(1)).founderId().equals(id(2))&&data.byId(id(1)).rulerId().equals(id(11)),"Historical founder and transferred ruler remain distinct");
         h.assertTrue(data.kingdomRole(id(1),id(12))==CHANCELLOR&&data.role(id(3),id(11))==CityRole.OFFICER
                 &&data.cityInvitation(id(20))!=null&&data.settlementClaimCount(id(3))==2&&data.deletedAnchor(id(9))!=null,"Both role systems, invitations, claims and tombstones survive");
-        h.assertTrue(save(h,data).getInt("Version")==7&&data.isDirty()&&data.diplomacy.available(),"Administration schema 6 upgrades to schema 7 with empty diplomacy");
+        h.assertTrue(save(h,data).getInt("Version")==KingdomSchema.CURRENT&&data.isDirty()&&data.diplomacy.available(),"Administration schema 6 upgrades to schema 7 with empty diplomacy");
         var historical=fixture("kingdom-administration-schema6");
         historical.getList("Citizens",Tag.TAG_COMPOUND).getCompound(0).putUUID("Settlement",id(16));
         var retained=load(h,historical);

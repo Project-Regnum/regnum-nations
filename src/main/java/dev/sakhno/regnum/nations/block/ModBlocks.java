@@ -39,11 +39,23 @@ public final class ModBlocks {
 	public static final BlockEntityType<CityObeliskBlockEntity> CITY_OBELISK_ENTITY=Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,RegnumNations.legacyId("city_obelisk"),
 			BlockEntityType.Builder.of(CityObeliskBlockEntity::new,CITY_OBELISK).build(null));
 
+    public static final RoyalBannerBlock ROYAL_BANNER=Registry.register(BuiltInRegistries.BLOCK,RegnumNations.id("royal_banner"),
+            new RoyalBannerBlock(bannerProperties()));
+    public static final WallRoyalBannerBlock WALL_ROYAL_BANNER=Registry.register(BuiltInRegistries.BLOCK,RegnumNations.id("wall_royal_banner"),
+            new WallRoyalBannerBlock(bannerProperties()));
+    public static final RoyalBannerItem ROYAL_BANNER_ITEM=Registry.register(BuiltInRegistries.ITEM,RegnumNations.id("royal_banner"),
+            new RoyalBannerItem(new Item.Properties().stacksTo(1)));
+    public static final BlockEntityType<RoyalBannerBlockEntity> ROYAL_BANNER_ENTITY=Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,RegnumNations.id("royal_banner"),
+            BlockEntityType.Builder.of(RoyalBannerBlockEntity::new,ROYAL_BANNER,WALL_ROYAL_BANNER).build(null));
+    private static BlockBehaviour.Properties bannerProperties() {
+        return BlockBehaviour.Properties.of().noCollission().noOcclusion().mapColor(MapColor.WOOD).strength(1).sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY);
+    }
+
 	private ModBlocks() {
 	}
 
 	public static void initialize() {
 		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-				.register(entries -> { entries.accept(KINGDOM_OBELISK_ITEM); entries.accept(CITY_OBELISK_ITEM); });
+				.register(entries -> { entries.accept(KINGDOM_OBELISK_ITEM); entries.accept(CITY_OBELISK_ITEM); entries.accept(ROYAL_BANNER_ITEM); });
 	}
 }

@@ -20,3 +20,10 @@ invalidation, and tile storage are reused. See `docs/living-atlas-terrain.md`.
 
 Conflux Map was inspected but no Conflux source, assets or libraries are included.
 Neither mapping mod is a required dependency.
+
+## Heraldry (v0.9.0)
+
+The polygon silhouettes in `assets/regnum-nations/heraldry/` and the banner
+support models are original Project Regnum artwork, dedicated under CC0-1.0.
+`tools/heraldry_assets.py` is their editable source. Minecraft material textures
+are referenced by identifier and are not redistributed. No CKIII assets are used.

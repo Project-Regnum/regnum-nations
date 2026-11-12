@@ -53,6 +53,18 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
             for (boolean manager:List.of(false,true)) {
                 var parent=parent(manager); check(mc,parent,size,false);
                 var city=new KingdomManagementScreen(snapshot(manager,KingdomManagementPayloads.OPEN_CITY_MENU));check(mc,city,size,false);
+                for (int page=0;page<3;page++) for (int count=0;count<=3;count++) {
+                    var screen=new HeraldryScreen(parent,REALM); var base=Heraldry.defaults(REALM);
+                    var arms=new Heraldry(1,base.shield(),base.field(),base.division(),base.secondary(),base.ordinary(),base.ordinaryTincture(),
+                            java.util.Collections.nCopies(count,base.charges().getFirst()));
+                    set(screen,"initial",false); set(screen,"draft",arms); set(screen,"page",page);
+                    set(screen,"state",new HeraldryPayloads.State(42,REALM,"Integration Kingdom",arms,manager,manager?TOKEN:null,"",false));
+                    check(mc,screen,size,true);
+                    set(screen,"sent",1L);set(screen,"sequence",42);
+                    screen.accept(new HeraldryPayloads.State(41,REALM,"Stale",arms,true,TOKEN,"",false));
+                    require((long)get(screen,"sent")==1L,"Heraldry rejects stale reply sequences");
+                }
+                verifyHeraldrySync();
                 for (var tab:KingdomAdministrationPayloads.Tab.values()) for (boolean confirmation:List.of(false,true)) {
                     var screen=new KingdomAdministrationScreen(parent);
                     set(screen,"initial",false);set(screen,"tab",tab);
@@ -83,6 +95,18 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                 }
             }
         }
+    }
+    private void verifyHeraldrySync() {
+        var arms=Heraldry.defaults(REALM);
+        dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.accept(new HeraldryPayloads.Sync(true,List.of(new HeraldryPayloads.Entry(REALM,arms))));
+        require(dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(REALM).equals(arms),"Login insignia sync");
+        var changed=Heraldry.defaults(TARGET);
+        dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.accept(new HeraldryPayloads.Sync(false,List.of(new HeraldryPayloads.Entry(REALM,changed))));
+        require(dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(REALM).equals(changed),"Dynamic insignia delta");
+        dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.accept(new HeraldryPayloads.Sync(false,List.of(new HeraldryPayloads.Entry(REALM,null))));
+        require(!dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(REALM).equals(changed),"Dissolved kingdoms render neutral");
+        dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.accept(new HeraldryPayloads.Sync(true,List.of()));
+        require(!dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.arms(REALM).equals(arms),"Reconnect clears stale public state");
     }
     private KingdomManagementScreen parent(boolean manager) { return new KingdomManagementScreen(snapshot(manager,KingdomManagementPayloads.OPEN_MENU)); }
     private KingdomManagementPayloads.State snapshot(boolean manager,int intent) {

@@ -23,7 +23,8 @@
       "dev.sakhno.regnum.nations.kingdom.TerritoryHardeningTests",
       "dev.sakhno.regnum.nations.kingdom.KingdomAdministrationTests",
       "dev.sakhno.regnum.nations.kingdom.DiplomacyTests",
-      "dev.sakhno.regnum.nations.kingdom.IntegrationTests"
+      "dev.sakhno.regnum.nations.kingdom.IntegrationTests",
+      "dev.sakhno.regnum.nations.kingdom.HeraldryTests"
     ]
   },
   "depends": {

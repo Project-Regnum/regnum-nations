@@ -54,6 +54,9 @@ public final class HeraldryVisualChecks implements ClientModInitializer {
                 GLFW.glfwHideWindow(mc.getWindow().getWindow()); if (mc.getOverlay()!=null) return;
                 if (mc.screen instanceof AccessibilityOnboardingScreen) mc.setScreen(new TitleScreen());
                 if (!(mc.screen instanceof TitleScreen)) return;
+                if (!mc.getLanguageManager().getSelected().equals("en_us")) {
+                    mc.getLanguageManager().setSelected("en_us"); mc.options.languageCode="en_us"; mc.reloadResourcePacks(); return;
+                }
                 Files.createDirectories(output); mc.options.pauseOnLostFocus=false; mc.options.renderDistance().set(4);
                 mc.options.simulationDistance().set(5); mc.options.guiScale().set(2); mc.options.framerateLimit().set(40); mc.options.tutorialStep=TutorialSteps.NONE;
                 mc.createWorldOpenFlows().createFreshLevel("heraldry-review-"+System.currentTimeMillis(),
@@ -68,6 +71,8 @@ public final class HeraldryVisualChecks implements ClientModInitializer {
                         for (int x=-12;x<=12;x++) for (int z=-8;z<=8;z++) level.setBlockAndUpdate(new BlockPos(x,160,z),Blocks.STONE_BRICKS.defaultBlockState());
                         UUID id=UUID.randomUUID(); var k=new Kingdom(id,new KingdomName("The Azure Crown"),player.getUUID(),Level.OVERWORLD,new BlockPos(8,161,8),UUID.randomUUID(),1,Kingdom.CapitalStatus.UNRESOLVED); data.add(k);
                         new HeraldryService(data).save(id,player.getUUID(),design(Emblem.LION,0));
+                        // Persist a real signing key and an authentic item for restart verification.
+                        player.getInventory().add(new HeraldryService(data).banner(id));
                         for(int i=0;i<5;i++) {
                             var pos=new BlockPos(-4+i*2,161,0); level.setBlockAndUpdate(pos,ModBlocks.ROYAL_BANNER.defaultBlockState()); ((RoyalBannerBlockEntity)level.getBlockEntity(pos)).bind(id);
                         }
@@ -82,6 +87,13 @@ public final class HeraldryVisualChecks implements ClientModInitializer {
             }
             case 2 -> {
                 if(realm==null) return;
+                HeraldryHardeningChecks.synchronization(mc);
+                // Restore the actual integrated server's public definition after isolated packet checks.
+                mc.getSingleplayerServer().execute(() -> {
+                    try { HeraldryServer.login(mc.getSingleplayerServer().getPlayerList().getPlayers().getFirst(),KingdomService.get(mc.getSingleplayerServer()).data()); }
+                    catch (Throwable error) { serverError=error; }
+                });
+                HeraldryHardeningChecks.textures(mc,output);
                 mc.setScreen(new Gallery()); stage=3; ticks=0;
             }
             case 3 -> {

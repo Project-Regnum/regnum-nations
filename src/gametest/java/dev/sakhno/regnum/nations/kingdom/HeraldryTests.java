@@ -226,6 +226,78 @@ public final class HeraldryTests implements FabricGameTest {
         }
         h.succeed();
     }
+    @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
+    public void transferredLeadershipAndTwoEditorsCannotOverwriteAConcurrentSave(GameTestHelper h) throws Exception {
+        var f=new Fixture(h,true); var successor=f.player(); f.data.addCitizen(f.realm.id(),successor.getUUID());
+        f.data.setKingdomRole(f.realm.id(),successor.getUUID(),KingdomRole.CHANCELLOR);
+        var first=HeraldryServer.handle(f.ruler,new Request(1,Action.VIEW,f.realm.id(),null,null));
+        var second=HeraldryServer.handle(successor,new Request(2,Action.VIEW,f.realm.id(),null,null));
+        f.data.transferRuler(f.realm.id(),successor.getUUID());
+        var changed=new Heraldry(1,Shield.BOUCHE,Tincture.GULES,Division.QUARTERLY,Tincture.ARGENT,Ordinary.CROSS,Tincture.OR,List.of());
+        var winner=HeraldryServer.handle(successor,new Request(3,Action.SAVE,f.realm.id(),second.token(),changed));
+        var loser=HeraldryServer.handle(f.ruler,new Request(4,Action.SAVE,f.realm.id(),first.token(),first.arms()));
+        h.assertTrue(winner.success()&&!loser.success()&&loser.result().endsWith("stale")&&f.data.heraldry(f.realm.id()).equals(changed),
+                "New ruler wins a serialized edit; previous ruler's retained chancellor permission cannot overwrite a newer design");
+        var view=HeraldryServer.handle(f.ruler,new Request(5,Action.VIEW,f.realm.id(),null,null));
+        f.data.setKingdomRole(f.realm.id(),f.ruler.getUUID(),KingdomRole.MEMBER);
+        h.assertTrue(!HeraldryServer.handle(f.ruler,new Request(6,Action.SAVE,f.realm.id(),view.token(),first.arms())).success()
+                &&!new HeraldryService(f.data).canEdit(f.realm.id(),f.ruler.getUUID()),"Transferred founder loses editing rights on demotion");
+        h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
+    public void oldPlayerEntityCannotResumeAHeraldrySessionAfterReconnect(GameTestHelper h) throws Exception {
+        var f=new Fixture(h,true); var view=HeraldryServer.handle(f.ruler,new Request(1,Action.VIEW,f.realm.id(),null,null));
+        var reconnect=new ServerPlayer(f.level.getServer(),f.level,f.ruler.getGameProfile(),ClientInformation.createDefault());
+        var before=f.saved(); var response=HeraldryServer.handle(reconnect,new Request(2,Action.SAVE,f.realm.id(),view.token(),view.arms()));
+        h.assertTrue(!response.success()&&response.result().endsWith("stale")&&before.equals(f.saved()),"Tokens are tied to the connection's player entity even before disconnect cleanup");
+        var fresh=HeraldryServer.handle(reconnect,new Request(3,Action.VIEW,f.realm.id(),null,null));
+        h.assertTrue(fresh.editable()&&!fresh.token().equals(view.token()),"Reconnected editor receives a fresh session"); h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
+    public void signingKeyCorruptionFailsClosedAndExactBackupRestoresCapturedItems(GameTestHelper h) throws Exception {
+        var f=new Fixture(h,false); var captured=f.arms.banner(f.realm.id()); var raw=f.saved();
+        h.assertTrue(raw.getByteArray("BannerSecret").length==32,"Issued banners persist the world key");
+        for (boolean wrongType:List.of(false,true)) {
+            var broken=raw.copy();
+            if (wrongType) broken.putString("BannerSecret","corrupt"); else broken.putByteArray("BannerSecret",new byte[31]);
+            var loaded=KingdomSavedData.load(broken,f.level.registryAccess());
+            h.assertTrue(!loaded.available()&&loaded.save(new CompoundTag(),f.level.registryAccess()).equals(broken),"Corrupt key is retained without silent rotation or data overwrite");
+            try { new HeraldryService(loaded).verifiedIdentity(captured); h.fail("Corrupt key must not authorize a banner"); } catch (FoundingException expected) { }
+        }
+        var restored=KingdomSavedData.load(raw,f.level.registryAccess());
+        h.assertTrue(new HeraldryService(restored).verifiedIdentity(captured).equals(f.realm.id()),"Exact saved-data backup restores historic banner authentication");
+        var copied=captured.copy(); var extensions=copied.get(DataComponents.CUSTOM_DATA).copyTag(); extensions.putString("UnrelatedDecoration","retained");
+        copied.set(DataComponents.CUSTOM_DATA,CustomData.of(extensions));
+        h.assertTrue(f.arms.verifiedIdentity(copied).equals(f.realm.id()),"HMAC authenticates kingdom identity, not item uniqueness or unrelated custom fields"); h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
+    public void capturedDeletedBannerCanBeReplacedWithoutSurvivalDuplication(GameTestHelper h) throws Exception {
+        var f=new Fixture(h,true); var captor=f.player(); var item=f.arms.banner(f.realm.id());
+        f.data.deleteKingdom(f.realm.id()); // Capital city still protects its municipal claim.
+        var at=f.pos.offset(32,0,0); f.level.setBlockAndUpdate(at.below(),Blocks.STONE.defaultBlockState());
+        h.assertTrue(f.place(captor,item,at,Direction.UP).consumesAction()&&item.isEmpty(),"Survival capture placement consumes exactly one item, even after dissolution");
+        var entity=f.level.getBlockEntity(at); var drops=Block.getDrops(f.level.getBlockState(at),f.level,at,entity);
+        h.assertTrue(drops.size()==1&&drops.getFirst().getCount()==1&&f.arms.verifiedIdentity(drops.getFirst()).equals(f.realm.id()),"Exactly one reusable authentic trophy is dropped");
+        f.level.destroyBlock(at,false); var replacement=drops.getFirst();
+        h.assertTrue(f.place(captor,replacement,at,Direction.UP).consumesAction()&&replacement.isEmpty()
+                &&((RoyalBannerBlockEntity)f.level.getBlockEntity(at)).kingdom().equals(f.realm.id()),"A captured trophy retains identity across replacement");
+        captor.getAbilities().instabuild=true;
+        var creative=f.arms.banner(f.realm.id()); var next=at.east(); f.level.setBlockAndUpdate(next.below(),Blocks.STONE.defaultBlockState());
+        h.assertTrue(f.place(captor,creative,next,Direction.UP).consumesAction()&&creative.getCount()==1,"Creative placement follows native non-consumption policy");
+        var protectedItem=f.arms.banner(f.realm.id()); f.level.setBlockAndUpdate(f.pos.below(),Blocks.STONE.defaultBlockState());
+        h.assertFalse(f.place(captor,protectedItem,f.pos,Direction.UP).consumesAction(),"Creative mode alone cannot bypass the surviving city's protection"); h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
+    public void secondHeraldryRecoveryRetainsTheEarlierOriginal(GameTestHelper h) throws Exception {
+        var f=new Fixture(h,false); var raw=f.saved(); var record=raw.getList("Kingdoms",Tag.TAG_COMPOUND).getCompound(0);
+        var older=new CompoundTag(); older.putInt("Version",900); older.putString("FutureExtension","do not discard"); record.put("HeraldryRecovery",older);
+        var newer=record.getCompound("Heraldry"); newer.putString("Shield","broken"); var rejected=newer.copy();
+        var loaded=KingdomSavedData.load(raw,f.level.registryAccess()); var saved=loaded.save(new CompoundTag(),f.level.registryAccess());
+        var recovery=saved.getList("Kingdoms",Tag.TAG_COMPOUND).getCompound(0).get("HeraldryRecovery");
+        h.assertTrue(recovery instanceof CompoundTag history&&history.get("Previous").equals(older)&&history.get("Rejected").equals(rejected),
+                "Recovering another corrupt design must retain the previously recovered unknown original as well");
+        h.assertTrue(saved.equals(KingdomSavedData.load(saved,f.level.registryAccess()).save(new CompoundTag(),f.level.registryAccess())),"Recovery history survives canonical reload unchanged"); h.succeed();
+    }
     private static RegistryFriendlyByteBuf buffer(GameTestHelper h) { return new RegistryFriendlyByteBuf(Unpooled.buffer(),h.getLevel().registryAccess()); }
     private interface Attempt { void run() throws Exception; }
     private static void rejects(GameTestHelper h,Attempt attempt) { try { attempt.run(); } catch (Exception expected) { return; } h.fail("Malformed request unexpectedly accepted"); }

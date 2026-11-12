@@ -16,14 +16,21 @@ import net.minecraft.server.packs.resources.ResourceManager;
 /** One deterministic compositor for shield and cloth representations. Cached GPU textures never touch disk. */
 public final class HeraldryTextures implements SimpleSynchronousResourceReloadListener {
     public static final HeraldryTextures INSTANCE=new HeraldryTextures();
-    private static final int WIDTH=128,HEIGHT=160,MAX_TEXTURES=128;
+    // A 100+ kingdom directory can use both shield and cloth forms. 256 entries cap
+    // pixel storage at 20 MiB on each side of the CPU/GPU boundary, without 129-design thrashing.
+    private static final int WIDTH=128,HEIGHT=160,MAX_TEXTURES=256;
     private record Shape(List<double[]> solid,List<double[]> holes) {
-        boolean contains(double x,double y) { return solid.stream().anyMatch(p -> inside(p,x,y))&&!holes.stream().anyMatch(p -> inside(p,x,y)); }
+        boolean contains(double x,double y) {
+            boolean filled=false;
+            for (var polygon:solid) if (inside(polygon,x,y)) { filled=true; break; }
+            if (!filled) return false;
+            for (var polygon:holes) if (inside(polygon,x,y)) return false;
+            return true;
+        }
     }
     private record Key(Heraldry arms,boolean cloth) { }
     private final Map<String,Shape> shapes=new HashMap<>();
     private final LinkedHashMap<Key,ResourceLocation> cache=new LinkedHashMap<>(16,.75f,true);
-    private long serial;
     private HeraldryTextures() { }
     @Override public ResourceLocation getFabricId() { return RegnumNations.id("heraldry_textures"); }
     @Override public void onResourceManagerReload(ResourceManager resources) {
@@ -54,9 +61,17 @@ public final class HeraldryTextures implements SimpleSynchronousResourceReloadLi
     public void clear() { var manager=Minecraft.getInstance().getTextureManager(); cache.values().forEach(manager::release); cache.clear(); }
     public ResourceLocation texture(Heraldry arms,boolean cloth) {
         var key=new Key(arms,cloth); var cached=cache.get(key); if (cached!=null) return cached;
-        if (cache.size()>=MAX_TEXTURES) { var iterator=cache.entrySet().iterator(); Minecraft.getInstance().getTextureManager().release(iterator.next().getValue()); iterator.remove(); }
+        // Vanilla memoizes entity/outline RenderTypes by texture identifier for the JVM's
+        // lifetime. Reuse a bounded set of slots instead of leaking a new RenderType per edit.
+        var client=Minecraft.getInstance(); ResourceLocation id;
+        if (cache.size()>=MAX_TEXTURES) {
+            var iterator=cache.entrySet().iterator(); id=iterator.next().getValue();
+            // Submit geometry using the old slot before rebinding it to different pixels.
+            client.renderBuffers().bufferSource().endBatch(); client.renderBuffers().outlineBufferSource().endOutlineBatch();
+            client.getTextureManager().release(id); iterator.remove();
+        } else id=RegnumNations.id("heraldry/cache/"+cache.size());
         var pixels=raster(arms,cloth); var texture=new DynamicTexture(pixels); texture.setFilter(false,false);
-        var id=RegnumNations.id("heraldry/cache/"+serial++); Minecraft.getInstance().getTextureManager().register(id,texture); cache.put(key,id); return id;
+        client.getTextureManager().register(id,texture); cache.put(key,id); return id;
     }
     /** Exposed to opt-in native client checks; the caller owns the returned image. */
     public NativeImage raster(Heraldry arms,boolean cloth) {

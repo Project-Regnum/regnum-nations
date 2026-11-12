@@ -107,6 +107,22 @@ loom {
             vmArg '-Dregnum.heraldryVisual=true'
             programArgs '--width', '1100', '--height', '760'
         }
+        multiplayerAuditOne {
+            client()
+            name 'Nations multiplayer audit first client'
+            source sourceSets.atlasTest
+            runDir 'build/run/multiplayerAuditOne'
+            vmArg '-Dregnum.multiplayerActor=1'
+            programArgs '--username', 'AuditOne', '--width', '640', '--height', '480'
+        }
+        multiplayerAuditTwo {
+            client()
+            name 'Nations multiplayer audit second client'
+            source sourceSets.atlasTest
+            runDir 'build/run/multiplayerAuditTwo'
+            vmArg '-Dregnum.multiplayerActor=2'
+            programArgs '--username', 'AuditTwo', '--width', '640', '--height', '480'
+        }
         integrationLayoutTest {
             client()
             name 'Nations integration UI layout checks'
@@ -193,7 +209,7 @@ publishing {
 }
 
 // Loom runs on the build JVM; execute gameplay/rule verification on the supported runtime.
-['runGameTest', 'testKingdomNames', 'runIntegrationLayoutTest', 'runHeraldryVisualTest'].each { taskName ->
+['runGameTest', 'testKingdomNames', 'runIntegrationLayoutTest', 'runHeraldryVisualTest', 'runMultiplayerAuditOne', 'runMultiplayerAuditTwo'].each { taskName ->
     tasks.named(taskName, JavaExec) {
         javaLauncher = javaToolchains.launcherFor {
             languageVersion = JavaLanguageVersion.of(21)

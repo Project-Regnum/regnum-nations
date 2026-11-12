@@ -8,7 +8,8 @@
     "client": [
       "dev.sakhno.regnum.nations.kingdom.AtlasClientChecks",
       "dev.sakhno.regnum.nations.client.ui.IntegrationLayoutChecks",
-      "dev.sakhno.regnum.nations.kingdom.HeraldryVisualChecks"
+      "dev.sakhno.regnum.nations.kingdom.HeraldryVisualChecks",
+      "dev.sakhno.regnum.nations.kingdom.HeraldryMultiplayerChecks"
     ]
   },
   "depends": {

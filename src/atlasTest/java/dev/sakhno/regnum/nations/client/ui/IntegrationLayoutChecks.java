@@ -33,6 +33,9 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                 if (mc.screen instanceof net.minecraft.client.gui.screens.AccessibilityOnboardingScreen) mc.setScreen(new TitleScreen());
                 if (!(mc.screen instanceof TitleScreen)) return;
                 if (stage==0) {
+                    if (!mc.getLanguageManager().getSelected().equals("en_us")) {
+                        mc.getLanguageManager().setSelected("en_us"); mc.options.languageCode="en_us"; mc.reloadResourcePacks(); return;
+                    }
                     checkLocale(mc); mc.getLanguageManager().setSelected("uk_ua"); mc.options.languageCode="uk_ua";
                     reload=mc.reloadResourcePacks(); stage=1;
                 } else if (stage==1&&reload.isDone()) {
@@ -58,8 +61,14 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                     var arms=new Heraldry(1,base.shield(),base.field(),base.division(),base.secondary(),base.ordinary(),base.ordinaryTincture(),
                             java.util.Collections.nCopies(count,base.charges().getFirst()));
                     set(screen,"initial",false); set(screen,"draft",arms); set(screen,"page",page);
-                    set(screen,"state",new HeraldryPayloads.State(42,REALM,"Integration Kingdom",arms,manager,manager?TOKEN:null,"",false));
+                    set(screen,"state",new HeraldryPayloads.State(42,REALM,count==3?"Long Kingdom ".repeat(4).strip():"Integration Kingdom",arms,manager,manager?TOKEN:null,"",false));
                     check(mc,screen,size,true);
+                    var focusable=screen.children().stream().filter(net.minecraft.client.gui.components.Button.class::isInstance)
+                            .map(net.minecraft.client.gui.components.Button.class::cast).filter(w -> w.active&&w.visible).toList();
+                    var reached=new HashSet<Object>();
+                    for (int i=0;i<focusable.size()+2;i++) { screen.keyPressed(GLFW.GLFW_KEY_TAB,0,0); reached.add(screen.getFocused()); }
+                    require(reached.containsAll(focusable),"Tab navigation reaches every enabled heraldry control");
+                    require(!screen.getNarrationMessage().getString().isBlank(),"Heraldry supplies screen narration text");
                     set(screen,"sent",1L);set(screen,"sequence",42);
                     screen.accept(new HeraldryPayloads.State(41,REALM,"Stale",arms,true,TOKEN,"",false));
                     require((long)get(screen,"sent")==1L,"Heraldry rejects stale reply sequences");

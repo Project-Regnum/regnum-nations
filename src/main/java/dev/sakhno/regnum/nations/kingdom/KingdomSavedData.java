@@ -435,7 +435,14 @@ public final class KingdomSavedData extends SavedData {
                         if (!(e.get("Heraldry") instanceof CompoundTag arms)) throw new IllegalArgumentException("Malformed heraldry");
                         data.heraldry.put(id,Heraldry.fromTag(arms)); data.heraldryExtensions.put(id,arms.copy());
                     } catch (RuntimeException invalid) {
-                        data.retainedHeraldry.put(id,e.get("Heraldry").copy()); data.setDirty();
+                        Tag rejected=e.get("Heraldry").copy();
+                        Tag previous=data.retainedHeraldry.get(id);
+                        if (previous!=null) {
+                            // Recovery is opaque NBT. Keep both originals, even when their types differ.
+                            var history=new CompoundTag(); history.put("Previous",previous.copy()); history.put("Rejected",rejected);
+                            rejected=history;
+                        }
+                        data.retainedHeraldry.put(id,rejected); data.setDirty();
                         RegnumNations.LOGGER.warn("Recovered invalid heraldry for kingdom {}; original retained",id);
                     }
                 }

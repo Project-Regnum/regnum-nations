@@ -74,14 +74,18 @@ kingdom badge in affiliated city/obelisk menus use that compositor. No obelisk
 models or claim behavior are changed. Banner items also show current arms.
 The cloth is double sided; the reverse naturally mirrors its physical front.
 
-The bounded LRU holds at most 128 textures (~10 MiB native pixel storage plus approximately 10 MiB GPU texture
+The v0.9.1 bounded LRU holds at most 256 textures (~20 MiB native pixel storage plus approximately 20 MiB GPU texture
 storage, excluding bookkeeping). No per-kingdom files are generated, on the server or client.
 Resource reload and disconnect release textures. A cache miss composes once;
 steady rendering submits four cloth vertices through Minecraft's batch buffers.
 Banners have no tickers. There is no global placed-banner registry, scan, geometry
-rebuild or update packet per banner when arms change. Servers with more than 128
-simultaneously visible distinct representations can cause cache churn; that load
-has not been benchmarked. The supports are static baked block models.
+rebuild or update packet per banner when arms change. Texture identifiers use 256
+recyclable slots because Minecraft memoizes render types for the process lifetime.
+Eviction submits pending standard/outline buffers before reusing a slot and closes
+the old native/GPU resource. A measured 129-design second pass now performs zero
+rasterizations; more than 256 simultaneously used representations can still churn.
+See [v0.9.1 audit](release-hardening-v0.9.1.md) for measurements and limitations.
+The supports are static baked block models.
 
 ## Persistence and upgrade
 

@@ -43,6 +43,7 @@ public final class KingdomService {
     private final KingdomAdministration administration;
     private final KingdomAdministrationView administrationView;
     private final DiplomacyService diplomacy;
+    private final WarfareService warfare;
 	private final Map<String,DeleteConfirmation> confirmations=new HashMap<>();
 	private record DeleteConfirmation(UUID kingdom,UUID token,Object actor,long at) { }
 	private final Map<UUID, Pending> pending = new HashMap<>();
@@ -62,6 +63,7 @@ public final class KingdomService {
         this.administration = new KingdomAdministration(this);
         this.administrationView = new KingdomAdministrationView(this,System::nanoTime);
         this.diplomacy = new DiplomacyService(this,System::currentTimeMillis,() -> DiplomacyConfig.invitationMillis);
+        this.warfare = new WarfareService(this);
 	}
 
 	public static void initialize() {
@@ -83,6 +85,8 @@ public final class KingdomService {
 		if (!server.isSameThread()) throw new IllegalStateException("Kingdom service requires the server thread");
 		return SERVICES.computeIfAbsent(server, key -> new KingdomService(key, KingdomSavedData.get(key)));
 	}
+
+    public WarfareService warfare() { checkThread(); return warfare; }
 
     MinecraftServer server() { checkThread(); return server; }
 

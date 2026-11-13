@@ -108,3 +108,11 @@ in the same saved-data file. Existing UUID contracts migrate without replacement
 proposal types, non-aggression treaties, wars and pair cooldowns are additive.
 Existing channels/codecs, financial policies and Nations API v1 remain intact;
 expanded diplomacy uses new channels. Rollback requires the pre-upgrade backup.
+
+v0.12.0 [warfare and sieges](warfare-sieges.md) retains schema 9 and adds an
+optional, independently versioned `Warfare` compound to the same saved-data file.
+Existing diplomacy, identifiers, city ownership, claims and Economy records are
+unchanged. Siege victories retain pending conquest results without transferring
+ownership. Malformed warfare data is preserved and disables warfare only. Older
+binaries do not process active sieges; gameplay rollback requires a pre-upgrade
+world backup. The warfare request/state channels are additive.

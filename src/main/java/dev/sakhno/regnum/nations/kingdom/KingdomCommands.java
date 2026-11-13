@@ -40,11 +40,13 @@ public final class KingdomCommands {
 								source.sendSuccess(() -> Component.translatable("city.regnum-nations.joined"),false); return 1;
 							} catch (FoundingException e) { return fail(source,e); }
 						})))
-						.then(ObeliskRelocationCommands.commands())
+						.then(WarfareCommands.commands())
+                        .then(ObeliskRelocationCommands.commands())
                         .then(CitizenshipCommands.commands())
 						.then(KingdomAdminCommands.commands())
 						.then(Commands.literal("claim").executes(context -> territory(context.getSource(), "claim")))
-						.then(Commands.literal("unclaim").executes(context -> territory(context.getSource(), "unclaim")))
+						.then(Commands.literal("unclaim").executes(context -> territory(context.getSource(), "unclaim"))
+                                .then(Commands.literal("confirm").executes(context -> territory(context.getSource(), "confirm_unclaim"))))
 						.then(Commands.literal("territory").executes(context -> territory(context.getSource(), "info")))
 						.then(Commands.literal("kingdom").executes(context -> kingdom(context.getSource()))));
 				dispatcher.register(Commands.literal("reigns")
@@ -100,8 +102,13 @@ public final class KingdomCommands {
 			data.requireAvailable();
 			ClaimPos pos = ClaimPos.at(player.level().dimension(), player.blockPosition());
 			if (!action.equals("info")) {
-				new ClaimService(data).manage(player, action.equals("unclaim"));
-				source.sendSuccess(() -> Component.translatable("message.regnum-nations.territory." + action,
+                if (action.equals("unclaim")) {
+                    TerritoryServer.prepareAbandonment(player,pos,null);
+                    source.sendSuccess(() -> Component.translatable("territory.regnum-nations.command_confirm",pos.x(),pos.z()),false); return 1;
+                }
+                if (action.equals("confirm_unclaim")) TerritoryServer.confirmCommand(player);
+                else new ClaimService(data).manage(player,false);
+				source.sendSuccess(() -> Component.translatable("message.regnum-nations.territory." + (action.equals("confirm_unclaim")?"unclaim":action),
 						pos.dimension().location().toString(), pos.x(), pos.z()), false);
 			} else {
 				Settlement owner = data.settlement(data.claimOwner(pos));
@@ -110,6 +117,7 @@ public final class KingdomCommands {
 				source.sendSuccess(() -> Component.translatable("message.regnum-nations.territory.info",
 						pos.dimension().location().toString(), pos.x(), pos.z(), name,
 						owner == null ? "—" : owner.id().toString(), owner == null ? 0 : data.settlementClaimCount(owner.id())), false);
+                TerritoryServer.describe(data,player);
 				Settlement own = data.byOwner(player.getUUID());
 				if (own != null && !own.id().equals(data.claimOwner(ClaimPos.at(own.dimension(), own.obeliskPos())))) {
 					source.sendFailure(Component.translatable("message.regnum-nations.founding.capital_conflict"));

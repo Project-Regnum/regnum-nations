@@ -29,6 +29,13 @@ public final class KingdomSavedData extends SavedData {
     private final Map<GlobalPos,UUID> capitals=new HashMap<>();
     private final Map<UUID,Settlement> settlements=new HashMap<>();
     private final Map<ClaimPos,UUID> claims=new HashMap<>();
+    // Rebuilt after loading; all live claim writes update this derived city index.
+    private final Map<UUID,Set<ClaimPos>> claimsByCity=new HashMap<>();
+    final PoliticalClaims politicalClaims=new PoliticalClaims(this);
+    private final Map<UUID,Long> territoryRevisions=new HashMap<>();
+    long territoryRevision(UUID city) { return territoryRevisions.getOrDefault(city,0L); }
+    private void indexClaim(ClaimPos pos,UUID city) { claimsByCity.computeIfAbsent(city,key -> new HashSet<>()).add(pos); }
+    private void rebuildClaimIndex() { claimsByCity.clear(); claims.forEach(this::indexClaim); }
     // Non-owner citizenship only. Owners remain implicit citizens, never duplicate records.
     private final Map<UUID,Membership> citizens=new HashMap<>();
     private record Membership(UUID city, CityRole role) { }
@@ -124,6 +131,7 @@ public final class KingdomSavedData extends SavedData {
         Kingdom state=sovereign(city);
         if (state==null) throw new FoundingException(NO_KINGDOM);
         if (state.capitalSettlementId().equals(cityId)) throw new FoundingException(CITY_IS_CAPITAL);
+        requireWarfareStable(cityId);
         protectRuler(city);
         var before = PoliticalSnapshots.of(this, city);
         settlements.put(cityId,city.withSovereign(null)); pruneGovernment(); setDirty(); politicalChanged();
@@ -188,6 +196,7 @@ public final class KingdomSavedData extends SavedData {
         requireAvailable(); var before = settlement(id);
         if (before == null) throw new FoundingException(CITY_MISSING);
         if (before.ownerId().equals(recipient)) return;
+        requireWarfareStable(id);
         if (ownedSettlements(before.ownerId()).size() != 1) throw new FoundingException(DOMAIN_REPAIR);
         if (!isCitizen(id, recipient) || byOwner(recipient) != null) throw new FoundingException(NOT_CITIZEN);
         var old = PoliticalSnapshots.of(this, before); var recipientRole = role(id, recipient).name();
@@ -205,12 +214,19 @@ public final class KingdomSavedData extends SavedData {
     private Runnable politicalChange=() -> { };
     void onPoliticalChange(Runnable listener) { politicalChange=Objects.requireNonNull(listener); }
     void politicalChanged() {
+        politicalClaims.pruneImpossible();
         politicalChange.run();
         var changes = List.copyOf(pendingRoleChanges); pendingRoleChanges.clear();
         changes.forEach(lifecycle);
     }
     final DiplomacyData diplomacy=new DiplomacyData();
     final WarfareData warfare=new WarfareData();
+    /** Freeze destructive administration until the exact objective is explicitly resolved.
+     * Unknown warfare formats cannot prove that a city is safe to change. */
+    void requireWarfareStable(UUID city) throws FoundingException {
+        requireAvailable();
+        if (!warfare.available()||warfare.active(city)!=null) throw new FoundingException(WARFARE_CONFLICT);
+    }
     public record DeletedAnchor(UUID kingdom, ResourceKey<Level> dimension, BlockPos pos, UUID obelisk) { }
     static KingdomSavedData get(MinecraftServer server) { return server.overworld().getDataStorage().computeIfAbsent(FACTORY,FILE_ID); }
     public Collection<Kingdom> kingdoms() { return List.copyOf(kingdoms.values()); }
@@ -293,10 +309,12 @@ public final class KingdomSavedData extends SavedData {
         requireAvailable();
         if (settlement(city)==null) throw new FoundingException(CITY_MISSING);
         if (kingdoms.values().stream().anyMatch(k -> k.capitalSettlementId().equals(city))) throw new FoundingException(CITY_IS_CAPITAL);
+        requireWarfareStable(city);
         protectRuler(settlement(city));
         var before = PoliticalSnapshots.of(this, settlement(city));
         citizens.values().removeIf(member -> city.equals(member.city()));
-        claims.values().removeIf(city::equals);
+        for (ClaimPos pos:claimsByCity.getOrDefault(city,Set.of())) claims.remove(pos,city);
+        claimsByCity.remove(city); territoryRevisions.remove(city);
         settlements.remove(city); economyPolicies.remove(EntityRef.city(city)); membershipChanged(city); pruneGovernment(); setDirty(); politicalChanged();
         entityChanged(CITY_DISSOLVED, before, null);
     }
@@ -319,6 +337,8 @@ public final class KingdomSavedData extends SavedData {
     void relocate(Settlement city,Kingdom state,BlockPos destination) throws FoundingException {
         requireAvailable();
         if (city!=null&&!city.equals(settlement(city.id()))||state!=null&&!state.equals(byId(state.id()))) throw new FoundingException(OBELISK_UNAVAILABLE);
+        if (city!=null) requireWarfareStable(city.id());
+        else if (state!=null) requireWarfareStable(state.capitalSettlementId());
         if (city!=null) settlements.put(city.id(),city.withObeliskPos(destination));
         if (state!=null) {
             capitals.remove(GlobalPos.of(state.dimension(),state.capitalPos()),state.id());
@@ -328,12 +348,12 @@ public final class KingdomSavedData extends SavedData {
         setDirty();
     }
     public UUID claimOwner(ClaimPos pos) { return claims.get(pos); }
-    public List<ClaimPos> settlementClaims(UUID id) { return claims.entrySet().stream().filter(e -> e.getValue().equals(id)).map(Map.Entry::getKey).toList(); }
-    public long settlementClaimCount(UUID id) { return claims.values().stream().filter(id::equals).count(); }
+    public List<ClaimPos> settlementClaims(UUID id) { return List.copyOf(claimsByCity.getOrDefault(id,Set.of())); }
+    public long settlementClaimCount(UUID id) { return claimsByCity.getOrDefault(id,Set.of()).size(); }
     /** Compatibility/public kingdom aggregate; city-specific callers use settlementClaimCount. */
     public long claimCount(UUID id) {
         if (!kingdoms.containsKey(id)) return settlementClaimCount(id);
-        return claims.values().stream().filter(owner -> { Settlement s=settlements.get(owner); return s!=null&&id.equals(s.sovereign()); }).count();
+        return settlements.values().stream().filter(city -> id.equals(city.sovereign())).mapToLong(city -> settlementClaimCount(city.id())).sum();
     }
     public Kingdom sovereign(Settlement s) { return s==null?null:kingdoms.get(s.sovereign()); }
     public int politicalColor(Settlement s) { Kingdom k=sovereign(s); return k==null?s.color():k.color(); }
@@ -359,7 +379,7 @@ public final class KingdomSavedData extends SavedData {
         ClaimPos capital=ClaimPos.at(kingdom.dimension(),kingdom.capitalPos());
         if (claims.containsKey(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
         Settlement city=legacyCity(kingdom);
-        index(kingdom); settlements.put(city.id(),city); claims.put(capital,city.id()); setDirty(); politicalChanged();
+        index(kingdom); settlements.put(city.id(),city); claims.put(capital,city.id()); indexClaim(capital,city.id()); setDirty(); politicalChanged();
         entityChanged(KINGDOM_CREATED, null, PoliticalSnapshots.of(kingdom));
         entityChanged(CITY_CREATED, null, PoliticalSnapshots.of(this, city));
     }
@@ -372,7 +392,7 @@ public final class KingdomSavedData extends SavedData {
         if (city.sovereign()!=null||city.legacyAnchor()) throw new IllegalArgumentException("Native city must start independent");
         ClaimPos capital=ClaimPos.at(city.dimension(),city.obeliskPos());
         if (claims.containsKey(capital)||isCapital(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
-        settlements.put(city.id(),city); claims.put(capital,city.id()); setDirty(); politicalChanged();
+        settlements.put(city.id(),city); claims.put(capital,city.id()); indexClaim(capital,city.id()); setDirty(); politicalChanged();
         entityChanged(CITY_CREATED, null, PoliticalSnapshots.of(this, city));
     }
     void elevate(Kingdom kingdom,Settlement city) throws FoundingException {
@@ -380,6 +400,7 @@ public final class KingdomSavedData extends SavedData {
         if (!city.equals(settlements.get(city.id()))||city.sovereign()!=null||!city.ownerId().equals(kingdom.founderId())) throw new FoundingException(ALREADY_AFFILIATED);
         if (kingdoms.containsKey(kingdom.id())||deleted.containsKey(kingdom.id())||settlements.containsKey(kingdom.id())||!kingdom.capitalSettlementId().equals(city.id())) throw new IllegalArgumentException("Invalid elevation identity");
         if (!city.id().equals(claimOwner(ClaimPos.at(kingdom.dimension(),kingdom.capitalPos())))) throw new FoundingException(CAPITAL_CONFLICT);
+        requireWarfareStable(city.id());
         var before = PoliticalSnapshots.of(this, city);
         index(kingdom); settlements.put(city.id(),city.withSovereign(kingdom.id())); setDirty(); politicalChanged();
         entityChanged(KINGDOM_CREATED, null, PoliticalSnapshots.of(kingdom));
@@ -388,6 +409,7 @@ public final class KingdomSavedData extends SavedData {
     void affiliate(Settlement city,UUID kingdom) throws FoundingException {
         requireAvailable();
         if (!city.equals(settlements.get(city.id()))||city.sovereign()!=null||!kingdoms.containsKey(kingdom)) throw new FoundingException(ALREADY_AFFILIATED);
+        requireWarfareStable(city.id());
         var before = PoliticalSnapshots.of(this, city);
         settlements.put(city.id(),city.withSovereign(kingdom)); pruneInvitations(); setDirty(); politicalChanged();
         entityChanged(CITY_JOINED_KINGDOM, before, PoliticalSnapshots.of(this, settlement(city.id())));
@@ -404,6 +426,8 @@ public final class KingdomSavedData extends SavedData {
     void deleteKingdom(UUID id) throws FoundingException {
         requireAvailable(); Kingdom current=kingdoms.get(id);
         if (current==null) throw new IllegalArgumentException("Unknown kingdom");
+        if (!warfare.available()||warfare.activeRecords().stream().anyMatch(r -> r.attacker().equals(id)||r.defender().equals(id)))
+            throw new FoundingException(WARFARE_CONFLICT);
         var detached = settlements.values().stream().filter(city -> id.equals(city.sovereign())).map(city -> PoliticalSnapshots.of(this, city)).toList();
         deleted.put(id,new DeletedAnchor(id,current.dimension(),current.capitalPos(),current.capitalObeliskId()));
         settlements.replaceAll((key,city) -> id.equals(city.sovereign())?city.withSovereign(null):city);
@@ -419,12 +443,18 @@ public final class KingdomSavedData extends SavedData {
     }
     void putClaim(ClaimPos pos,UUID city) {
         if (!settlements.containsKey(city)||claims.containsKey(pos)&&!city.equals(claims.get(pos))) throw new IllegalArgumentException("Invalid claim owner or overlap");
-        var before = claims.put(pos,city); setDirty();
+        var before = claims.put(pos,city); indexClaim(pos,city); territoryRevisions.merge(city,1L,Long::sum); setDirty();
+        politicalChanged();
         if (!city.equals(before)) lifecycle.accept(new NationsEvents.TerritoryChanged(new TerritoryLocation(pos.dimension().location(), pos.x(), pos.z()),
                 Optional.ofNullable(before).map(EntityRef::city), Optional.of(EntityRef.city(city))));
     }
-    void removeClaim(ClaimPos pos) {
-        var before = claims.remove(pos); if (before == null) return; setDirty();
+    void removeClaim(ClaimPos pos) throws FoundingException {
+        var before = claims.get(pos); if (before == null) return;
+        requireWarfareStable(before);
+        claims.remove(pos);
+        territoryRevisions.merge(before,1L,Long::sum);
+        var indexed=claimsByCity.get(before); if (indexed!=null) { indexed.remove(pos); if (indexed.isEmpty()) claimsByCity.remove(before); }
+        politicalClaims.pruneAt(pos); setDirty(); politicalChanged();
         lifecycle.accept(new NationsEvents.TerritoryChanged(new TerritoryLocation(pos.dimension().location(), pos.x(), pos.z()), Optional.of(EntityRef.city(before)), Optional.empty()));
     }
     void capitalStatus(Kingdom kingdom,Kingdom.CapitalStatus status) {
@@ -505,6 +535,7 @@ public final class KingdomSavedData extends SavedData {
         tag.put("CityInvitations",list); tag.put("Diplomacy",diplomacy.save()); tag.put("Warfare",warfare.save());
         if (bannerSecret!=null) tag.putByteArray("BannerSecret",bannerSecret);
         tag.put("EconomyPolicies", economyPolicies.save());
+        tag.put("PoliticalClaims",politicalClaims.save());
         KingdomSchema.retainExtensions(extensionSource,tag); return tag;
     }
     private static CompoundTag anchor(UUID id,KingdomName name,UUID founder,ResourceKey<Level> dim,BlockPos pos,UUID obelisk,long time,Kingdom.CapitalStatus status) {
@@ -603,7 +634,7 @@ public final class KingdomSavedData extends SavedData {
                         ||data.citizens.putIfAbsent(player,new Membership(city,role))!=null)
                     throw new IllegalArgumentException("Conflicting or orphaned citizenship/role");
             }
-            data.setDirty(data.isDirty()||version<KingdomSchema.CURRENT||!tag.equals(original)); data.repairAffiliations(); data.reconcileCapitals();
+            data.setDirty(data.isDirty()||version<KingdomSchema.CURRENT||!tag.equals(original)); data.repairAffiliations(); data.reconcileCapitals(); data.rebuildClaimIndex();
             {
                 for (Tag entry:list(tag,"KingdomRoles")) {
                     CompoundTag e=(CompoundTag)entry; UUID kingdom=e.getUUID("Kingdom"),player=e.getUUID("Player");
@@ -625,6 +656,7 @@ public final class KingdomSavedData extends SavedData {
             if (data.diplomacy.load(tag.get("Diplomacy"),data)) data.setDirty();
             data.warfare.load(tag.get("Warfare"));
             data.economyPolicies.load(tag.get("EconomyPolicies"), data);
+            data.politicalClaims.load(tag.get("PoliticalClaims"));
             var owners=data.settlements.values().stream().collect(java.util.stream.Collectors.groupingBy(Settlement::ownerId,java.util.stream.Collectors.counting()));
             owners.forEach((owner,count) -> { if (count>1) RegnumNations.LOGGER.warn("Historical multiple domains for owner {}: {} records retained; claim management requires repair",owner,count); });
         } catch (RuntimeException exception) {

@@ -44,11 +44,17 @@ public class RegnumNationsClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.WarfarePayloads.Snapshot.TYPE,(payload,context) -> {
             if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.WarfareScreen screen) screen.accept(payload);
         });
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.TerritoryPayloads.State.TYPE,(payload,context) -> {
+            if (context.client().screen instanceof dev.sakhno.regnum.nations.client.ui.TerritoryScreen screen) screen.accept(payload);
+        });
         ClientPlayNetworking.registerGlobalReceiver(KingdomManagementPayloads.State.TYPE, (payload, context) -> {
             var client = context.client();
             if (client.player == null || client.level == null) return;
             if (payload.intent() == KingdomManagementPayloads.INVALIDATE) {
-                if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.EconomyScreen economy) economy.invalidate();
+                // A confirmation must not hide an authority or objective invalidation.
+                if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.NationsConfirmationScreen confirmation) confirmation.onClose();
+                if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.TerritoryScreen territory) territory.invalidate();
+                else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.EconomyScreen economy) economy.invalidate();
                 else if (client.screen instanceof KingdomManagementScreen menu) menu.invalidate();
                 else if (client.screen instanceof PoliticalMapScreen map) map.invalidate();
                 else if (client.screen instanceof dev.sakhno.regnum.nations.client.ui.KingdomAdministrationScreen screen) screen.invalidate();

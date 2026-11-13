@@ -5,7 +5,7 @@ import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
 
-/** Additive schema-9 extension. A single record owns objective, siege and terminal result. */
+/** Independently versioned warfare extension. A single record owns objective, siege and terminal result. */
 public final class WarfareData {
     public enum Objective { CAPTURE_CITY, DEFEND_CITY, NEGOTIATED_PEACE }
     public enum State {
@@ -69,7 +69,7 @@ public final class WarfareData {
     void load(Tag raw) {
         if (raw==null) return;
         try {
-            if (!(raw instanceof CompoundTag tag)||tag.getInt("Version")!=1
+            if (!(raw instanceof CompoundTag tag)||!tag.contains("Version",Tag.TAG_INT)||tag.getInt("Version")!=1
                     ||!(tag.get("Objectives") instanceof ListTag list)||!list.isEmpty()&&list.getElementType()!=Tag.TAG_COMPOUND)
                 throw new IllegalArgumentException("Unknown warfare format");
             root=tag.copy(); Set<UUID> revisions=new HashSet<>();
@@ -79,6 +79,8 @@ public final class WarfareData {
                     if (!e.contains(key,Tag.TAG_LONG)) throw new IllegalArgumentException("Missing warfare time/position");
                 for (String key:List.of("Progress","CaptureSeconds","DefenseSeconds","DefenseProgress"))
                     if (!e.contains(key,Tag.TAG_INT)) throw new IllegalArgumentException("Missing warfare progress");
+                if (!e.contains("Dimension",Tag.TAG_STRING)||e.getString("Dimension").isEmpty())
+                    throw new IllegalArgumentException("Missing warfare dimension");
                 var r=new ObjectiveRecord(e.getUUID("Id"),e.getUUID("Revision"),e.getUUID("War"),e.getUUID("Attacker"),e.getUUID("Defender"),e.getUUID("City"),
                         e.getUUID("Owner"),e.getUUID("Obelisk"),e.getString("Dimension"),BlockPos.of(e.getLong("Position")),
                         Objective.valueOf(e.getString("Objective")),State.valueOf(e.getString("State")),e.getLong("StartedAt"),e.getLong("ReadyAt"),e.getLong("EndsAt"),e.getLong("CompletedAt"),

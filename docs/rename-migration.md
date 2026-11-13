@@ -116,3 +116,28 @@ unchanged. Siege victories retain pending conquest results without transferring
 ownership. Malformed warfare data is preserved and disables warfare only. Older
 binaries do not process active sieges; gameplay rollback requires a pre-upgrade
 world backup. The warfare request/state channels are additive.
+
+v0.11.0 [territory and border management](territory-border-management.md) writes
+schema 10 in the same saved-data file, adding UUID-based political territorial
+claims. Schemas 1–9 migrate additively; existing cities, kingdoms, ownership,
+diplomacy and Economy policies remain. City claim indexes are derived and rebuilt
+on load. Legacy wire layouts and permission enum ordinals are retained; territory
+channels and the territory limits config are additive. Rollback requires restoring
+the pre-upgrade world backup with matching older binaries.
+
+## Warfare–territory integration
+
+The combined v0.12 build writes **schema 10** with both `PoliticalClaims` and the
+optional format-1 `Warfare` compound. Schemas 1–9 migrate additively, including
+schema-9 warfare saves; schema-10 territory saves gain an empty warfare extension
+only if absent. Existing identities, diplomacy, active objectives, terminal siege
+results, claims, disputes and Economy policies retain their contracts. Unknown
+fields on surviving records remain; malformed data is retained and mutations fail
+closed. Newer top-level schemas round-trip their original NBT without downgrade.
+See [warfare persistence and administration](warfare-sieges.md) for precise guards.
+
+Back up the entire stopped world and config directory before upgrading and first
+validate a copy. All clients and the server need the matching combined JAR. Restore
+the pre-upgrade backup with matching old binaries for rollback; running either
+independent feature release against the combined world is not a supported rollback.
+Nations API v1 and optional Economy integration entrypoints/dependencies are unchanged.

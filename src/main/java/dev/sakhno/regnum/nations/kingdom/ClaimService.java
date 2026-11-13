@@ -1,7 +1,7 @@
 package dev.sakhno.regnum.nations.kingdom;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.UUID;
+import java.util.*;
 import net.minecraft.commands.CommandSourceStack;
 
 import net.minecraft.core.BlockPos;
@@ -26,30 +26,42 @@ public final class ClaimService {
 	/** UI and command actions use the same checks; a selected remote chunk is never substituted. */
 	public void manage(ServerPlayer player, ClaimPos pos, UUID viewedKingdom, boolean release)
 			throws FoundingException {
+        manage(player,pos,viewedKingdom,release,null);
+    }
+
+    public void manage(ServerPlayer player,ClaimPos pos,UUID viewedKingdom,boolean release,UUID confirmation) throws FoundingException {
 		Settlement kingdom = validate(player, pos, viewedKingdom, release);
-		if (release) data.removeClaim(pos);
+		if (release) { TerritoryServer.consumeAbandonment(player,pos,kingdom.id(),confirmation); data.removeClaim(pos); }
 		else data.putClaim(pos, kingdom.id());
 	}
 
 	/** Read-only preview of the exact mutation checks. Never changes dirty state. */
 	public Settlement validate(ServerPlayer player, ClaimPos pos, UUID viewedKingdom, boolean release)
 			throws FoundingException {
+        return validate(player,pos,viewedKingdom,release,true);
+    }
+    public Settlement preview(ServerPlayer player,ClaimPos pos,UUID viewed,boolean release) throws FoundingException {
+        return validate(player,pos,viewed,release,false);
+    }
+    private Settlement validate(ServerPlayer player,ClaimPos pos,UUID viewedKingdom,boolean release,boolean standing) throws FoundingException {
 		if (!player.serverLevel().getServer().isSameThread()) throw new IllegalStateException("Server thread required");
 		if (!player.isAlive() || player.isRemoved() || player.isSpectator()) throw new FoundingException(INVALID_PLAYER);
 		data.requireAvailable();
 		Settlement kingdom = data.citizenCity(player.getUUID());
 		if (kingdom == null) throw new FoundingException(NO_KINGDOM);
-		if (!CityPermissions.allows(data,kingdom,player.getUUID(),CityPermission.MANAGE_CLAIMS)) throw new FoundingException(NOT_OWNER);
+		if (!CityPermissions.allows(data,kingdom,player.getUUID(),release?CityPermission.ABANDON_TERRITORY:CityPermission.EXPAND_TERRITORY)) throw new FoundingException(NOT_OWNER);
 		if (viewedKingdom != null && !kingdom.id().equals(viewedKingdom) && !viewedKingdom.equals(kingdom.sovereign())) throw new FoundingException(NOT_OWNER);
 		ClaimPos capital = ClaimPos.at(kingdom.dimension(), kingdom.obeliskPos());
 		if (!kingdom.id().equals(data.claimOwner(capital))) throw new FoundingException(CAPITAL_CONFLICT);
 		if (!pos.dimension().equals(player.level().dimension())) throw new FoundingException(WRONG_DIMENSION);
-		if (!pos.equals(ClaimPos.at(player.level().dimension(), player.blockPosition()))) throw new FoundingException(NOT_IN_CHUNK);
+		if (standing&&!pos.equals(ClaimPos.at(player.level().dimension(), player.blockPosition()))) throw new FoundingException(NOT_IN_CHUNK);
 		if (release) {
 			validateRelease(kingdom, pos);
 		} else {
 			if (data.claimOwner(pos) != null) throw new FoundingException(TERRITORY_OCCUPIED);
-			if (!adjacent(kingdom.id(), pos)) throw new FoundingException(NOT_ADJACENT);
+			if (data.settlementClaimCount(kingdom.id())>=TerritoryConfig.settlementLimit()) throw new FoundingException(CLAIM_LIMIT);
+            Set<ClaimPos> connected=reachable(new HashSet<>(data.settlementClaims(kingdom.id())),capital);
+            if (neighbors(pos).stream().noneMatch(connected::contains)) throw new FoundingException(NOT_ADJACENT);
 		}
 		return kingdom;
 	}
@@ -75,7 +87,26 @@ public final class ClaimService {
 		if (data.isCapital(pos)) {
 			throw new FoundingException(CAPITAL_CHUNK);
 		}
+        data.requireWarfareStable(kingdom.id());
+        Set<ClaimPos> before=new HashSet<>(data.settlementClaims(kingdom.id()));
+        ClaimPos anchor=ClaimPos.at(kingdom.dimension(),kingdom.obeliskPos());
+        Set<ClaimPos> anchored=reachable(before,anchor); anchored.remove(pos);
+        Set<ClaimPos> after=new HashSet<>(before); after.remove(pos);
+        if (!reachable(after,anchor).containsAll(anchored)||components(after)>components(before)) throw new FoundingException(DISCONNECTED_CLAIMS);
 	}
+
+    static List<ClaimPos> neighbors(ClaimPos pos) { return List.of(pos.offset(1,0),pos.offset(-1,0),pos.offset(0,1),pos.offset(0,-1)); }
+    private static Set<ClaimPos> reachable(Set<ClaimPos> claims,ClaimPos root) {
+        Set<ClaimPos> visited=new HashSet<>(); ArrayDeque<ClaimPos> queue=new ArrayDeque<>();
+        if (claims.contains(root)) { visited.add(root); queue.add(root); }
+        while (!queue.isEmpty()) for (ClaimPos next:neighbors(queue.removeFirst())) if (claims.contains(next)&&visited.add(next)) queue.addLast(next);
+        return visited;
+    }
+    private static int components(Set<ClaimPos> claims) {
+        Set<ClaimPos> unseen=new HashSet<>(claims); int count=0;
+        while (!unseen.isEmpty()) { unseen.removeAll(reachable(claims,unseen.iterator().next())); count++; }
+        return count;
+    }
 
 	public boolean adjacent(UUID kingdom, ClaimPos pos) {
 		return kingdom != null && (kingdom.equals(data.claimOwner(pos.offset(1, 0)))

@@ -81,7 +81,7 @@ public final class WarfareService {
             var record=new ObjectiveRecord(UUID.randomUUID(),UUID.randomUUID(),war.id(),attacker,defender,city.id(),city.ownerId(),city.obeliskId(),city.dimension().location().toString(),city.obeliskPos(),
                     objective,State.PLANNED,now,0,0,0,0,WarfareConfig.captureSeconds,WarfareConfig.defenseSeconds,0,false);
             if (!cityValid(record)) throw new Failure("target");
-            store(record); notify(record,"objective"); return;
+            store(record); notify(record,"objective"); KingdomManagementServer.invalidate(kingdoms.server()); return;
         }
         var record=data.warfare.get(request.objective());
         if (record==null||record.completed()||!Objects.equals(record.revision(),request.revision())
@@ -93,6 +93,7 @@ public final class WarfareService {
                 if (!valid(record)||!obelisk(record).equals("present")) throw new Failure("obelisk_required");
                 long ready=now+1000L*WarfareConfig.preparationSeconds;
                 store(record.update(State.PREPARING,ready,ready+1000L*WarfareConfig.durationSeconds,0,0,0,false)); notify(record,"declared");
+                KingdomManagementServer.invalidate(kingdoms.server());
             }
             case WITHDRAW -> {
                 if (!record.attacker().equals(own.id())||!record.siege()) throw new Failure("permission");
@@ -124,9 +125,9 @@ public final class WarfareService {
     }
     /** Called on diplomacy transitions, startup, and before requests; terminal results never run twice. */
     public void reconcile() {
-        if (!data.available()||!data.warfare.available()) { clearBars(); return; }
+        if (!data.available()||!data.warfare.available()||!data.diplomacy.available()) { clearBars(); return; }
         for (var r:data.warfare.activeRecords()) {
-            if (!data.diplomacy.available()||!cityValid(r)) finish(r,State.INVALID);
+            if (!cityValid(r)) finish(r,State.INVALID);
             else if (!valid(r)) finish(r,State.WAR_ENDED);
         }
     }

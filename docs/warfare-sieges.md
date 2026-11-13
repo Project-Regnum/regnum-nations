@@ -1,7 +1,8 @@
 # Warfare, sieges and obelisk defense (v0.12)
 
-This milestone builds directly on PR #21 (`feat/diplomacy-interstate-relations`).
-It does not depend on Territory & Border Management and does not add political claims.
+The integration branch combines this milestone with Territory & Border Management,
+based on PR #21 (`feat/diplomacy-interstate-relations`). Political demands remain
+separate from military objectives and never authorize capture or transfer land.
 Minecraft 1.21.1, Fabric, Java 21 and existing dependency versions are retained.
 
 ## Playing a siege
@@ -59,9 +60,20 @@ retain their war, attacking/defending kingdom and target-city references. Every
 record stores its state, start and completion timestamps. Negotiated peace is
 fulfilled only when the existing diplomacy service accepts a peace proposal for
 that exact war; it does not compel the other government to accept. Peace also
-terminates that war's unfinished sieges immediately. Other war termination,
-dissolution, deletion, owner/sovereign/anchor changes and center-claim conflicts
-end objectives safely, with no conquest award.
+terminates that war's unfinished sieges immediately. Other war termination and externally detected owner/sovereign/anchor or center-claim
+conflicts end objectives with a persisted result and no conquest award. Ordinary
+administration is checked **before** mutation: unfinished objectives (including
+plans) block city ownership transfer, sovereignty changes, city deletion, anchor
+relocation and land abandonment for the target city. Dissolving either participating
+kingdom is blocked while it has unfinished objectives. Municipal succession through
+Nations API v1 follows the same guard and returns its existing `INVALID` status.
+
+Resolve the objective explicitly first: negotiate peace for the exact war, withdraw
+a siege, cancel an owned plan, or have a level-3 operator cancel the objective.
+Afterward, repeat the original administrative action; cancellation itself never
+changes ownership. Old abandonment confirmations are revalidated against these
+rules. Expansion, political-demand creation/withdrawal and role changes can continue:
+they do not alter the objective's ownership/anchor contracts or grant siege authority.
 
 Missing or replaced loaded obelisks invalidate a siege. Unloaded chunks pause
 capture without forcing a chunk load. Neither a copied block nor an obelisk at a
@@ -122,19 +134,29 @@ Configuration loads at startup. Capture and defense goals are snapshotted when a
 objective is created; preparation and end deadlines are fixed at siege declaration.
 Configuration changes cannot reset an existing objective or extend its deadline.
 
-The existing `project-reigns-kingdoms.dat` remains at **schema 9**. A new optional
+The integrated `project-reigns-kingdoms.dat` writes **schema 10**. The optional
 `Warfare` compound has its own format version 1 and objective collection. Old saves
 load with no objectives. Existing diplomacy, Economy policy, ownership and claim
 fields retain their meanings. Unknown warfare root/record fields are retained;
 malformed or unknown warfare formats disable warfare and preserve the exact
-original warfare NBT without disabling unrelated Nations data. Existing unreadable
+original warfare NBT. Destructive city/territory administration and dissolution
+also fail closed because unreadable warfare cannot establish that they are safe.
+Unreadable diplomacy pauses warfare reconciliation instead of completing objectives
+against missing diplomatic state. The schema-10 `PoliticalClaims` collection and
+warfare extension load/save independently, retaining their existing UUIDs. Existing unreadable
 whole-registry handling also remains intact. New warfare channels are additive;
 matching client/server versions are required.
 
-Back up the stopped world before upgrading. Older schema-9 binaries retain the
-unknown extension but do not advance or reconcile sieges. Restore a pre-upgrade
-backup for a gameplay rollback; do not expect an older binary to manage active
-warfare state.
+Stop the server and back up the **entire world and config directory** before upgrading.
+Use a copy for the first upgrade and install matching integrated v0.12 clients and
+server. Schemas 1–9 migrate additively; schema-9 warfare records and schema-10
+territory saves retain their original identities. A newer top-level schema disables
+registry mutations and round-trips the original whole NBT, never rewriting it as
+schema 10. Unknown extension fields survive on retained records; malformed political
+records (including invalid references) preserve the original whole registry and
+disable mutations instead of disappearing. Legitimately expired demands still expire.
+Older binaries cannot safely write the combined save. Rollback requires restoring
+the pre-upgrade world/config backup and matching older binaries.
 
 ## Validation and limitations
 
@@ -145,6 +167,6 @@ unload/reload, client layouts, notifications and live Economy coexistence still
 need manual gameplay verification. Dedicated-server startup was not exercised.
 
 No NPC armies, siege machines, artillery, reparations, sanctions, automatic
-ownership transfer, treasury seizure, territory-management UI or matchmaking are
+ownership transfer, treasury seizure or matchmaking are
 implemented. Siege balancing and the fixed capture/visibility radii are initial
 milestone choices, not an expanded territorial warfare model.

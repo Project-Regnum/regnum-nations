@@ -305,7 +305,7 @@ public class CitizenshipTests implements FabricGameTest {
             target.setPos(adjacent.x() * 16 + 8, 64, adjacent.z() * 16 + 8);
             reject(f, NOT_OWNER, () -> claims.manage(target, adjacent, city.id(), false));
             owner.setPos(adjacent.x() * 16 + 8, 64, adjacent.z() * 16 + 8);
-            claims.manage(owner, adjacent, city.id(), false); claims.manage(owner, adjacent, city.id(), true);
+            claims.manage(owner, adjacent, city.id(), false); claims.manage(owner, adjacent, city.id(), true,claims.prepareAbandonment(owner,adjacent,city.id()));
             f.citizens.kick(owner, target.getUUID());
             h.assertFalse(ClaimService.canBuild(level, target, pos), "Kicking must immediately revoke building rights");
             f.advance(); f.join(owner, target, city); f.citizens.leave(target);
@@ -343,18 +343,18 @@ public class CitizenshipTests implements FabricGameTest {
             var dispatcher = h.getLevel().getServer().getCommands().getDispatcher();
             var ownerSource = h.getLevel().getServer().createCommandSourceStack().withEntity(owner).withPermission(0).withSuppressedOutput();
             var targetSource = ownerSource.withEntity(target);
-            h.assertTrue(dispatcher.execute("nations citizen invite " + target.getGameProfile().getName(), ownerSource) == 1,
+            h.assertTrue(dispatcher.execute("regnum citizen invite " + target.getGameProfile().getName(), ownerSource) == 1,
                     "Regular owner must invite through the real command tree");
-            h.assertTrue(dispatcher.execute("reigns citizen accept " + city.id(), targetSource) == 1
-                    && dispatcher.execute("nations citizen list", targetSource) == 1, "Alias must share acceptance and listing");
-            h.assertTrue(dispatcher.execute("reigns citizen leave", ownerSource) == 0
-                    && dispatcher.execute("nations citizen kick " + owner.getGameProfile().getName(), targetSource) == 0,
+            h.assertTrue(dispatcher.execute("regnum citizen accept " + city.id(), targetSource) == 1
+                    && dispatcher.execute("regnum citizen list", targetSource) == 1, "Alias must share acceptance and listing");
+            h.assertTrue(dispatcher.execute("regnum citizen leave", ownerSource) == 0
+                    && dispatcher.execute("regnum citizen kick " + owner.getGameProfile().getName(), targetSource) == 0,
                     "Command actor cannot borrow owner authority");
             var offline = f.player();
             f.data.addCitizen(city.id(), offline.getUUID()); f.serverPlayers().remove(offline);
-            h.assertTrue(dispatcher.execute("nations citizen kick " + offline.getUUID(), ownerSource) == 1,
+            h.assertTrue(dispatcher.execute("regnum citizen kick " + offline.getUUID(), ownerSource) == 1,
                     "Owner command must kick offline citizens by UUID without a profile cache");
-            h.assertTrue(dispatcher.execute("nations citizen kick " + target.getGameProfile().getName(), ownerSource) == 1
+            h.assertTrue(dispatcher.execute("regnum citizen kick " + target.getGameProfile().getName(), ownerSource) == 1
                     && f.data.citizenCity(target.getUUID()) == null, "Owner command must kick the resolved target UUID");
         }
         h.succeed();
@@ -368,8 +368,8 @@ public class CitizenshipTests implements FabricGameTest {
             f.join(mayor, citizen, city);
             var server = h.getLevel().getServer(); var dispatcher = server.getCommands().getDispatcher();
             var source = server.createCommandSourceStack().withEntity(ruler).withPermission(0).withSuppressedOutput();
-            h.assertTrue(dispatcher.execute("nations invite " + mayor.getGameProfile().getName(), source) == 1
-                    && dispatcher.execute("reigns join " + kingdom.id(), source.withEntity(mayor)) == 1,
+            h.assertTrue(dispatcher.execute("regnum invite " + mayor.getGameProfile().getName(), source) == 1
+                    && dispatcher.execute("regnum join " + kingdom.id(), source.withEntity(mayor)) == 1,
                     "Original affiliation commands and alias must still accept a city owner");
             h.assertTrue(f.data.settlement(city.id()).sovereign().equals(kingdom.id())
                     && f.data.isCitizen(city.id(), citizen.getUUID()) && !f.data.isCitizen(city.id(), ruler.getUUID()),

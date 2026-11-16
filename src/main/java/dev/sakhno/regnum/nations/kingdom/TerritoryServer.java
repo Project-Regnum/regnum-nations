@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import dev.sakhno.regnum.nations.networking.TerritoryPayloads.*;
 import java.util.*;
 import net.fabricmc.fabric.api.event.lifecycle.v1.*;
@@ -13,7 +14,7 @@ import static dev.sakhno.regnum.nations.networking.TerritoryPayloads.PAGE_SIZE;
 
 /** Server-thread territory workflows, bounded local queries and targeted border notifications. */
 public final class TerritoryServer {
-    private record Confirmation(UUID token,UUID city,ClaimPos pos,long revision,long membershipRevision,long expiresAt) { }
+    private record Confirmation(UUID token,UUID city,ClaimPos pos,long revision,long membershipRevision,long expiresAt,ServerPlayer player,KingdomSavedData data) { }
     private record Neighbor(UUID city,UUID kingdom,int disputes) { }
     private record Border(ClaimPos pos,UUID city,UUID kingdom,int foreignEdges,int disputes,List<Neighbor> neighbors) { }
     private static final Map<UUID,Confirmation> CONFIRMATIONS=new HashMap<>();
@@ -40,16 +41,17 @@ public final class TerritoryServer {
     }
     private static ClaimPos position(Request r) { return new ClaimPos(ResourceKey.create(Registries.DIMENSION,r.dimension()),r.x(),r.z()); }
     static UUID prepareAbandonment(ServerPlayer player,ClaimPos pos,UUID viewed) throws FoundingException {
-        KingdomSavedData data=KingdomService.get(player.serverLevel().getServer()).data();
+        return prepareAbandonment(player,pos,viewed,KingdomService.get(player.serverLevel().getServer()).data());
+    }
+    static UUID prepareAbandonment(ServerPlayer player,ClaimPos pos,UUID viewed,KingdomSavedData data) throws FoundingException {
         Settlement city=new ClaimService(data).validate(player,pos,viewed,true);
         UUID token=UUID.randomUUID();
-        CONFIRMATIONS.put(player.getUUID(),new Confirmation(token,city.id(),pos,data.territoryRevision(city.id()),data.membershipRevision(city.id()),System.nanoTime()+30_000_000_000L));
+        CONFIRMATIONS.put(player.getUUID(),new Confirmation(token,city.id(),pos,data.territoryRevision(city.id()),data.membershipRevision(city.id()),System.nanoTime()+30_000_000_000L,player,data));
         return token;
     }
-    static void consumeAbandonment(ServerPlayer player,ClaimPos pos,UUID city,UUID token) throws FoundingException {
+    static void consumeAbandonment(ServerPlayer player,ClaimPos pos,UUID city,UUID token,KingdomSavedData data) throws FoundingException {
         Confirmation pending=CONFIRMATIONS.remove(player.getUUID());
-        KingdomSavedData data=KingdomService.get(player.serverLevel().getServer()).data();
-        if (pending==null||token==null||!token.equals(pending.token())||!city.equals(pending.city())||!pos.equals(pending.pos())
+        if (pending==null||pending.player()!=player||pending.data()!=data||token==null||!token.equals(pending.token())||!city.equals(pending.city())||!pos.equals(pending.pos())
                 ||pending.revision()!=data.territoryRevision(city)||pending.membershipRevision()!=data.membershipRevision(city)||pending.expiresAt()<System.nanoTime()) throw new FoundingException(CLAIM_CONFIRMATION);
     }
     static void confirmCommand(ServerPlayer player) throws FoundingException {
@@ -158,21 +160,22 @@ public final class TerritoryServer {
                 Settlement own=data.citizenCity(player.getUUID());
                 if (here.city()!=null) classification=own!=null&&(here.city().equals(own.id())||own.sovereign()!=null&&own.sovereign().equals(here.kingdom()))?"city_territory":"foreign_territory";
             } catch (FoundingException ignored) { return; }
-            player.displayClientMessage(Component.translatable("territory.regnum-nations.crossing",Component.translatable("territory.regnum-nations."+classification),here.cityName(),here.kingdomName()),true);
-        } else if (before.pos().equals(now.pos())&&(!before.neighbors().equals(now.neighbors())||before.disputes()!=now.disputes())) player.displayClientMessage(Component.translatable("territory.regnum-nations.nearby_change"),true);
-        else if (now.foreignEdges()>0&&before.foreignEdges()!=now.foreignEdges()) player.displayClientMessage(Component.translatable("territory.regnum-nations.border_near",now.foreignEdges()),true);
-        if ((before.disputes()!=now.disputes()||!before.pos().equals(now.pos()))&&now.disputes()>0) player.displayClientMessage(Component.translatable("territory.regnum-nations.disputed_warning"),false);
+            ChatUi.notify(player, ChatUi.text("territory.regnum-nations.crossing",ChatUi.text("territory.regnum-nations."+classification),here.cityName(),here.kingdomName()),true);
+        } else if (before.pos().equals(now.pos())&&(!before.neighbors().equals(now.neighbors())||before.disputes()!=now.disputes())) ChatUi.notify(player, ChatUi.text("territory.regnum-nations.nearby_change"),true);
+        else if (now.foreignEdges()>0&&before.foreignEdges()!=now.foreignEdges()) ChatUi.warn(player, ChatUi.text("territory.regnum-nations.border_near",now.foreignEdges()),true);
+        if ((before.disputes()!=now.disputes()||!before.pos().equals(now.pos()))&&now.disputes()>0) ChatUi.warn(player, ChatUi.text("territory.regnum-nations.disputed_warning"),false);
     }
     static void describe(KingdomSavedData data,ServerPlayer player) throws FoundingException {
         Settlement own=data.citizenCity(player.getUUID());
         if (own!=null&&!CityPermissions.allows(data,own,player.getUUID(),CityPermission.VIEW_TERRITORY)) throw new FoundingException(NOT_OWNER);
         ClaimPos pos=ClaimPos.at(player.level().dimension(),player.blockPosition()); Cell c=cell(data,pos,own==null?null:own.id());
-        player.sendSystemMessage(Component.translatable("territory.regnum-nations.border_info",c.cityName(),c.kingdomName(),c.foreignEdges(),c.disputes()));
+        var result=ChatUi.info(ChatUi.text("territory.regnum-nations.border_info",c.cityName(),c.kingdomName(),c.foreignEdges(),c.disputes()));
         for (ClaimPos next:ClaimService.neighbors(pos)) {
             Cell neighbor=cell(data,next,own==null?null:own.id());
-            player.sendSystemMessage(Component.translatable("territory.regnum-nations.neighbor_info",next.x(),next.z(),neighbor.city()==null?Component.translatable("territory.regnum-nations.wilderness"):Component.literal(neighbor.cityName()),neighbor.kingdomName()));
+            result.append(ChatUi.line(ChatUi.text("territory.regnum-nations.neighbor_info",next.x(),next.z(),neighbor.city()==null?ChatUi.text("territory.regnum-nations.wilderness"):Component.literal(neighbor.cityName()),neighbor.kingdomName())));
         }
-        if (own!=null) player.sendSystemMessage(Component.translatable("territory.regnum-nations.capacity",data.settlementClaimCount(own.id()),TerritoryConfig.settlementLimit(),Math.max(0,TerritoryConfig.settlementLimit()-data.settlementClaimCount(own.id()))));
+        if (own!=null) result.append(ChatUi.line(ChatUi.text("territory.regnum-nations.capacity",data.settlementClaimCount(own.id()),TerritoryConfig.settlementLimit(),Math.max(0,TerritoryConfig.settlementLimit()-data.settlementClaimCount(own.id())))));
+        player.sendSystemMessage(result);
     }
     private static State error(Request r,String message) {
         Cell empty=new Cell(r.dimension(),r.x(),r.z(),null,null,"","",0,0,false);

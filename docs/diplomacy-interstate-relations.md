@@ -1,10 +1,10 @@
 # Diplomacy and interstate relations — v0.10.0
 
-Based on PR #20 (`feat/nations-economy-integration`, `483330f`). The existing
+Based on PR #20 (`feat/regnum-economy-integration`, `483330f`). The existing
 Nations API v1, Economy role policies, integration entrypoints and shared Economy
 UI contracts are unchanged. Nations has no dependency on Economy.
 
-Open `/nations menu` (or `/reigns menu`) → Kingdom → Diplomacy. The kingdom
+Open `/regnum menu` → Kingdom → Diplomacy. The kingdom
 directory shows current relations; Incoming and Outgoing show official pending
 proposals. Select a kingdom for scrollable treaty/proposal details and contextual
 controls. Every mutation has a confirmation and receives server feedback.
@@ -157,3 +157,15 @@ all five proposal types; attempted self-war/duplicate war/treaty bypass; forged 
 stale requests; issuer demotion and membership departure; expiration while online
 and offline; rename/dissolution; save/restart with a pending proposal, pact and war;
 and unchanged standalone Nations / Economy navigation and custom financial policy.
+
+## E1 regression reconciliation
+
+The historical no-tests validation above is superseded by E1’s required server
+regressions and client checks, recorded in the shared implementation status.
+Current diplomacy tests use `InterstatePayloads`, persisted pair-wide cooldowns and
+recipient-accepted treaty termination. An independent legacy-wire regression
+retains codec round-trip checks and verifies `upgrade_client` rejection before an
+old client can consume a non-alliance proposal. Tests use injected clocks to reach
+cooldown boundaries; production cooldown, permission, revision and consent guards
+are unchanged. Coverage includes all five proposal types, treaty-blocked war and
+hostility, rejected peace, exact cooldown deadlines after reload and stale consent.

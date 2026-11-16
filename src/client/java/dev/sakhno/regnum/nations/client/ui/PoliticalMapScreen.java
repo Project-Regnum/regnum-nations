@@ -124,8 +124,8 @@ public final class PoliticalMapScreen extends RoyalScreen {
             updateLayerButton();
         }));
         updateLayerButton();
-        addRenderableWidget(new RoyalControlButton(width-MARGIN-CONTROL,MARGIN,CONTROL,text("close"),Icon.CLOSE,true,b -> onClose()))
-                .setTooltip(Tooltip.create(text("close")));
+        addRenderableWidget(new RoyalControlButton(width-MARGIN-CONTROL,MARGIN,CONTROL,text("back"),Icon.CLOSE,true,b -> onClose()))
+                .setTooltip(Tooltip.create(text("back")));
         setInitialFocus(canvas);
         if (requested == 0) request();
         if (!selected && minecraft.player != null && minecraft.level != null) {

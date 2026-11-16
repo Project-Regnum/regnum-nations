@@ -93,12 +93,12 @@ public class KingdomAdminTests implements FabricGameTest {
         service.data().add(kingdom);
         for (String command : new String[]{"help","list","info "+kingdom.id(),"tp "+kingdom.id(),
                 "rename "+kingdom.id()+" Denied Name","unclaim "+kingdom.id()+" 0 0"}) {
-            reject(h,service.data(),() -> dispatcher.execute("reigns admin "+command,source.withPermission(2)));
+            reject(h,service.data(),() -> dispatcher.execute("regnum admin "+command,source.withPermission(2)));
         }
-        h.assertTrue(dispatcher.execute("reigns admin help",source.withPermission(3)) == 1
-                && dispatcher.execute("reigns admin list 1",source.withPermission(3)) == 1,
+        h.assertTrue(dispatcher.execute("regnum admin help",source.withPermission(3)) == 1
+                && dispatcher.execute("regnum admin list 1",source.withPermission(3)) == 1,
                 "Permission level 3 must have administration access");
-        for (String commandRoot : new String[] {"nations", "reigns"}) {
+        for (String commandRoot : new String[] {"regnum", "nations", "reigns"}) {
             var parsed = dispatcher.parse(commandRoot+" admin rename "+kingdom.id()+" Denied Name",source.withPermission(3));
             // Redirects keep the executed callback in the child context, not the alias root.
             var callback = parsed.getContext();
@@ -110,10 +110,10 @@ public class KingdomAdminTests implements FabricGameTest {
         }
         reject(h,service.data(),() -> service.teleportAdministrator(source.withPermission(2),kingdom.id()));
         String newName = "Changed " + UUID.randomUUID().toString().substring(0,8);
-        h.assertTrue(dispatcher.execute("reigns admin rename \""+kingdom.name().display()+"\" \""+newName+"\"",source.withPermission(3)) == 1
+        h.assertTrue(dispatcher.execute("regnum admin rename \""+kingdom.name().display()+"\" \""+newName+"\"",source.withPermission(3)) == 1
                 && service.data().byId(kingdom.id()).name().display().equals(newName),"Quoted full names must work through authorized rename routing");
         var claim = ClaimPos.at(kingdom.dimension(),pos).offset(1,0); service.data().putClaim(claim,kingdom.id());
-        h.assertTrue(dispatcher.execute("reigns admin unclaim "+kingdom.id()+" "+claim.x()+" "+claim.z()+" minecraft:overworld",source.withPermission(3)) == 1
+        h.assertTrue(dispatcher.execute("regnum admin unclaim "+kingdom.id()+" "+claim.x()+" "+claim.z()+" minecraft:overworld",source.withPermission(3)) == 1
                 && service.data().claimOwner(claim) == null,"Dimension-qualified unclaim must route through the protected service");
         var player = new ServerPlayer(server,h.getLevel(),new GameProfile(UUID.randomUUID(),"LandingTest"),ClientInformation.createDefault());
         player.setPos(pos.getX()+0.5,pos.getY()+4,pos.getZ()+0.5);

@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.block;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import dev.sakhno.regnum.nations.kingdom.*;
 import net.minecraft.core.*;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,7 @@ public final class RoyalBannerItem extends StandingAndWallBlockItem {
         if (context.getLevel() instanceof ServerLevel server) {
             try {
                 if (new HeraldryService(KingdomService.get(server.getServer()).data()).verifiedIdentity(context.getItemInHand())==null) {
-                    if (context.getPlayer()!=null) context.getPlayer().displayClientMessage(Component.translatable("heraldry.regnum-nations.unsealed"),true);
+                    if (context.getPlayer()!=null) ChatUi.warn(context.getPlayer(), ChatUi.text("heraldry.regnum-nations.unsealed"),true);
                     return InteractionResult.FAIL;
                 }
             } catch (FoundingException e) { return InteractionResult.FAIL; }

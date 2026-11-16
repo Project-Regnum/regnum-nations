@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,15 +10,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 
-/** Both /nations and its redirect use these handlers and the same service authorization. */
+/** Both /regnum and its redirect use these handlers and the same service authorization. */
 public final class ObeliskRelocationCommands {
     private ObeliskRelocationCommands() { }
     public static LiteralArgumentBuilder<CommandSourceStack> commands() {
         return Commands.literal("relocate")
-                .executes(c -> { c.getSource().sendSuccess(() -> text("help"),false); return 1; })
+                .executes(c -> { ChatUi.feedback(c.getSource(), () -> text("help"),false); return 1; })
                 .then(destination("city",false)).then(destination("state",true))
                 .then(Commands.literal("confirm").then(Commands.argument("token",UuidArgument.uuid()).executes(c -> execute(c,false,true))));
     }
@@ -31,7 +31,7 @@ public final class ObeliskRelocationCommands {
         try {
             if (confirm) {
                 service.relocation().commit(player,UuidArgument.getUuid(context,"token"));
-                source.sendSuccess(() -> text("success"),false);
+                ChatUi.confirm(source, () -> text("success"),false);
             } else {
                 UUID target;
                 if (state) {
@@ -41,11 +41,12 @@ public final class ObeliskRelocationCommands {
                 } else target=service.cities().owned(player).id();
                 var pos=new BlockPos(IntegerArgumentType.getInteger(context,"x"),IntegerArgumentType.getInteger(context,"y"),IntegerArgumentType.getInteger(context,"z"));
                 UUID token=service.relocation().select(player,target,state,player.level().dimension(),pos);
-                source.sendSuccess(() -> text("selected",pos.toShortString()).append(" ").append(text("confirm")
-                        .withStyle(style -> style.withUnderlined(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/nations relocate confirm "+token)))),false);
+                source.sendSuccess(() -> ChatUi.warning(text("selected",pos.toShortString()))
+                        .append(ChatUi.line(ChatUi.run(text("confirm"), "/regnum relocate confirm " + token,
+                                Component.translatable("chat.regnum-nations.relocate_hint")))),false);
             }
             return 1;
-        } catch (FoundingException e) { source.sendFailure(Component.translatable(e.translationKey())); return 0; }
+        } catch (FoundingException e) { ChatUi.fail(source, ChatUi.text(e.translationKey())); return 0; }
     }
     public static LiteralArgumentBuilder<CommandSourceStack> recovery() {
         return Commands.literal("recover").requires(s -> s.hasPermission(3)).then(recoveryType("city",false)).then(recoveryType("state",true));
@@ -55,10 +56,10 @@ public final class ObeliskRelocationCommands {
             var source=c.getSource(); UUID target=UuidArgument.getUuid(c,"id"); String outcome="rejected";
             try {
                 KingdomService.get(source.getServer()).relocation().recover(source,target,state); outcome="success";
-                source.sendSuccess(() -> text("recovered"),false); return 1;
-            } catch (FoundingException e) { outcome=e.reason().name(); source.sendFailure(Component.translatable(e.translationKey())); return 0; }
+                ChatUi.confirm(source, () -> text("recovered"),false); return 1;
+            } catch (FoundingException e) { outcome=e.reason().name(); ChatUi.fail(source, ChatUi.text(e.translationKey())); return 0; }
             finally { KingdomAdminCommands.audit(source,"recover-"+name,target.toString(),"canonical saved position",outcome); }
         }));
     }
-    private static net.minecraft.network.chat.MutableComponent text(String key,Object... args) { return Component.translatable("relocation.regnum-nations."+key,args); }
+    private static net.minecraft.network.chat.MutableComponent text(String key,Object... args) { return ChatUi.text("relocation.regnum-nations."+key,args); }
 }

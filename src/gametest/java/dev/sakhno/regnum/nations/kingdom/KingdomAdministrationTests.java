@@ -30,8 +30,8 @@ public class KingdomAdministrationTests implements FabricGameTest {
         for (KingdomPermission permission:KingdomPermission.values()) {
             h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),f.ruler.getUUID(),permission),"Ruler has every political permission");
             h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),chancellor.getUUID(),permission)==!permission.name().startsWith("ECONOMY_"),"Chancellor retains political authority without financial defaults");
-            h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),officer.getUUID(),permission)==(permission==INVITE_CITY),"Officer may only invite cities");
-            h.assertFalse(KingdomPermissions.allows(f.data,f.realm.id(),member.getUUID(),permission),"Ordinary members have no administration permissions");
+            h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),officer.getUUID(),permission)==Set.of(INVITE_CITY,VIEW_DIPLOMACY,VIEW_WARFARE,DECLARE_SIEGE,VIEW_TERRITORY).contains(permission),"Officer has only documented invitation, viewing and siege capabilities");
+            h.assertTrue(KingdomPermissions.allows(f.data,f.realm.id(),member.getUUID(),permission)==Set.of(VIEW_DIPLOMACY,VIEW_WARFARE,VIEW_TERRITORY).contains(permission),"Ordinary members may view politics but never administer");
         }
         h.assertFalse(KingdomPermissions.allows(f.data,f.realm.id(),UUID.randomUUID(),INVITE_CITY),"Outsiders have no authority");
         h.assertTrue(f.data.kingdomRole(f.realm.id(),chancellor.getUUID())==CHANCELLOR,"Role assigned by stable UUID");

@@ -34,15 +34,10 @@ public final class WarfareScreen extends RoyalScreen {
     }
     @Override protected void init() {
         availability.clear(); bounds=folioBounds(width,height,760,490); int w=bounds.contentWidth(),third=(w-2*GAP)/3;
-        for (Tab value:Tab.values()) {
-            int index=value.ordinal();
-            button(bounds.left()+index%3*(third+GAP),bounds.y()+36+index/3*(CONTROL+GAP),third,message("tab."+key(value)),() -> {
-                tab=value; page=offset=0; selected=null; read();
-            },() -> !busy(),value==tab?ButtonStyle.PRIMARY:ButtonStyle.NORMAL);
-        }
-        button(bounds.left()+2*(third+GAP),bounds.y()+36+CONTROL+GAP,third,message("peace_talks"),this::onClose,
-                () -> !busy()&&state!=null&&state.permissions().contains(KingdomPermission.NEGOTIATE_PEACE),ButtonStyle.NORMAL);
-        int top=bounds.y()+112,actionsY=bounds.footerY()-2*(CONTROL+GAP);
+        sections(bounds.left(),bounds.y()+36,w,tab,Tab.values(),value -> message("tab."+key(value)),
+                value -> { tab=value; page=offset=0; selected=null; read(); },
+                control -> { addRenderableWidget(control); availability.add(() -> control.active=!busy()); },() -> !busy());
+        int top=bounds.y()+82,actionsY=bounds.footerY()-2*(CONTROL+GAP);
         if (selected!=null) {
             addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,Math.max(CONTROL,actionsY-top-GAP),details(selected)));
             var actions=actions(selected);
@@ -54,7 +49,7 @@ public final class WarfareScreen extends RoyalScreen {
             button(bounds.left(),actionsY+CONTROL+GAP,third,message("back"),() -> { selected=null; rebuildWidgets(); },() -> !busy(),ButtonStyle.NORMAL);
         } else {
             visible=Math.clamp((actionsY-top-GAP)/(CONTROL+GAP),1,PAGE_SIZE);
-            if (state==null||state.entries().isEmpty()) addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,Math.max(CONTROL,actionsY-top-GAP),message("empty")));
+            if (state==null||state.entries().isEmpty()) addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,Math.max(CONTROL,actionsY-top-GAP),state==null?feedback:message("empty."+key(tab))));
             else for (int i=offset;i<Math.min(state.entries().size(),offset+visible);i++) {
                 var entry=state.entries().get(i);
                 Component row=tab==Tab.WARS?message("war_row",entry.attackerName(),entry.defenderName()):message("row",entry.cityName(),
@@ -67,14 +62,13 @@ public final class WarfareScreen extends RoyalScreen {
         }
         int half=(w-GAP)/2;
         button(bounds.left(),bounds.footerY(),half,text("refresh"),this::read,() -> !busy(),ButtonStyle.NORMAL);
-        button(bounds.left()+half+GAP,bounds.footerY(),half,text("close"),this::onClose,() -> true,ButtonStyle.NORMAL);
+        button(bounds.left()+half+GAP,bounds.footerY(),half,text("back"),this::onClose,() -> true,ButtonStyle.NORMAL);
         availability.forEach(Runnable::run); if (initial) { initial=false; read(); }
     }
     private Component details(Entry e) {
         var result=message("war_row",e.attackerName(),e.defenderName()).copy();
         if (e.city()!=null) result.append("\n").append(message("target_city",e.cityName()));
         if (e.objective()!=null) result.append("\n").append(message("objective."+key(e.objective())));
-        if (e.id()!=null) result.append("\n").append(message("reference",e.id().toString()));
         if (e.startedAt()>0) result.append("\n").append(message("started",date(e.startedAt())));
         if (e.state()!=null) result.append("\n").append(message("state."+key(e.state())));
         if (e.state()==State.PREPARING||e.state()==State.ACTIVE) {
@@ -160,7 +154,7 @@ public final class WarfareScreen extends RoyalScreen {
     @Override public void render(GuiGraphics g,int mx,int my,float delta) {
         g.fill(0,0,width,height,BACKGROUND); AtlasGraphics.folio(g,bounds.x(),bounds.y(),bounds.width(),bounds.height());
         heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth());
-        g.drawString(font,ellipsize(font,feedback,bounds.contentWidth()),bounds.left(),bounds.y()+96,failed?ERROR:MUTED,false);
+        g.drawString(font,ellipsize(font,feedback,bounds.contentWidth()),bounds.left(),bounds.y()+64,failed?ERROR:MUTED,false);
         if (selected==null&&state!=null) g.drawCenteredString(font,message("page",page+1,Math.max(1,(state.matches()+PAGE_SIZE-1)/PAGE_SIZE)),
                 bounds.left()+bounds.contentWidth()/2,bounds.footerY()-CONTROL-GAP+6,MUTED);
         super.render(g,mx,my,delta);

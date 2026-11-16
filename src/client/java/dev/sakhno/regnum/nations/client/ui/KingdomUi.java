@@ -26,7 +26,7 @@ import org.joml.Vector2i;
  */
 public final class KingdomUi {
     public static final int BACKGROUND = 0xff171a1f, PANEL = AtlasGraphics.PAPER, RECESS = AtlasGraphics.SHADOW;
-    public static final int GOLD = 0xffc5a46a, INK = 0xffe5d9be, MUTED = 0xffa8a9ad;
+    public static final int GOLD = 0xffc5a46a, INK = 0xffd9cfb9, MUTED = 0xffa8a9ad;
     public static final int BORDER = AtlasGraphics.ETCH, HOVER = 0xff30342c, DISABLED = AtlasGraphics.SHADOW;
     public static final int BURGUNDY = 0xff834751, ERROR = 0xffefa9b3, SELECTED = 0xfff5eedc;
     public static final int UNKNOWN = 0xff141b18, WILDERNESS = 0xff2c322b, GRID = 0x184f594c;
@@ -46,6 +46,29 @@ public final class KingdomUi {
         int width=Math.min(screenWidth-MARGIN*2,maxWidth),height=Math.min(screenHeight-MARGIN*2,maxHeight);
         return new FolioBounds((screenWidth-width)/2,(screenHeight-height)/2,width,height,width<400?16:24);
     }
+    /** Direct tabs when labels fit; otherwise a named chooser with every destination. */
+    static <E extends Enum<E>> void sections(int x,int y,int width,E current,E[] values,
+            java.util.function.Function<E,Component> label,java.util.function.Consumer<E> select,
+            java.util.function.Consumer<RoyalButton> add,java.util.function.BooleanSupplier enabled) {
+        var font=Minecraft.getInstance().font;
+        int required=java.util.Arrays.stream(values).mapToInt(v -> font.width(label.apply(v))+16).max().orElse(0)*values.length+GAP*(values.length-1);
+        if (required<=width) {
+            int tabWidth=(width-GAP*(values.length-1))/values.length;
+            for (int i=0;i<values.length;i++) {
+                E value=values[i];
+                var button=new RoyalButton(x+i*(tabWidth+GAP),y,tabWidth,label.apply(value),b -> select.accept(value));
+                button.selected(value==current); button.active=enabled.getAsBoolean(); add.accept(button);
+            }
+        } else {
+            var button=new RoyalButton(x,y,width,text("choose_section",label.apply(current)),b -> {
+                var mc=Minecraft.getInstance(); var parent=mc.screen;
+                mc.setScreen(new SectionSelectionScreen(parent,java.util.Arrays.stream(values).map(label).toList(),
+                        index -> { if (enabled.getAsBoolean()) select.accept(values[index]); }));
+            });
+            button.selected(true); button.active=enabled.getAsBoolean(); add.accept(button);
+        }
+    }
+
     private static int sequence;
     private static long lastReadAt, lastMutationAt;
     private static final ClientTooltipPositioner TOOLTIP_POSITION = (w,h,x,y,tw,th) -> {
@@ -173,6 +196,7 @@ public final class KingdomUi {
         public RoyalButton(int x,int y,int width,Component label,OnPress press,ButtonStyle style) {
             super(x,y,width,CONTROL,label,press,DEFAULT_NARRATION); this.style = style;
             setTooltip(Tooltip.create(label));
+            setTooltipDelay(java.time.Duration.ofMillis(500));
         }
         public void style(ButtonStyle value) { style=value; }
         public void selected(boolean value) { selected=value; }
@@ -188,11 +212,11 @@ public final class KingdomUi {
             boolean pressed=active&&pressedUntil!=0&&System.nanoTime()<pressedUntil;
             boolean chosen=isSelected();
             int accent=style==ButtonStyle.DANGER?BURGUNDY:AtlasGraphics.BRASS;
-            int border=!active?AtlasGraphics.ETCH:pressed?GOLD:hovered?AtlasGraphics.LIGHT:chosen||style!=ButtonStyle.NORMAL?accent:AtlasGraphics.RULE;
+            int border=!active?AtlasGraphics.ETCH:pressed?GOLD:hovered?GOLD:chosen||style!=ButtonStyle.NORMAL?accent:AtlasGraphics.RULE;
             int x=getX(),y=getY(),r=getRight(),b=getBottom();
             g.fill(x+1,y,r-1,b,border); g.fill(x,y+1,r,b-1,border);
             g.fill(x+1,y+1,r-1,b-1,!active?DISABLED:pressed?AtlasGraphics.LEATHER:hovered?HOVER:chosen?AtlasGraphics.PAPER:RECESS);
-            g.fill(x+2,y+1,r-2,y+2,pressed?AtlasGraphics.SHADOW:hovered?AtlasGraphics.LIGHT:AtlasGraphics.ETCH);
+            g.fill(x+2,y+1,r-2,y+2,pressed?AtlasGraphics.SHADOW:hovered?GOLD:AtlasGraphics.ETCH);
             g.fill(x+2,b-3,r-2,b-1,pressed?AtlasGraphics.ETCH:AtlasGraphics.LEATHER);
             int color=!active?MUTED:style==ButtonStyle.DANGER?ERROR:chosen||hovered||pressed?AtlasGraphics.LIGHT:INK;
             // Content stays inside the existing hitbox, even with compressed or localized labels.

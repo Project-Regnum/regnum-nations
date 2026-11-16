@@ -61,7 +61,8 @@ public class TerritoryTests implements FabricGameTest {
 		move(founder, capital.offset(1, 0));
 		claims.manage(founder, false);
 		reject(h, data, TERRITORY_OCCUPIED, () -> claims.manage(founder, false));
-		claims.manage(founder, true);
+		reject(h,data,CLAIM_CONFIRMATION,() -> claims.manage(founder,true));
+        claims.manage(founder,capital.offset(1,0),kingdom.id(),true,claims.prepareAbandonment(founder,capital.offset(1,0),kingdom.id()));
 		h.assertTrue(data.claimOwner(capital.offset(1, 0)) == null, "Unclaim must release non-capital land");
 		move(founder, capital);
 		reject(h, data, CAPITAL_CHUNK, () -> claims.manage(founder, true));
@@ -135,6 +136,34 @@ public class TerritoryTests implements FabricGameTest {
 				new ItemStack(item), hit)).consumesAction(), "Actual placement must allow founder");
 		h.succeed();
 	}
+
+    @GameTest(template=EMPTY_STRUCTURE,batch="territory")
+    public void abandonmentTokensBindRegistryPlayerSessionAndCurrentRevisions(GameTestHelper h) throws Exception {
+        try (var f=new CitizenshipTests.Fixture(h,false)) {
+            var owner=f.player(); var city=f.city(owner); var claims=new ClaimService(f.data);
+            var capital=ClaimPos.at(city.dimension(),city.obeliskPos()); var pos=capital.offset(1,0);
+            f.data.putClaim(pos,city.id()); move(owner,pos);
+            var token=claims.prepareAbandonment(owner,pos,city.id());
+            var mirror=KingdomSavedData.load(f.saved(),h.getLevel().registryAccess()); mirror.requireAvailable();
+            mirror.putClaim(pos,city.id());
+            h.assertTrue(mirror.territoryRevision(city.id())==f.data.territoryRevision(city.id())
+                    &&mirror.membershipRevision(city.id())==f.data.membershipRevision(city.id()),"Registry mismatch is tested with identical revision counters");
+            var otherClaims=new ClaimService(mirror);
+            // A second registry with identical identities must never consume the first registry’s authority.
+            reject(h,mirror,CLAIM_CONFIRMATION,() -> otherClaims.manage(owner,pos,city.id(),true,token));
+            h.assertTrue(city.id().equals(f.data.claimOwner(pos)),"Registry mismatch leaves the original claim intact");
+            var sessionToken=claims.prepareAbandonment(owner,pos,city.id());
+            var replacement=f.player(owner.getUUID()); move(replacement,pos);
+            reject(h,f.data,CLAIM_CONFIRMATION,() -> claims.manage(replacement,pos,city.id(),true,sessionToken));
+            var territoryToken=claims.prepareAbandonment(owner,pos,city.id()); f.data.putClaim(capital.offset(0,1),city.id());
+            reject(h,f.data,CLAIM_CONFIRMATION,() -> claims.manage(owner,pos,city.id(),true,territoryToken));
+            var membershipToken=claims.prepareAbandonment(owner,pos,city.id()); f.data.addCitizen(city.id(),f.player().getUUID());
+            reject(h,f.data,CLAIM_CONFIRMATION,() -> claims.manage(owner,pos,city.id(),true,membershipToken));
+            var valid=claims.prepareAbandonment(owner,pos,city.id()); claims.manage(owner,pos,city.id(),true,valid);
+            h.assertTrue(f.data.claimOwner(pos)==null&&city.id().equals(f.data.claimOwner(capital)),"Only a fresh matching token releases its exact non-anchor claim");
+            f.data.putClaim(pos,city.id()); reject(h,f.data,CLAIM_CONFIRMATION,() -> claims.manage(owner,pos,city.id(),true,valid));
+        } h.succeed();
+    }
 
 	private static Kingdom kingdom(UUID founder, BlockPos pos, long time, String name) {
 		return new Kingdom(UUID.randomUUID(), new KingdomName(name), founder, Level.OVERWORLD, pos,

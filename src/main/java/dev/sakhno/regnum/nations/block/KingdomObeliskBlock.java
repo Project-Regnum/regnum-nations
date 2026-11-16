@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.block;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import com.mojang.serialization.MapCodec;
 import dev.sakhno.regnum.nations.kingdom.FoundingException;
 import dev.sakhno.regnum.nations.kingdom.Kingdom;
@@ -49,7 +50,8 @@ public class KingdomObeliskBlock extends BaseEntityBlock {
 			}
 
 			boolean guiOpened = false;
-			MutableComponent message = Component.translatable(
+            boolean rejected = false;
+			MutableComponent message = ChatUi.text(
 					"message.regnum-nations.kingdom_obelisk.status", obelisk.getObeliskId().toString());
 			if (player instanceof ServerPlayer serverPlayer) {
 				KingdomService service = KingdomService.get(serverPlayer.serverLevel().getServer());
@@ -60,27 +62,32 @@ public class KingdomObeliskBlock extends BaseEntityBlock {
 				if (kingdom != null) service.resolveCapital(kingdom);
 				if (kingdom != null && kingdom.capitalObeliskId().equals(obelisk.getObeliskId())
 						&& kingdom.id().equals(obelisk.getKingdomId())) {
-					message.append(" ").append(Component.translatable("message.regnum-nations.kingdom_obelisk.bound",
+					message.append(" ").append(ChatUi.text("message.regnum-nations.kingdom_obelisk.bound",
 							kingdom.name().display()));
 					guiOpened = dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openMenu(serverPlayer, kingdom.id());
 				} else if (kingdom==null && legacyCity!=null
 						&& legacyCity.legacyAnchor() && legacyCity.obeliskId().equals(obelisk.getObeliskId()) && !player.isShiftKeyDown()) {
 					guiOpened = dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openCityMenu(serverPlayer,legacyCity.id());
-					message.append(" ").append(net.minecraft.network.chat.Component.translatable("city.regnum-nations.bound",legacyCity.name().display()));
+					message.append(" ").append(ChatUi.text("city.regnum-nations.bound",legacyCity.name().display()));
 				} else if (obelisk.getKingdomId() != null || kingdom != null) {
-					message.append(" ").append(Component.translatable(
+                    rejected = true;
+					message.append(" ").append(ChatUi.text(
 							"message.regnum-nations.founding.already_bound"));
 				} else {
 					try {
 						service.select(serverPlayer, pos);
 						guiOpened = dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openFounding(serverPlayer, obelisk.getObeliskId());
-						message.append(" ").append(Component.translatable("message.regnum-nations.founding.selected"));
+						message.append(" ").append(ChatUi.text("message.regnum-nations.founding.selected"));
 					} catch (FoundingException exception) {
-						message.append(" ").append(Component.translatable(exception.translationKey()));
+                        rejected = true;
+						message.append(" ").append(ChatUi.text(exception.translationKey()));
 					}
 				}
 			}
-			if (!guiOpened) player.displayClientMessage(message, false);
+			if (!guiOpened) {
+                if (rejected) ChatUi.reject(player, message, false);
+                else ChatUi.notify(player, message, false);
+            }
 		}
 
 		// Consume the interaction on both sides; only the server sends the message.

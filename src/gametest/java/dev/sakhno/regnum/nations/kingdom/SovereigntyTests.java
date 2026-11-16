@@ -166,7 +166,7 @@ public class SovereigntyTests implements FabricGameTest {
         var reloaded=KingdomSavedData.load(saved,level.registryAccess()); reloaded.requireAvailable();
         h.assertTrue(!reloaded.isDirty()&&saved.equals(reloaded.save(new CompoundTag(),level.registryAccess())),"Repaired schema 3 must reload idempotently");
         owner.setPos(neighbor.x()*16+8,pos.getY(),neighbor.z()*16+8);
-        var claims=new ClaimService(reloaded); claims.manage(owner,neighbor,city.id(),true); claims.manage(owner,neighbor,city.id(),false);
+        var claims=new ClaimService(reloaded); claims.manage(owner,neighbor,city.id(),true,claims.prepareAbandonment(owner,neighbor,city.id())); claims.manage(owner,neighbor,city.id(),false);
         h.assertTrue(city.id().equals(reloaded.claimOwner(neighbor)),"Deleted membership must not block private claim management");
         owner.setPos(statePos.getX()+0.5,statePos.getY()+0.5,statePos.getZ()+0.5);
         stateBlock.loadWithComponents(oldBinding,level.registryAccess());

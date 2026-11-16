@@ -49,8 +49,8 @@ public final class ObeliskRelocationScreen extends RoyalScreen {
         int actionWidth=(bounds.contentWidth()-GAP*2)/3;
         select=addRenderableWidget(new RoyalButton(bounds.left(),bounds.footerY(),actionWidth,message("select"),b -> send(false)));
         confirm=addRenderableWidget(new RoyalButton(bounds.left()+actionWidth+GAP,bounds.footerY(),actionWidth,message("confirm"),b -> send(true),ButtonStyle.PRIMARY));
-        addRenderableWidget(new RoyalButton(bounds.right()-actionWidth,bounds.footerY(),actionWidth,text("close"),b -> onClose()));
-        setInitialFocus(complete?select:token==null?x:confirm);
+        var back=addRenderableWidget(new RoyalButton(bounds.right()-actionWidth,bounds.footerY(),actionWidth,text("back"),b -> onClose()));
+        setInitialFocus(complete?select:token==null?x:back);
     }
     private BlockPos destination() { return new BlockPos(Integer.parseInt(x.getValue()),Integer.parseInt(y.getValue()),Integer.parseInt(z.getValue())); }
     private void send(boolean commit) {

@@ -32,8 +32,8 @@ existing claims and blocks additional expansion until capacity is available.
 Abandonment first opens a warning and requires a second action. The server issues
 a token bound to the player, city, exact chunk and city territory revision; it
 expires after 30 seconds. Confirmation rechecks ownership, permissions, membership revision, location,
-anchors, warfare conflicts and connectivity. `/nations unclaim` prepares the same warning;
-`/nations unclaim confirm` confirms it. `/reigns` shares these handlers. Old
+anchors, warfare conflicts and connectivity. `/regnum unclaim` prepares the same warning;
+`/regnum unclaim confirm` confirms it. Compatibility redirects share these handlers. Old
 unconfirmed release packets are rejected. Explicit administrator force-unclaim
 retains its permission check and also checks anchors and connectivity.
 
@@ -41,7 +41,7 @@ City land and Kingdom pages are paged. Kingdom rows show city claim counts,
 remaining capacity, chunks touching foreign land and disputed chunks. Selecting a
 city opens its land list. **My location** restores the player's city and local
 selection. **Open atlas** reuses the existing map and returns to the folio.
-`/nations territory` reports the current ownership, four neighboring chunks,
+`/regnum territory` reports the current ownership, four neighboring chunks,
 foreign edges, political claim count and municipal capacity.
 
 The Disputes page lists demands involving the player's kingdom **and demands on
@@ -135,3 +135,12 @@ The delivery build excludes `check`, `test`, `testKingdomNames` and `runGameTest
 No tests or GameTests were added. Interactive client layout, multiplayer behavior,
 dedicated-server startup and a real player-world save/reload need manual validation;
 compilation alone does not establish those results.
+
+## E1 integration stabilization
+
+Abandonment tokens are issued and consumed against the same authoritative registry,
+player entity/session, city, chunk, territory revision and membership revision.
+`ClaimService.prepareAbandonment` uses the same validation as the existing command/UI
+entrypoints. Isolated service consumers no longer silently validate against the
+unrelated global registry. Old packets without a token remain rejected; the
+SavedData schema and municipal permission matrix are unchanged.

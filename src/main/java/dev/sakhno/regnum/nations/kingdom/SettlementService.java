@@ -82,14 +82,17 @@ public final class SettlementService {
         }
         data.settlementStatus(city,status); return status;
     }
+    /** Exact municipal ownership, never kingdom-wide sovereignty or monument proximity. */
+    boolean containsAnchorTerritory(Settlement city,ResourceKey<Level> dimension,BlockPos pos) {
+        return city.dimension().equals(dimension)&&city.id().equals(data.claimOwner(ClaimPos.at(dimension,pos)));
+    }
     Settlement stateAnchor(ServerPlayer player,BlockPos statePos) throws FoundingException {
         Settlement city=owned(player);
         if (city.sovereign()!=null) throw new FoundingException(ALREADY_AFFILIATED);
-        int distance=city.obeliskPos().distManhattan(statePos);
-        if (!city.dimension().equals(player.level().dimension())||!ClaimPos.at(city.dimension(),city.obeliskPos()).equals(ClaimPos.at(city.dimension(),statePos))
-                || !(distance==1||distance==0&&city.legacyAnchor())) throw new FoundingException(STATE_ANCHOR);
+        // Capital identity is persistent; monument placement follows city-owned claims.
+        if (!containsAnchorTerritory(city,player.level().dimension(),statePos)) throw new FoundingException(STATE_ANCHOR);
         if (resolve(city)!=Kingdom.CapitalStatus.PRESENT) throw new FoundingException(OBELISK_UNAVAILABLE);
-        if (!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())))) throw new FoundingException(CAPITAL_CONFLICT);
+        if (!containsAnchorTerritory(city,city.dimension(),city.obeliskPos())) throw new FoundingException(CAPITAL_CONFLICT);
         return city;
     }
     /** Legacy commands now delegate to the persistent city-ID invitation lifecycle. */

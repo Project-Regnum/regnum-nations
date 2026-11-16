@@ -17,7 +17,7 @@ Minecraft 1.21.1, Java 21 bytecode, gameplay rules, persistence schema 3 and ver
 | Political map configuration | Keep `config/project-reigns-map.properties` and `radiusChunks`, so server settings survive. |
 | Network payload IDs and codecs | Keep the `project-reigns:*` channels and layouts. Install matching Regnum Nations versions on clients and servers; mixed-version play has not been validated. |
 | Key binding | Keep `key.project-reigns.map` and `category.project-reigns` to preserve saved controls. |
-| Commands | `/nations` is preferred; `/reigns` remains an alias with the same execution and permission checks. Old scripts and saved command blocks continue to work. |
+| Commands | `/regnum` is canonical, including `/regnum help [page]`. `/nations` and `/reigns` remain compatibility redirects for old scripts and saved command blocks, with identical handlers, suggestions and permission checks. All visible help, translations and click actions use `/regnum`. |
 | Presentation resources | Move language files, block models, textures, icon and Living Atlas assets to `assets/regnum-nations/`. Keep blockstates and item model adapters in `assets/project-reigns/`, pointing to the new models. Keep the old block-name and key-binding translation keys. |
 | Data pack resources | Keep obelisk loot tables under `data/project-reigns/` and legacy item references in loot tables and mining tags because their IDs follow the retained registry IDs. |
 

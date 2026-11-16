@@ -36,22 +36,25 @@ public final class TerritoryScreen extends RoyalScreen {
         Button button=addRenderableWidget(new RoyalButton(x,y,w,label,b -> action.run(),style));
         button.setHeight(h);
         button.setTooltip(null); availability.add(() -> button.active=enabled.getAsBoolean());
+        if (label.equals(text("cancel"))) setInitialFocus(button);
     }
     private void button(int x,int y,int w,Component label,Runnable action,BooleanSupplier enabled,ButtonStyle style) { button(x,y,w,CONTROL,label,action,enabled,style); }
     @Override protected void init() {
-        availability.clear(); bounds=folioBounds(width,height,760,480); int w=bounds.contentWidth(),quarter=(w-3*GAP)/4;
-        for (Tab value:Tab.values()) button(bounds.left()+value.ordinal()*(quarter+GAP),bounds.y()+48,quarter,message("tab."+key(value)),() -> {
+        availability.clear(); bounds=folioBounds(width,height,680,380); int w=bounds.contentWidth();
+        button(bounds.right()-116,bounds.y()+8,116,message("map"),
+                () -> minecraft.setScreen(new PoliticalMapScreen(null,false,this)),() -> !busy()&&confirmation==null,ButtonStyle.PRIMARY);
+        sections(bounds.left(),bounds.y()+48,w,tab,Tab.values(),value -> message("tab."+key(value)),value -> {
             tab=value; page=offset=0; selectedDemand=null; demand=null; confirmation=null; read();
-        },() -> !busy()&&confirmation==null&&(value!=Tab.KINGDOM||state!=null&&state.kingdom()!=null),value==tab?ButtonStyle.PRIMARY:ButtonStyle.NORMAL);
-        int top=bounds.y()+78,actionsY=bounds.footerY()-2*(CONTROL+GAP),bodyHeight=Math.max(15,actionsY-top-GAP);
+        },control -> { addRenderableWidget(control); availability.add(() -> control.active=!busy()&&confirmation==null&&(control.getMessage().equals(message("tab."+key(Tab.KINGDOM)))?state!=null&&state.kingdom()!=null:true)); },() -> !busy()&&confirmation==null);
+        int top=bounds.y()+78,actionsY=bounds.footerY()-CONTROL-GAP,bodyHeight=Math.max(15,actionsY-top-GAP);
         if (confirmation!=null) {
-            addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,bodyHeight,message("confirm_abandon",dimension.toString(),x,z).copy().append("\n\n").append(details())));
+            addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,bodyHeight,message("confirm_abandon",KingdomUi.dimension(dimension),x,z).copy().append("\n\n").append(details())));
         } else if (selectedDemand!=null) {
             DemandEntry d=selectedDemand;
-            var description=message("demand_details",d.claimantName(),d.ownerName(),d.territory().cityName(),d.territory().dimension().toString(),d.territory().x(),d.territory().z(),date(d.createdAt()),d.expiresAt()==0?message("never"):Component.literal(date(d.expiresAt()))).copy().append("\n\n").append(message("political_only"));
+            var description=message("demand_details",d.claimantName(),d.ownerName(),d.territory().cityName(),KingdomUi.dimension(d.territory().dimension()),d.territory().x(),d.territory().z(),date(d.createdAt()),d.expiresAt()==0?message("never"):Component.literal(date(d.expiresAt()))).copy().append("\n\n").append(message("political_only"));
             addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,bodyHeight,description));
         } else if (tab==Tab.LOCAL&&state!=null) {
-            int size=Math.clamp(bodyHeight/7,8,26),grid=size*7,detailX=bounds.left()+grid+GAP;
+            int size=Math.clamp(bodyHeight/7,8,20),grid=size*7,detailX=bounds.left()+grid+GAP;
             for (int i=0;i<state.cells().size();i++) {
                 Cell c=state.cells().get(i); boolean chosen=c.dimension().equals(dimension)&&c.x()==x&&c.z()==z;
                 String glyph=c.disputes()>0?"!":c.city()==null?(c.adjacent()?"+":"·"):Objects.equals(c.city(),state.city())?"◆":Objects.equals(c.kingdom(),state.kingdom())&&c.kingdom()!=null?"◇":"×";
@@ -83,31 +86,42 @@ public final class TerritoryScreen extends RoyalScreen {
             button(bounds.right()-54,y,54,Component.literal("→"),() -> turn(1,total),() -> !busy()&&(offset+visible<total||(page+1)*PAGE_SIZE<state.matches()),ButtonStyle.NORMAL);
         }
         if (state==null&&confirmation==null&&selectedDemand==null) addRenderableWidget(paragraph(font,bounds.left(),top,w-GAP,bodyHeight,feedback));
-        int third=(w-2*GAP)/3,half=(w-GAP)/2;
+        int half=(w-GAP)/2;
         if (confirmation!=null) {
             button(bounds.left(),actionsY,half,message("confirm"),() -> send(Action.ABANDON),() -> !busy()&&canMutate(),ButtonStyle.DANGER);
             button(bounds.left()+half+GAP,actionsY,half,text("cancel"),() -> { confirmation=null; read(); },() -> !busy(),ButtonStyle.NORMAL);
         } else if (selectedDemand!=null) {
             button(bounds.left(),actionsY,half,message("withdraw"),() -> send(Action.WITHDRAW),() -> !busy()&&selectedDemand.withdraw()&&canMutate(),ButtonStyle.DANGER);
             button(bounds.left()+half+GAP,actionsY,half,message("back"),() -> { selectedDemand=null; demand=null; rebuildWidgets(); },() -> !busy(),ButtonStyle.NORMAL);
-        } else {
-            button(bounds.left(),actionsY,third,message("expand"),() -> send(Action.EXPAND),() -> !busy()&&state!=null&&state.claimReason().isEmpty()&&standing()&&canMutate(),ButtonStyle.PRIMARY);
-            button(bounds.left()+third+GAP,actionsY,third,message("abandon"),() -> send(Action.PREPARE_ABANDON),() -> !busy()&&state!=null&&state.abandonReason().isEmpty()&&standing()&&canMutate(),ButtonStyle.DANGER);
-            button(bounds.left()+2*(third+GAP),actionsY,third,message("demand"),() -> send(Action.DEMAND),() -> !busy()&&state!=null&&state.politicalAllowed()&&!state.existingDemand()&&state.selection().kingdom()!=null&&!state.selection().kingdom().equals(state.kingdom())&&canMutate(),ButtonStyle.NORMAL);
+        } else if (tab==Tab.LOCAL&&state!=null&&state.selection()!=null) {
+            Cell cell=state.selection();
+            if (cell.city()==null) {
+                var expand=addRenderableWidget(new RoyalButton(bounds.left(),actionsY,w,message("expand"),b -> send(Action.EXPAND),ButtonStyle.PRIMARY));
+                expand.setTooltip(net.minecraft.client.gui.components.Tooltip.create(state.claimReason().isEmpty()?message(standing()?"ready":"stand_here"):Component.translatable(state.claimReason())));
+                availability.add(() -> expand.active=!busy()&&state!=null&&state.claimReason().isEmpty()&&standing()&&canMutate());
+            } else if (Objects.equals(cell.city(),state.city())) {
+                var abandon=addRenderableWidget(new RoyalButton(bounds.left(),actionsY,w,message("abandon"),b -> send(Action.PREPARE_ABANDON),ButtonStyle.DANGER));
+                abandon.setTooltip(net.minecraft.client.gui.components.Tooltip.create(state.abandonReason().isEmpty()?message(standing()?"ready":"stand_here"):Component.translatable(state.abandonReason())));
+                availability.add(() -> abandon.active=!busy()&&state!=null&&state.abandonReason().isEmpty()&&standing()&&canMutate());
+            } else if (state.politicalAllowed()&&cell.kingdom()!=null&&!cell.kingdom().equals(state.kingdom())) {
+                button(bounds.left(),actionsY,half,message("demand"),() -> send(Action.DEMAND),() -> !busy()&&!state.existingDemand()&&canMutate(),ButtonStyle.NORMAL);
+                button(bounds.left()+half+GAP,actionsY,half,message("duration",days==0?message("never"):message("days",days)),() -> {
+                    days=switch(days) { case 7 -> 30; case 30 -> 90; case 90 -> 0; default -> 7; }; rebuildWidgets();
+                },() -> !busy(),ButtonStyle.NORMAL);
+            }
         }
-        int secondary=actionsY+CONTROL+GAP;
-        button(bounds.left(),secondary,third,message("here"),() -> { city=null; current(); tab=Tab.LOCAL; confirmation=null; selectedDemand=null; read(); },() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
-        button(bounds.left()+third+GAP,secondary,third,message("duration",days==0?message("never"):message("days",days)),() -> { days=switch(days) { case 7 -> 30; case 30 -> 90; case 90 -> 0; default -> 7; }; rebuildWidgets(); },() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
-        button(bounds.left()+2*(third+GAP),secondary,third,message("map"),() -> minecraft.setScreen(new PoliticalMapScreen(null,false,this)),() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
-        button(bounds.left(),bounds.footerY(),half,text("refresh"),this::read,() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
-        button(bounds.left()+half+GAP,bounds.footerY(),half,text("close"),this::onClose,() -> true,ButtonStyle.NORMAL);
+        if (confirmation==null) button(bounds.left(),bounds.footerY(),64,text("back"),this::onClose,() -> true,ButtonStyle.NORMAL);
+        if (confirmation==null) button(bounds.right()-70,bounds.footerY(),70,text("refresh"),this::read,() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
+        if (confirmation==null) button(bounds.left()+70,bounds.footerY(),w-146,message("here"),() -> {
+            city=null; current(); tab=Tab.LOCAL; confirmation=null; selectedDemand=null; read();
+        },() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
         availability.forEach(Runnable::run);
         if (initial) { initial=false; if (dimension==null) current(); read(); }
     }
     private final class TileButton extends RoyalButton {
         private final String glyph;
         TileButton(int x,int y,int size,Cell c,String glyph,boolean chosen) {
-            super(x,y,size,message("selection",c.dimension().toString(),c.x(),c.z(),message(c.city()==null?"wilderness":"city_territory"),c.cityName(),c.kingdomName(),c.foreignEdges(),c.disputes()),b -> select(c),c.disputes()>0?ButtonStyle.DANGER:chosen?ButtonStyle.PRIMARY:ButtonStyle.NORMAL);
+            super(x,y,size,message("selection",KingdomUi.dimension(c.dimension()),c.x(),c.z(),message(c.city()==null?"wilderness":"city_territory"),c.cityName(),c.kingdomName(),c.foreignEdges(),c.disputes()),b -> select(c),c.disputes()>0?ButtonStyle.DANGER:chosen?ButtonStyle.PRIMARY:ButtonStyle.NORMAL);
             this.glyph=glyph; setHeight(size); selected(chosen); setTooltip(null);
         }
         @Override protected void renderContent(GuiGraphics g,int color,int offset) {
@@ -121,14 +135,14 @@ public final class TerritoryScreen extends RoyalScreen {
     private Component details() {
         if (state==null) return text("loading"); Cell c=state.selection();
         String type=c.city()==null?"wilderness":Objects.equals(c.city(),state.city())||c.kingdom()!=null&&c.kingdom().equals(state.kingdom())?"city_territory":"foreign_territory";
-        var detail=message("summary",state.cityName(),state.cityClaims(),state.limit(),Math.max(0,state.limit()-state.cityClaims()),state.kingdomName(),state.kingdomClaims()).copy().append("\n\n").append(message("selection",c.dimension().toString(),c.x(),c.z(),message(type),c.cityName(),c.kingdomName(),c.foreignEdges(),c.disputes()));
+        var detail=message("selection",KingdomUi.dimension(c.dimension()),c.x(),c.z(),message(type),c.cityName(),c.kingdomName(),c.foreignEdges(),c.disputes()).copy();
         detail.append("\n").append(message("adjacency",message(c.adjacent()?"yes":"no")));
-        detail.append("\n\n").append(message("expansion_status",state.claimReason().isEmpty()?message(standing()?"ready":"stand_here"):Component.translatable(state.claimReason())));
-        detail.append("\n").append(message("abandon_status",state.abandonReason().isEmpty()?message(standing()?"ready":"stand_here"):Component.translatable(state.abandonReason())));
+        if (c.city()==null) detail.append("\n\n").append(message("expansion_status",state.claimReason().isEmpty()?message(standing()?"ready":"stand_here"):Component.translatable(state.claimReason())));
+        if (Objects.equals(c.city(),state.city())&&c.city()!=null) detail.append("\n").append(message("abandon_status",state.abandonReason().isEmpty()?message(standing()?"ready":"stand_here"):Component.translatable(state.abandonReason())));
         boolean nearDispute=state.cells().stream().anyMatch(n -> n.disputes()>0&&n.dimension().equals(c.dimension())&&Math.abs((long)n.x()-c.x())+Math.abs((long)n.z()-c.z())<=1);
         if (c.foreignEdges()>0||c.disputes()>0||nearDispute) detail.append("\n\n").append(message("disputed_warning"));
         if (state.existingDemand()) detail.append("\n").append(message("already_demanded"));
-        detail.append("\n\n").append(message("legend")); return detail;
+        return detail;
     }
     private static String date(long millis) { return java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z").withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.ofEpochMilli(millis)); }
     private void turn(int direction,int total) {
@@ -160,6 +174,7 @@ public final class TerritoryScreen extends RoyalScreen {
         availability.forEach(Runnable::run);
     }
     @Override public void onClose() {
+        if (confirmation!=null) { confirmation=null; read(); return; }
         if (parent instanceof KingdomManagementScreen menu) menu.refreshOnOpen();
         else if (parent instanceof PoliticalMapScreen map) map.invalidate();
         minecraft.setScreen(parent);
@@ -167,14 +182,16 @@ public final class TerritoryScreen extends RoyalScreen {
     @Override public Component getNarrationMessage() { return title.copy().append(". ").append(feedback); }
     @Override public void render(GuiGraphics g,int mx,int my,float delta) {
         g.fill(0,0,width,height,BACKGROUND); AtlasGraphics.folio(g,bounds.x(),bounds.y(),bounds.width(),bounds.height());
-        heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth());
+        heading(g,font,title,bounds.left(),bounds.y()+12,bounds.contentWidth()-124);
         Component summary=state==null?feedback:message("summary",state.cityName(),state.cityClaims(),state.limit(),Math.max(0,state.limit()-state.cityClaims()),state.kingdomName(),state.kingdomClaims());
         g.drawString(font,ellipsize(font,summary,bounds.contentWidth()),bounds.left(),bounds.y()+28,INK,false);
         g.drawString(font,ellipsize(font,feedback,bounds.contentWidth()),bounds.left(),bounds.y()+39,failed?ERROR:MUTED,false);
         if (state!=null&&tab!=Tab.LOCAL&&selectedDemand==null&&confirmation==null) {
-            int top=bounds.y()+78,actionsY=bounds.footerY()-2*(CONTROL+GAP),bodyHeight=Math.max(15,actionsY-top-GAP);
+            int top=bounds.y()+78,actionsY=bounds.footerY()-CONTROL-GAP,bodyHeight=Math.max(15,actionsY-top-GAP);
             g.drawCenteredString(font,message("page",page+1,Math.max(1,(state.matches()+PAGE_SIZE-1)/PAGE_SIZE)),bounds.left()+bounds.contentWidth()/2,top+bodyHeight-CONTROL+6,MUTED);
         }
         super.render(g,mx,my,delta);
+        for (var child:children()) if (child instanceof TileButton tile&&tile.isMouseOver(mx,my))
+            tooltip(g,font,font.split(tile.getMessage(),Math.min(220,width-24)),mx,my,6);
     }
 }

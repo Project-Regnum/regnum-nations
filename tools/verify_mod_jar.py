@@ -41,6 +41,7 @@ def verify(path):
         require('THIRD_PARTY_NOTICES.md')
         require('dev/sakhno/regnum/nations/client/terrain/diorama/bake/TileBaker.class')
         assert 'dev/sakhno/regnum/nations/kingdom/AtlasClientChecks.class' not in names
+        assert 'dev/sakhno/regnum/nations/kingdom/ChatUiTest.class' not in names
         require(metadata['icon'])
         for entrypoints in metadata['entrypoints'].values():
             for entrypoint in entrypoints:
@@ -56,7 +57,22 @@ def verify(path):
                 require(f'assets/regnum-nations/textures/gui/atlas/{texture}{suffix}')
         languages = [read_json(f'assets/regnum-nations/lang/{locale}.json') for locale in ('en_us', 'uk_ua')]
         assert languages[0].keys() == languages[1].keys(), 'Locale key sets differ'
+        for key in languages[0]:
+            # Compare argument positions, allowing translations to reorder indexed placeholders.
+            def arguments(value):
+                sequential = 0
+                result = []
+                for match in re.finditer(r'%(?:(\d+)\$)?s', value):
+                    if match[1] is None:
+                        sequential += 1
+                    result.append(int(match[1]) if match[1] else sequential)
+                return sorted(result)
+            assert arguments(languages[0][key]) == arguments(languages[1][key]), f'Locale arguments differ: {key}'
         for language in languages:
+            assert language['chat.regnum-nations.prefix'] == '[Regnum]'
+            for key, value in language.items():
+                assert not re.search(r'reigns|/nations\b', value, re.I), f'Obsolete visible branding: {key}'
+                assert '\ufffd' not in value, f'Invalid Unicode: {key}'
             for key in ('block.project-reigns.city_obelisk', 'block.project-reigns.kingdom_obelisk',
                         'key.project-reigns.map', 'category.project-reigns'):
                 assert key in language, f'Missing compatibility translation: {key}'
@@ -64,7 +80,7 @@ def verify(path):
             for source in (ROOT / 'src' / source_set / 'java').rglob('*.java'):
                 if source_set == 'main':
                     assert 'net.minecraft.client.' not in source.read_text(), f'Client import in common code: {source}'
-                keys = re.findall(r'"((?:message|ui|admin|city|map)\.regnum-nations\.[a-z0-9_.]+)"', source.read_text())
+                keys = re.findall(r'"((?:message|ui|admin|city|map|chat|citizen|relocation|territory|warfare|diplomacy|heraldry|economy)\.regnum-nations\.[a-z0-9_.]+)"', source.read_text())
                 for key in keys:
                     if not key.endswith('.'):
                         assert key in languages[0], f'Missing translation in {source}: {key}'

@@ -46,7 +46,7 @@ public class CityRoleTests implements FabricGameTest {
                     "Owners are implicit, all new members default to CITIZEN, and outsiders have no role");
             f.citizens.assignRole(owner, officer.getUUID(), OFFICER);
             var identities = List.of(owner, officer, citizen, outsider);
-            var expected = List.of(Set.of(CityPermission.values()), Set.of(BUILD, INTERACT, INVITE), Set.of(BUILD, INTERACT), Set.<CityPermission>of());
+            var expected = List.of(Set.of(CityPermission.values()), Set.of(BUILD, INTERACT, INVITE, VIEW_TERRITORY, EXPAND_TERRITORY), Set.of(BUILD, INTERACT, VIEW_TERRITORY), Set.<CityPermission>of());
             for (int i = 0; i < identities.size(); i++) for (var permission : CityPermission.values())
                 h.assertTrue(CityPermissions.allows(f.data, city, identities.get(i).getUUID(), permission) == expected.get(i).contains(permission),
                         "Incorrect default permission " + permission + " for " + i);
@@ -142,17 +142,20 @@ public class CityRoleTests implements FabricGameTest {
     }
 
     @GameTest(template = EMPTY_STRUCTURE, batch = "city_roles")
-    public void officerCannotClaimOrUnclaimWhileOwnerRulesRemain(GameTestHelper h) throws Exception {
+    public void officerCanExpandButOnlyOwnerCanAbandonWhileAnchorRulesRemain(GameTestHelper h) throws Exception {
         try (var f = new Fixture(h, false)) {
             var owner = f.player(); var officer = f.player(); var city = f.city(owner);
             f.join(owner, officer, city); f.citizens.assignRole(owner, officer.getUUID(), OFFICER);
             var claims = new ClaimService(f.data); var capital = ClaimPos.at(city.dimension(), city.obeliskPos()); var adjacent = capital.offset(1, 0);
             officer.setPos(adjacent.x() * 16 + 8, 64, adjacent.z() * 16 + 8);
-            reject(f, NOT_OWNER, () -> claims.manage(officer, adjacent, city.id(), false));
+            claims.manage(officer, adjacent, city.id(), false);
+            h.assertTrue(city.id().equals(f.data.claimOwner(adjacent)),"Officer may expand this city’s territory");
             owner.setPos(adjacent.x() * 16 + 8, 64, adjacent.z() * 16 + 8);
-            claims.manage(owner, adjacent, city.id(), false);
+            reject(f, TERRITORY_OCCUPIED, () -> claims.manage(owner, adjacent, city.id(), false));
             reject(f, NOT_OWNER, () -> claims.manage(officer, adjacent, city.id(), true));
-            claims.manage(owner, adjacent, city.id(), true);
+            reject(f, CLAIM_CONFIRMATION, () -> claims.manage(owner, adjacent, city.id(), true));
+            claims.manage(owner, adjacent, city.id(), true,claims.prepareAbandonment(owner,adjacent,city.id()));
+            h.assertTrue(f.data.claimOwner(adjacent)==null,"Owner confirmation releases only the selected claim");
             owner.setPos(Vec3.atCenterOf(city.obeliskPos()));
             reject(f, CAPITAL_CHUNK, () -> claims.manage(owner, capital, city.id(), true));
             var diagonal = capital.offset(1, 1); owner.setPos(diagonal.x() * 16 + 8, 64, diagonal.z() * 16 + 8);
@@ -307,45 +310,55 @@ public class CityRoleTests implements FabricGameTest {
             var city = f.city(owner); f.join(owner, officer, city); f.advance(); f.join(owner, citizen, city);
             var server = h.getLevel().getServer(); var dispatcher = server.getCommands().getDispatcher(); var output = new Output();
             var source = server.createCommandSourceStack().withEntity(owner).withPermission(0).withSource(output);
-            h.assertTrue(dispatcher.execute("nations citizen role " + officer.getGameProfile().getName() + " OFFICER", source) == 1,
+            h.assertTrue(dispatcher.execute("regnum citizen role " + officer.getGameProfile().getName() + " OFFICER", source) == 1,
                     "Owner can promote using the authenticated command actor");
-            h.assertTrue(dispatcher.execute("reigns citizen role " + citizen.getUUID() + " officer", source.withEntity(officer)) == 0
-                    && dispatcher.execute("nations citizen role " + officer.getUUID() + " citizen", source.withEntity(citizen)) == 0
-                    && dispatcher.execute("nations citizen role " + owner.getUUID() + " citizen", source) == 0
-                    && dispatcher.execute("nations citizen role " + citizen.getUUID() + " owner", source) == 0
-                    && dispatcher.execute("nations citizen role " + citizen.getUUID() + " custom", source) == 0,
+            h.assertTrue(dispatcher.execute("regnum citizen role " + citizen.getUUID() + " officer", source.withEntity(officer)) == 0
+                    && dispatcher.execute("regnum citizen role " + officer.getUUID() + " citizen", source.withEntity(citizen)) == 0
+                    && dispatcher.execute("regnum citizen role " + owner.getUUID() + " citizen", source) == 0
+                    && dispatcher.execute("regnum citizen role " + citizen.getUUID() + " owner", source) == 0
+                    && dispatcher.execute("regnum citizen role " + citizen.getUUID() + " custom", source) == 0,
                     "Commands must deny unauthorized, ownership-changing and unknown roles");
             output.messages.clear();
-            h.assertTrue(dispatcher.execute("reigns citizen roles", source.withEntity(officer)) == 1 && output.messages.size() == 3,
-                    "Alias must list the three role definitions");
-            output.messages.clear(); dispatcher.execute("nations citizen list", source);
+            h.assertTrue(dispatcher.execute("regnum citizen roles", source.withEntity(officer)) == 1 && output.messages.size() == 1,
+                    "Roles must be grouped into one readable message");
+            output.messages.clear(); dispatcher.execute("regnum citizen list", source);
             h.assertTrue(output.messages.stream().anyMatch(message -> hasRole(message, officer.getUUID(), "officer"))
                     && output.messages.stream().anyMatch(message -> hasRole(message, owner.getUUID(), "owner"))
                     && output.messages.stream().anyMatch(message -> hasRole(message, citizen.getUUID(), "citizen")), "Citizen list must display all actual roles");
-            output.messages.clear(); dispatcher.execute("nations citizen permissions", source.withEntity(officer));
-            h.assertTrue(output.messages.size() == 6 && output.messages.stream().filter(message -> permissionValue(message, true)).count() == 3
-                    && output.messages.stream().filter(message -> permissionValue(message, false)).count() == 2, "Officer permission command must display exactly the three allowed actions");
-            h.assertTrue(dispatcher.execute("reigns citizen invite " + target.getGameProfile().getName(), source.withEntity(officer)) == 1
-                    && dispatcher.execute("nations citizen accept " + city.id(), source.withEntity(target)) == 1
-                    && dispatcher.execute("nations citizen kick " + citizen.getUUID(), source.withEntity(officer)) == 0
-                    && dispatcher.execute("nations claim", source.withEntity(officer)) == 0, "Officer command authority extends only to invitations");
+            output.messages.clear(); dispatcher.execute("regnum citizen permissions", source.withEntity(officer));
+            h.assertTrue(output.messages.size() == 1 && permissionCount(output.messages.getFirst(), true) == java.util.Arrays.stream(CityPermission.values()).filter(p -> CityPermissions.allows(f.data,city,officer.getUUID(),p)).count()
+                    && permissionCount(output.messages.getFirst(), false) == java.util.Arrays.stream(CityPermission.values()).filter(p -> !CityPermissions.allows(f.data,city,officer.getUUID(),p)).count(), "Officer permission message must display the current allowed and denied actions");
+            h.assertTrue(dispatcher.execute("regnum citizen invite " + target.getGameProfile().getName(), source.withEntity(officer)) == 1
+                    && dispatcher.execute("regnum citizen accept " + city.id(), source.withEntity(target)) == 1
+                    && dispatcher.execute("regnum citizen kick " + citizen.getUUID(), source.withEntity(officer)) == 0
+                    && dispatcher.execute("regnum claim", source.withEntity(officer)) == 0, "Officer command authority extends only to invitations");
             f.serverPlayers().remove(officer);
-            h.assertTrue(dispatcher.execute("reigns citizen role " + officer.getUUID() + " citizen", source) == 1
+            h.assertTrue(dispatcher.execute("regnum citizen role " + officer.getUUID() + " citizen", source) == 1
                     && f.data.role(city.id(), officer.getUUID()) == CITIZEN, "Owner can demote an offline officer by UUID");
         }
         h.succeed();
     }
 
-    private static boolean hasRole(Component message, UUID player, String role) {
-        if (!(message.getContents() instanceof TranslatableContents contents) || !contents.getKey().equals("citizen.regnum-nations.role_entry")) return false;
-        Object[] args = contents.getArgs();
-        return args[1].equals(player.toString()) && args[2] instanceof Component label
-                && label.getContents() instanceof TranslatableContents translated && translated.getKey().equals("citizen.regnum-nations.role." + role);
+    private static java.util.stream.Stream<Component> components(Component message) {
+        var children=message.getSiblings().stream();
+        if (message.getContents() instanceof TranslatableContents contents) {
+            children=java.util.stream.Stream.concat(children,java.util.Arrays.stream(contents.getArgs())
+                    .filter(Component.class::isInstance).map(Component.class::cast));
+        }
+        return java.util.stream.Stream.concat(java.util.stream.Stream.of(message),children.flatMap(CityRoleTests::components));
     }
-    private static boolean permissionValue(Component message, boolean allowed) {
-        return message.getContents() instanceof TranslatableContents contents && contents.getKey().equals("citizen.regnum-nations.permission_entry")
+    private static boolean hasRole(Component message, UUID player, String role) {
+        return components(message).anyMatch(c -> {
+            if (!(c.getContents() instanceof TranslatableContents contents) || !contents.getKey().equals("citizen.regnum-nations.role_entry")) return false;
+            Object[] args=contents.getArgs();
+            return args[1] instanceof Component id && id.getString().equals(player.toString()) && args[2] instanceof Component label
+                    && label.getContents() instanceof TranslatableContents translated && translated.getKey().equals("citizen.regnum-nations.role."+role);
+        });
+    }
+    private static long permissionCount(Component message, boolean allowed) {
+        return components(message).filter(c -> c.getContents() instanceof TranslatableContents contents && contents.getKey().equals("citizen.regnum-nations.permission_entry")
                 && contents.getArgs()[1] instanceof Component value && value.getContents() instanceof TranslatableContents translated
-                && translated.getKey().equals("ui.regnum-nations." + (allowed ? "yes" : "no"));
+                && translated.getKey().equals("ui.regnum-nations."+(allowed?"yes":"no"))).count();
     }
     private static final class Output implements CommandSource {
         final List<Component> messages = new ArrayList<>();

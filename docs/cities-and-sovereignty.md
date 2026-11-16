@@ -41,13 +41,13 @@ position, capital and legacy-owner repair checks still apply. Kingdom leadership
 and affiliation never grant municipal permissions. Verified obelisk viewing stays
 public; the existing environment/automation protection limits remain.
 
-New commands, also available through `/reigns citizen`:
+Citizen commands under `/regnum citizen`:
 
 | Command | Behavior |
 | --- | --- |
-| `/nations citizen role <player> <role>` | Owner assigns `officer` or `citizen` to an existing citizen of their city. Role names are case-insensitive. Accepts online/local citizen names or an offline player's listed UUID. |
-| `/nations citizen roles` | City member reads the three role definitions. |
-| `/nations citizen permissions` | City member reads all five effective permissions for their current role. |
+| `/regnum citizen role <player> <role>` | Owner assigns `officer` or `citizen` to an existing citizen of their city. Role names are case-insensitive. Accepts online/local citizen names or an offline player's listed UUID. |
+| `/regnum citizen roles` | City member reads the three role definitions. |
+| `/regnum citizen permissions` | City member reads all five effective permissions for their current role. |
 
 `citizen list` now shows a role beside every UUID, including the implicit owner.
 Requests to demote/reassign an owner or grant `OWNER` reject without changing saved
@@ -137,16 +137,16 @@ Existing `TerritoryProtection` events, placement and bucket mixins continue thro
 
 | Command | Behavior |
 | --- | --- |
-| `/nations citizen invite <player>` | Owner invites one online player who does not belong to a city. |
-| `/nations citizen accept <cityUUID>` | Recipient consumes their invitation and joins that city. |
-| `/nations citizen decline <cityUUID>` | Recipient consumes their invitation without joining. |
-| `/nations citizen leave` | Non-owner leaves only their current city. |
-| `/nations citizen list` | Shows the current city's citizens, including the owner, with UUIDs and locally known names. |
-| `/nations citizen kick <player>` | Owner removes a citizen by online name, locally cached citizen name, or UUID. UUIDs work for offline citizens. |
+| `/regnum citizen invite <player>` | Owner invites one online player who does not belong to a city. |
+| `/regnum citizen accept <cityUUID>` | Recipient consumes their invitation and joins that city. |
+| `/regnum citizen decline <cityUUID>` | Recipient consumes their invitation without joining. |
+| `/regnum citizen leave` | Non-owner leaves only their current city. |
+| `/regnum citizen list` | Shows the current city's citizens, including the owner, with UUIDs and locally known names. |
+| `/regnum citizen kick <player>` | Owner removes a citizen by online name, locally cached citizen name, or UUID. UUIDs work for offline citizens. |
 
-`/nations citizen` prints command help. `/reigns citizen ...` shares the same handlers
-and checks. UUIDs in invitation messages are **city UUIDs**. `/nations invite` and
-`/nations join <kingdomUUID>` remain separate 30-second city-to-kingdom affiliation
+`/regnum citizen` prints command help. Compatibility redirects share the same handlers
+and checks. UUIDs in invitation messages are **city UUIDs**. `/regnum invite` and
+`/regnum join <kingdomUUID>` remain separate 30-second city-to-kingdom affiliation
 commands; neither can accept a citizenship invitation.
 
 Citizenship invitations last **60 elapsed seconds**, measured with a monotonic clock
@@ -222,7 +222,7 @@ tests intentionally emit invalid-data error logs while asserting preservation.
 Manual acceptance on a disposable dedicated world:
 
 1. Owner A founds a city; non-owner B cannot build in its claims. A runs
-   `/nations citizen invite B`; B runs the acceptance command from the invitation.
+   `/regnum citizen invite B`; B runs the acceptance command from the invitation.
 2. Both players place/break blocks and use a chest. A third, non-citizen player
    remains denied. B cannot claim/unclaim, invite, or kick; A can manage claims.
 3. Stop and restart the server, reconnect both players, and check citizen lists
@@ -248,9 +248,9 @@ Implementation architecture:
 2. Legacy capitals become combined city/state anchors. Their capital settlement
    uses the legacy kingdom UUID in the separate settlement identity namespace,
    retaining all claim identifiers. Native city/kingdom identities are independent.
-3. City obelisks found independent city-states. A directly adjacent state obelisk
-   in the same chunk elevates an existing city without another domain slot.
-   The old /nations found path remains a combined city/kingdom compatibility flow.
+3. City obelisks found independent city-states. A state obelisk anywhere in that
+   city’s claimed territory in the same dimension elevates it without another domain slot.
+   The old /regnum found path remains a combined city/kingdom compatibility flow.
 4. Claim management follows personal settlement ownership; v0.7 also grants citizens
    block access. Sovereignty supplies political color/identity only. Invitations and explicit acceptance are
    the minimal mechanism for different owners to affiliate their cities.
@@ -278,18 +278,18 @@ The city uses a distinct dark-prismarine appearance. Drops do not retain binding
 2. One player may create/own one city/domain. That slot remains occupied if the city
    joins a kingdom or its physical obelisk is destroyed. Founding a kingdom does
    not consume another slot.
-3. To establish a kingdom, place a State Obelisk **face-adjacent** to your existing
-   city obelisk, in the **same chunk and dimension**. A vertical stack or a horizontal
-   neighbor works; two blocks never occupy one BlockPos. Right-click the state
+3. To establish a kingdom, place a State Obelisk anywhere in your existing city’s
+   **claimed territory in the same dimension**, including another claimed chunk.
+   Both obelisks remain separate physical blocks. Right-click the state
    anchor, choose a kingdom name and political color, and confirm. The original
    city UUID/claims/owner remain; it becomes the capital settlement.
-4. `/nations found <name>` remains the original state-founding confirmation command,
+4. `/regnum found <name>` remains the original state-founding confirmation command,
    using a deterministic default palette choice. For compatibility, selecting a
    State Obelisk without already owning a city allows the original combined
    city-and-kingdom founding flow (including its GUI); it creates exactly one
    capital city/domain. New players are encouraged to start with a City Obelisk.
-5. A kingdom leader can `/nations invite <player>` to invite an independent city
-   owner. The recipient explicitly accepts with `/nations join <kingdomUUID>`
+5. A kingdom leader can `/regnum invite <player>` to invite an independent city
+   owner. The recipient explicitly accepts with `/regnum join <kingdomUUID>`
    within 30 seconds. No ownership/claim UUID changes; the city adopts the kingdom
    color while preserving its original independent color. Invitations are temporary,
    recipient-session-bound and consumed on acceptance attempts. No join without
@@ -344,7 +344,7 @@ Historical multiple kingdoms/domains for one founder are all retained, with stab
 IDs and affiliations. All extra historical holdings remain protected for that
 owner, but new founding and claim management are blocked for the ambiguous owner.
 This is an explicit grandfathered repair case, not permission to create a second
-new domain. `/nations admin settlements` and `settlement <UUID>` identify the records.
+new domain. `/regnum admin settlements` and `settlement <UUID>` identify the records.
 Conflicting capitals and historical duplicate owners require deliberate expert
 administrative repair of a **whole-world backup**, or a future transfer/relocation
 feature. This milestone does not guess a new owner, delete the extra city, move an
@@ -371,7 +371,7 @@ The compact menu provides City, Kingdom, Territories and a functional Map entry.
 City displays personal ownership/claims/status and separate sovereignty; independent
 cities have a valid city-state view. Kingdom displays the distinct ruler, state
 anchor and aggregate city claims. Territories summarizes the selected city and
-opens the single full-size View/Manage map. `/nations menu`, `/nations city`, obelisk
+opens the single full-size View/Manage map. `/regnum menu`, `/regnum city`, obelisk
 interaction and M remain available, including visitor inspection.
 
 Map cells/borders identify settlement UUIDs and names. Their fill derives from the
@@ -393,7 +393,7 @@ No periodic server polling, chunk scans or per-tick gameplay tasks are added.
 
 ## Safe administration
 
-All previous `/nations admin list [page]`, `info <kingdom>`, `tp <kingdom>`,
+All previous `/regnum admin list [page]`, `info <kingdom>`, `tp <kingdom>`,
 `unclaim <kingdom> <chunkX> <chunkZ> [dimension]`, `rename <kingdom> <newName>` and
 `help` remain permission-level-3+ operations. Unclaim now validates the actual
 settlement owner is affiliated with the specified kingdom, while preserving **all**
@@ -402,15 +402,15 @@ capital reservations. Rename changes only the political name, not city names/IDs
 New read-only troubleshooting:
 
 ```text
-/nations admin settlements [page]
-/nations admin settlement <exact-settlementUUID>
+/regnum admin settlements [page]
+/regnum admin settlement <exact-settlementUUID>
 ```
 
 New deliberate kingdom deletion:
 
 ```text
-/nations admin delete <kingdomUUID-or-full-quoted-name>
-/nations admin delete <same-kingdomUUID> confirm <server-issued-token>
+/regnum admin delete <kingdomUUID-or-full-quoted-name>
+/regnum admin delete <same-kingdomUUID> confirm <server-issued-token>
 ```
 
 The first command prints an explicit consequence summary, clickable Confirm/Cancel
@@ -418,7 +418,7 @@ actions and secondary textual commands. The token lasts 30 server seconds, is
 executor/session/kingdom-bound, is consumed on service confirmation attempts, and
 is not saved. In v0.6.1 a repeated request for the same target retains the token and
 original deadline with clear feedback; another target requires cancel/expiry first.
-`/nations admin delete <kingdomUUID> cancel <token>` invalidates that exact pending
+`/regnum admin delete <kingdomUUID> cancel <token>` invalidates that exact pending
 request on the server. Stale Cancel links cannot invalidate newer requests. Confirmation checks permission level 3 again, current identity, token,
 actor and expiry on the server thread. Disconnect/server stop invalidates pending
 player confirmations. Wrong, expired, reused or revoked-permission confirmations
@@ -470,12 +470,13 @@ Singleplayer, disposable Creative world (`./gradlew runClient`):
    Inspect remote/diagonal chunks, foreign land and the capital. Physical-presence,
    adjacency, owner and capital restrictions must hold. Check counts/map refresh,
    chosen fill color, gold personal marks, tooltip names, zoom/pan/Fit and View mode.
-4. Place a State Obelisk face-adjacent to the city within the same chunk. Select a
+4. Place a State Obelisk apart from the city anchor, then repeat in another claimed
+   chunk of the same city. Reject unclaimed or foreign city territory. Select a
    different kingdom color and found. Verify the city UUID/owner/domain count is
    unchanged; Kingdom and the map use the new persisted political color.
-5. Use the original `/nations found <name>` on a selected state anchor in a fresh
-   world to verify combined-founding compatibility. Test `/nations kingdom`,
-   `/nations territory`, `/nations claim`, `/nations unclaim`, menu and obelisk views.
+5. Use the original `/regnum found <name>` on a selected state anchor in a fresh
+   world to verify combined-founding compatibility. Test `/regnum kingdom`,
+   `/regnum territory`, `/regnum claim`, `/regnum unclaim`, menu and obelisk views.
 6. Copy a v0.5.1 world, record kingdoms/anchors/claims, upgrade, save/restart twice
    and compare all IDs/names/claims. Check missing capitals, ordinary chunk unload
    and reload, capital destruction/replacement, and migration conflict diagnostics.

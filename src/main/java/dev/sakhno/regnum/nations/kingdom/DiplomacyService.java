@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import dev.sakhno.regnum.nations.api.diplomacy.*;
 import dev.sakhno.regnum.nations.api.v1.ApiResult;
 import dev.sakhno.regnum.nations.kingdom.DiplomacyData.*;
@@ -238,7 +239,7 @@ public final class DiplomacyService {
         if (kind==WAR_DECLARED&&after.war().declarer().equals(pair.second())) {
             Component swap=firstName; firstName=secondName; secondName=swap;
         }
-        Component notification=text("notification."+message,firstName,secondName,
+        Component notification=ChatUi.text("diplomacy.regnum-nations.notification."+message,firstName,secondName,
                 proposal==null?Component.empty():text("proposal."+proposal.type().name().toLowerCase(Locale.ROOT)));
         Set<UUID> members=new HashSet<>(data.kingdomMembers(pair.first())); members.addAll(data.kingdomMembers(pair.second()));
         for (ServerPlayer player:server.getPlayerList().getPlayers()) {
@@ -247,7 +248,8 @@ public final class DiplomacyService {
                 var required=proposal==null?KingdomPermission.MANAGE_TREATIES:proposal.type().permission();
                 if (!KingdomPermissions.allows(data,pair.first(),player.getUUID(),required)&&!KingdomPermissions.allows(data,pair.second(),player.getUUID(),required)) continue;
             }
-            player.sendSystemMessage(notification);
+            if (kind==WAR_DECLARED) ChatUi.warn(player, notification, false);
+            else ChatUi.notify(player, notification, false);
         }
     }
     private static Component text(String key,Object... args) { return Component.translatable("diplomacy.regnum-nations."+key,args); }

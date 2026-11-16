@@ -1,5 +1,8 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
+import dev.sakhno.regnum.nations.chat.CommandHelp;
+
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -24,7 +27,9 @@ public final class KingdomAdminCommands {
         return Commands.literal("admin").requires(source -> source.hasPermission(3))
                 .executes(context -> help(context.getSource()))
                 .then(ObeliskRelocationCommands.recovery())
-                .then(Commands.literal("help").executes(context -> help(context.getSource())))
+                .then(Commands.literal("help").executes(context -> help(context.getSource()))
+                        .then(Commands.argument("page",IntegerArgumentType.integer(1,CommandHelp.ADMIN_PAGES))
+                                .executes(context -> help(context.getSource(),IntegerArgumentType.getInteger(context,"page")))))
                 .then(Commands.literal("list").executes(context -> list(context.getSource(),1))
                         .then(Commands.argument("page",IntegerArgumentType.integer(1))
                                 .executes(context -> list(context.getSource(),IntegerArgumentType.getInteger(context,"page")))))
@@ -56,10 +61,13 @@ public final class KingdomAdminCommands {
             return SharedSuggestionProvider.suggest(suggestions,builder);
         });
     }
-    private static Component text(String key,Object... args) { return Component.translatable("admin.regnum-nations."+key,args); }
+    private static Component text(String key,Object... args) { return ChatUi.text("admin.regnum-nations."+key,args); }
     private static int help(CommandSourceStack source) throws CommandSyntaxException {
+        return help(source,1);
+    }
+    private static int help(CommandSourceStack source,int page) throws CommandSyntaxException {
         KingdomService.requireAdministrator(source);
-        source.sendSuccess(() -> text("help"),false); return 1;
+        source.sendSuccess(() -> CommandHelp.administration(page),false); return 1;
     }
     private static int list(CommandSourceStack source,int page) throws CommandSyntaxException {
         KingdomService.requireAdministrator(source);
@@ -69,15 +77,19 @@ public final class KingdomAdminCommands {
             var kingdoms = service.data().kingdoms().stream().sorted(Comparator.comparing((Kingdom k) -> k.name().key()).thenComparing(Kingdom::id)).toList();
             int pages = Math.max(1,(kingdoms.size()+PAGE_SIZE-1)/PAGE_SIZE);
             if (page > pages) throw KingdomService.adminError("page",pages);
-            source.sendSuccess(() -> text("list_header",page,pages,kingdoms.size()),false);
-            if (kingdoms.isEmpty()) source.sendSuccess(() -> text("empty"),false);
+            var result=ChatUi.heading(text("list_header",page,pages,kingdoms.size()));
+            if (kingdoms.isEmpty()) result.append(ChatUi.line(text("empty")));
             for (int i=(page-1)*PAGE_SIZE;i<Math.min(page*PAGE_SIZE,kingdoms.size());i++) {
                 Kingdom kingdom = kingdoms.get(i);
-                source.sendSuccess(() -> text("list_entry",kingdom.name().display(),kingdom.id().toString(),
-                        founder(source,kingdom),kingdom.founderId().toString(),service.data().claimCount(kingdom.id())),false);
+                result.append(ChatUi.section(ChatUi.run(Component.literal(kingdom.name().display()), "/regnum admin info " + kingdom.id(),
+                        ChatUi.text("chat.regnum-nations.inspect_hint", kingdom.name().display()))))
+                        .append(ChatUi.line(text("list_entry",kingdom.name().display(),kingdom.id().toString(),
+                                founder(source,kingdom),kingdom.founderId().toString(),service.data().claimCount(kingdom.id()))));
             }
+            result.append(ChatUi.pagination(page,pages,p -> "/regnum admin list " + p));
+            source.sendSuccess(() -> result,false);
             return 1;
-        } catch (FoundingException e) { source.sendFailure(ruleError(e)); return 0; }
+        } catch (FoundingException e) { ChatUi.fail(source, ruleError(e)); return 0; }
     }
     private static int info(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var source = context.getSource(); KingdomService.requireAdministrator(source);
@@ -85,12 +97,12 @@ public final class KingdomAdminCommands {
         try {
             Kingdom kingdom = service.identify(StringArgumentType.getString(context,"kingdom"));
             var status = service.resolveCapital(kingdom);
-            source.sendSuccess(() -> text("info",kingdom.name().display(),kingdom.id().toString(),founder(source,kingdom),
+            ChatUi.feedback(source, () -> text("info",kingdom.name().display(),kingdom.id().toString(),founder(source,kingdom),
                     kingdom.founderId().toString(),kingdom.dimension().location().toString(),kingdom.capitalPos().toShortString(),
-                    Component.translatable("message.regnum-nations.capital."+status.name().toLowerCase(Locale.ROOT)),
+                    ChatUi.text("message.regnum-nations.capital."+status.name().toLowerCase(Locale.ROOT)),
                     kingdom.capitalObeliskId().toString(),service.data().claimCount(kingdom.id())),false);
             return 1;
-        } catch (FoundingException e) { source.sendFailure(ruleError(e)); return 0; }
+        } catch (FoundingException e) { ChatUi.fail(source, ruleError(e)); return 0; }
     }
     private static int mutate(CommandContext<CommandSourceStack> context,String action) {
         var source = context.getSource();
@@ -131,12 +143,12 @@ public final class KingdomAdminCommands {
                 default -> throw new IllegalStateException("Unknown administrative operation");
             }
             audit(source,action,target,details,"success");
-            source.sendSuccess(() -> result,false); return 1;
+            ChatUi.confirm(source, () -> result,false); return 1;
         } catch (FoundingException e) {
-            audit(source,action,target,details,e.reason().name()); source.sendFailure(ruleError(e)); return 0;
+            audit(source,action,target,details,e.reason().name()); ChatUi.fail(source, ruleError(e)); return 0;
         } catch (CommandSyntaxException e) {
             audit(source,action,target,details,e.getRawMessage().getString());
-            source.sendFailure(e.getRawMessage() instanceof Component component ? component : Component.literal(e.getRawMessage().getString())); return 0;
+            ChatUi.fail(source, e.getRawMessage() instanceof Component component ? component : Component.literal(e.getRawMessage().getString())); return 0;
         }
     }
     private static int delete(CommandContext<CommandSourceStack> context,String action) {
@@ -150,17 +162,17 @@ public final class KingdomAdminCommands {
                 serviceCalled=true;
                 if (action.equals("cancel")) service.cancelDeletion(source,kingdom.id(),token);
                 else service.confirmDeletion(source,kingdom.id(),token);
-                source.sendSuccess(() -> text(action.equals("cancel")?"delete_cancelled":"deleted",kingdom.name().display()),false);
+                ChatUi.confirm(source, () -> text(action.equals("cancel")?"delete_cancelled":"deleted",kingdom.name().display()),false);
             } else {
                 serviceCalled=true; var request=service.prepareDeletion(source,kingdom.id());
                 source.sendSuccess(() -> KingdomDeletionPrompt.create(kingdom,request.token(),request.existing()),false);
             }
             return 1;
         } catch (FoundingException e) {
-            if (!serviceCalled) audit(source,"delete",input,"",e.reason().name()); source.sendFailure(ruleError(e)); return 0;
+            if (!serviceCalled) audit(source,"delete",input,"",e.reason().name()); ChatUi.fail(source, ruleError(e)); return 0;
         } catch (CommandSyntaxException e) {
             if (!serviceCalled) audit(source,"delete",input,"",e.getRawMessage().getString());
-            source.sendFailure(e.getRawMessage() instanceof Component c?c:Component.literal(e.getRawMessage().getString())); return 0;
+            ChatUi.fail(source, e.getRawMessage() instanceof Component c?c:Component.literal(e.getRawMessage().getString())); return 0;
         }
     }
     private static int cities(CommandContext<CommandSourceStack> context,int page) throws CommandSyntaxException {
@@ -168,13 +180,19 @@ public final class KingdomAdminCommands {
         try {
             data.requireAvailable(); var cities=data.settlements().stream().sorted(Comparator.comparing((Settlement city) -> city.name().key()).thenComparing(Settlement::id)).toList();
             int pages=Math.max(1,(cities.size()+PAGE_SIZE-1)/PAGE_SIZE); if (page>pages) throw KingdomService.adminError("page",pages);
-            source.sendSuccess(() -> text("cities_header",page,pages,cities.size()),false);
+            var result=ChatUi.heading(text("cities_header",page,pages,cities.size()));
+            if (cities.isEmpty()) result.append(ChatUi.line(Component.translatable("chat.regnum-nations.empty")));
             for (int i=(page-1)*PAGE_SIZE;i<Math.min(page*PAGE_SIZE,cities.size());i++) {
-                Settlement city=cities.get(i); source.sendSuccess(() -> text("city_entry",city.name().display(),city.id().toString(),city.ownerId().toString(),
-                        city.sovereign()==null?text("independent"):Component.literal(city.sovereign().toString()),data.settlementClaimCount(city.id())),false);
+                Settlement city=cities.get(i);
+                result.append(ChatUi.section(ChatUi.run(Component.literal(city.name().display()), "/regnum admin settlement " + city.id(),
+                        ChatUi.text("chat.regnum-nations.inspect_hint",city.name().display()))))
+                        .append(ChatUi.line(text("city_entry",city.name().display(),city.id().toString(),city.ownerId().toString(),
+                                city.sovereign()==null?text("independent"):Component.literal(city.sovereign().toString()),data.settlementClaimCount(city.id()))));
             }
+            result.append(ChatUi.pagination(page,pages,p -> "/regnum admin settlements " + p));
+            source.sendSuccess(() -> result,false);
             return 1;
-        } catch (FoundingException e) { source.sendFailure(ruleError(e)); return 0; }
+        } catch (FoundingException e) { ChatUi.fail(source, ruleError(e)); return 0; }
     }
     private static int cityInfo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var source=context.getSource(); KingdomService.requireAdministrator(source); var service=KingdomService.get(source.getServer()); var data=service.data();
@@ -186,12 +204,12 @@ public final class KingdomAdminCommands {
             }
             catch (IllegalArgumentException e) { throw KingdomService.adminError("unknown_city"); }
             Settlement city=data.settlement(id); if (city==null) throw KingdomService.adminError("unknown_city");
-            source.sendSuccess(() -> text("city_info",city.name().display(),city.id().toString(),city.ownerId().toString(),city.founderId().toString(),city.dimension().location().toString(),
+            ChatUi.feedback(source, () -> text("city_info",city.name().display(),city.id().toString(),city.ownerId().toString(),city.founderId().toString(),city.dimension().location().toString(),
                     city.obeliskPos().toShortString(),city.obeliskId().toString(),city.sovereign()==null?text("independent"):Component.literal(city.sovereign().toString()),
-                    data.settlementClaimCount(id),Component.translatable("message.regnum-nations.capital."+service.cities().resolve(city).name().toLowerCase(Locale.ROOT)),
-                    Component.translatable("ui.regnum-nations."+(data.ownedSettlements(city.ownerId()).size()>1||!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())))?"yes":"no"))),false);
+                    data.settlementClaimCount(id),ChatUi.text("message.regnum-nations.capital."+service.cities().resolve(city).name().toLowerCase(Locale.ROOT)),
+                    ChatUi.text("ui.regnum-nations."+(data.ownedSettlements(city.ownerId()).size()>1||!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())))?"yes":"no"))),false);
             return 1;
-        } catch (FoundingException e) { source.sendFailure(ruleError(e)); return 0; }
+        } catch (FoundingException e) { ChatUi.fail(source, ruleError(e)); return 0; }
     }
 
     private static Component ruleError(FoundingException e) {
@@ -200,7 +218,7 @@ public final class KingdomAdminCommands {
             case DUPLICATE_NAME -> text("duplicate_name");
             case NOT_OWNER -> text("not_owner");
             case DATA_UNAVAILABLE -> text("data_unavailable");
-            default -> Component.translatable(e.translationKey());
+            default -> ChatUi.text(e.translationKey());
         };
     }
     private static Component founder(CommandSourceStack source,Kingdom kingdom) {

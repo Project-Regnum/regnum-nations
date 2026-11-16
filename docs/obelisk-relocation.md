@@ -55,12 +55,12 @@ available in English and Ukrainian. No Atlas redesign is included.
 The equivalent commands are:
 
 ```text
-/nations relocate city <x> <y> <z>
-/nations relocate state <x> <y> <z>
-/nations relocate confirm <token>
+/regnum relocate city <x> <y> <z>
+/regnum relocate state <x> <y> <z>
+/regnum relocate confirm <token>
 ```
 
-The selection message includes a clickable confirmation. `/reigns` redirects to
+The selection message includes a clickable `/regnum` confirmation. Compatibility aliases redirect to
 the same commands and authorization. There are no permission or Creative bypasses.
 
 - Only the city owner may move a city anchor. A state anchor requires both its
@@ -72,9 +72,9 @@ the same commands and authorization. There are no permission or Creative bypasse
 - Source and destination must be in the same dimension. Both claims must belong
   to the same city. Missing/foreign capital ownership and historical multiple
   domains reject pending administrator review.
-- State anchors and their capital city's anchor remain in the existing state
-  capital chunk. This is physical movement within the capital, not a general
-  capital relocation feature. Native city and state blocks remain distinct.
+- State and city anchors may move independently between claims belonging to the
+  capital city. Neither adjacency nor a shared chunk is required. The capital
+  city UUID remains unchanged; native city and state blocks remain distinct.
   Historical combined anchors move both saved references together.
 - Selections expire after **30 elapsed seconds**, are tied to the player entity
   and session, and are single-use. Confirmation consumes invalid/expired tokens.
@@ -100,12 +100,12 @@ the same commands and authorization. There are no permission or Creative bypasse
 | Clean restart | Saved positions and identities resolve normally; unconfirmed requests are discarded. |
 | Interrupted save | SavedData's canonical position remains authoritative; stale copies cannot found a city/state. Explicit recovery is required if that position is missing. |
 
-An administrator with permission level **3** can inspect `/nations admin settlements`,
-`/nations admin settlement <cityUUID>` or `/nations admin info <kingdomUUID>`, then run:
+An administrator with permission level **3** can inspect `/regnum admin settlements`,
+`/regnum admin settlement <cityUUID>` or `/regnum admin info <kingdomUUID>`, then run:
 
 ```text
-/nations admin recover city <cityUUID>
-/nations admin recover state <kingdomUUID>
+/regnum admin recover city <cityUUID>
+/regnum admin recover state <kingdomUUID>
 ```
 
 Recovery restores only the saved canonical position, dimension and anchor UUID.
@@ -145,7 +145,7 @@ and restore the backup for rollback if operational state is uncertain.
 rejection; invalid/changed destinations; cross-dimension selection and confirmation;
 duplicate bindings/types; citizens, roles and pending citizenship invitations;
 claims; affiliation and pending state invitations; native state and legacy shared
-anchors; capital chunk restrictions; actual player breaking, explosion handling,
+anchors; cross-claim capital movement and foreign-claim rejection; actual player breaking, explosion handling,
 piston policy and drops; SavedData disk reload and recreated chunk entity;
 expired/replayed/forged/disconnected/concurrent requests; existing city and kingdom
 founding; validated administrator recovery and mismatched save recovery.
@@ -167,3 +167,18 @@ new relocation classes were also checked. Locale key sets, translation reference
 format placeholders and `git diff --check` passed. Expected invalid-NBT diagnostics
 appear in negative tests. No manual gameplay, rendered UI or live multiplayer
 validation was performed.
+
+## Phase D placement contract — 2026-11-15
+
+Founding, relocation and canonical recovery share exact capital-city claim
+ownership and dimension checks. Adjacency and a shared chunk are not required.
+Recovery also checks that the City Obelisk’s canonical claim still belongs to the
+capital city, and that the recovered position is inside world bounds/border. It
+does not require the City Obelisk block to be present: either missing monument
+can still be recovered independently. A different city in the same kingdom is
+not eligible. Both canonical anchor chunks remain protected against abandonment.
+
+No SavedData schema, registry ID, wire format or persisted identity changes are
+introduced. The current combined release retains schema 10; the schema-5 and
+96-test results above are historical v0.8.0 evidence. Current Phase D test and
+deployment results are recorded in `../../docs/UI-IMPLEMENTATION-STATUS.md`.

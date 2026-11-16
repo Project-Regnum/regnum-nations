@@ -27,7 +27,7 @@ public final class RoyalCartographyTests implements FabricGameTest {
         var server=h.getLevel().getServer(); var service=KingdomService.get(server); var data=service.data();
         Kingdom target=kingdom("Chat Confirm "+shortId()); data.add(target);
         var messages=new Messages(); var admin=server.createCommandSourceStack().withPermission(3).withSource(messages);
-        h.assertTrue(run(admin,"reigns admin delete \""+target.name().display()+"\"")==1,"Initial request must route through quoted full name");
+        h.assertTrue(run(admin,"regnum admin delete \""+target.name().display()+"\"")==1,"Initial request must route through quoted full name");
         Component prompt=messages.last(); var actions=runActions(prompt);
         h.assertTrue(actions.size()==2,"Prompt must expose exactly two RUN_COMMAND actions");
         UUID token=service.requestDeletion(admin,target.id());
@@ -52,7 +52,7 @@ public final class RoyalCartographyTests implements FabricGameTest {
         var server=h.getLevel().getServer(); var service=KingdomService.get(server); var data=service.data();
         Kingdom target=kingdom("Chat Cancel "+shortId()); data.add(target);
         var messages=new Messages(); var admin=server.createCommandSourceStack().withPermission(3).withSource(messages);
-        String request="reigns admin delete "+target.id(); h.assertTrue(run(admin,request)==1,"Request must succeed");
+        String request="regnum admin delete "+target.id(); h.assertTrue(run(admin,request)==1,"Request must succeed");
         var actions=runActions(messages.last()); String oldConfirm=actions.getFirst().getStyle().getClickEvent().getValue().substring(1);
         String oldCancel=actions.get(1).getStyle().getClickEvent().getValue().substring(1);
         CompoundTag before=data.save(new CompoundTag(),h.getLevel().registryAccess()); data.setDirty(false);
@@ -105,8 +105,12 @@ public final class RoyalCartographyTests implements FabricGameTest {
         return source.getServer().getCommands().getDispatcher().execute(command,source);
     }
     private static List<Component> runActions(Component prompt) {
-        return prompt.toFlatList().stream().filter(c -> c.getStyle().getClickEvent()!=null
-                &&c.getStyle().getClickEvent().getAction()==ClickEvent.Action.RUN_COMMAND).toList();
+        var commands=new java.util.LinkedHashMap<String,Component>();
+        for (Component fragment:prompt.toFlatList()) {
+            var click=fragment.getStyle().getClickEvent();
+            if (click!=null&&click.getAction()==ClickEvent.Action.RUN_COMMAND) commands.putIfAbsent(click.getValue(),fragment);
+        }
+        return List.copyOf(commands.values());
     }
     private interface Attempt { void run() throws Exception; }
     private static void reject(GameTestHelper h,Attempt attempt) throws Exception {

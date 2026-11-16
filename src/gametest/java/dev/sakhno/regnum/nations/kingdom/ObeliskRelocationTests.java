@@ -141,11 +141,56 @@ public class ObeliskRelocationTests implements FabricGameTest {
         } h.succeed();
     }
     @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
-    public void stateAndCapitalCityCannotMoveToAnotherClaim(GameTestHelper h) throws Exception {
+    public void stateAndCapitalCityMoveAcrossOwnedClaims(GameTestHelper h) throws Exception {
         try (var f=new Move(h)) {
-            Kingdom state=f.state(); var dest=f.pos.east(16); f.level().getChunkAt(dest); f.data.putClaim(ClaimPos.at(f.city.dimension(),dest),f.city.id()); f.owner.setPos(Vec3.atCenterOf(dest));
-            reject(f,RELOCATION_CAPITAL,() -> f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
-            reject(f,RELOCATION_CAPITAL,() -> f.moves.select(f.owner,f.city.id(),false,f.level().dimension(),dest));
+            Kingdom state=f.state(); var dest=f.pos.east(16); f.level().getChunkAt(dest);
+            f.data.putClaim(ClaimPos.at(f.city.dimension(),dest),f.city.id());
+            f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState()); f.owner.setPos(Vec3.atCenterOf(dest));
+            f.moves.commit(f.owner,f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
+            var cityDest=dest.east(2); f.level().setBlockAndUpdate(cityDest,Blocks.AIR.defaultBlockState());
+            f.moves.commit(f.owner,f.moves.select(f.owner,f.city.id(),false,f.level().dimension(),cityDest));
+            var loaded=KingdomSavedData.load(f.saved(),f.level().registryAccess()); loaded.requireAvailable();
+            h.assertTrue(loaded.byId(state.id()).capitalPos().equals(dest)
+                    && loaded.byId(state.id()).capitalObeliskId().equals(state.capitalObeliskId())
+                    && loaded.byId(state.id()).capitalSettlementId().equals(f.city.id())
+                    && loaded.settlement(f.city.id()).obeliskPos().equals(cityDest)
+                    && loaded.settlement(f.city.id()).obeliskId().equals(f.city.obeliskId()),"Independent anchors retain identities across save/load");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void distantFoundingRequiresCapitalCityClaimAndRechecksAtCommit(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var dest=f.pos.east(32); f.level().getChunkAt(dest); f.owner.setPos(Vec3.atCenterOf(dest));
+            f.level().setBlockAndUpdate(dest,ModBlocks.KINGDOM_OBELISK.defaultBlockState());
+            var claim=ClaimPos.at(f.city.dimension(),dest);
+            reject(f,STATE_ANCHOR,() -> f.kingdoms.select(f.owner,dest));
+            var foreign=f.base.city(f.player()); f.data.putClaim(claim,foreign.id());
+            reject(f,STATE_ANCHOR,() -> f.kingdoms.select(f.owner,dest));
+            f.data.removeClaim(claim); f.data.putClaim(claim,f.city.id()); f.kingdoms.select(f.owner,dest);
+            f.data.removeClaim(claim); f.data.putClaim(claim,foreign.id());
+            reject(f,STATE_ANCHOR,() -> f.kingdoms.found(f.owner,"Rejected Distant State"));
+            f.data.removeClaim(claim); f.data.putClaim(claim,f.city.id()); f.kingdoms.select(f.owner,dest);
+            var state=f.kingdoms.found(f.owner,"Distant "+UUID.randomUUID().toString().substring(0,8));
+            h.assertTrue(state.capitalPos().equals(dest)&&state.capitalSettlementId().equals(f.city.id())
+                    &&f.kingdoms.resolveCapital(state)==Kingdom.CapitalStatus.PRESENT,"Distant monument must bind to its existing city");
+            reject(f,ALREADY_FOUNDER,() -> f.kingdoms.select(f.owner,dest));
+            var loaded=KingdomSavedData.load(f.saved(),f.level().registryAccess()); loaded.requireAvailable();
+            h.assertTrue(loaded.byId(state.id()).capitalObeliskId().equals(state.capitalObeliskId())
+                    &&loaded.settlement(f.city.id()).obeliskId().equals(f.city.obeliskId()),"Founding preserves both anchor identities after reload");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void stateRelocationRejectsForeignClaimAtSelectionAndCommit(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var state=f.state(); var dest=f.pos.east(16); f.level().getChunkAt(dest);
+            f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState()); f.owner.setPos(Vec3.atCenterOf(dest));
+            var claim=ClaimPos.at(f.city.dimension(),dest);
+            reject(f,RELOCATION_DESTINATION,() -> f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
+            f.data.putClaim(claim,f.city.id());
+            var token=f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest);
+            var foreign=f.base.city(f.player()); f.data.removeClaim(claim); f.data.putClaim(claim,foreign.id());
+            reject(f,RELOCATION_DESTINATION,() -> f.moves.commit(f.owner,token));
+            h.assertTrue(f.data.byId(state.id()).capitalPos().equals(state.capitalPos()),"Failed move preserves original anchor");
         } h.succeed();
     }
     @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
@@ -296,6 +341,104 @@ public class ObeliskRelocationTests implements FabricGameTest {
             f.kingdoms.relocation().commit(owner,f.kingdoms.relocation().select(owner,state.id(),true,level.dimension(),stateDestination));
             h.assertTrue(f.kingdoms.resolveCapital(f.data.byId(state.id()))==Kingdom.CapitalStatus.PRESENT
                     &&f.data.atCapital(level.dimension(),statePos)==null&&f.data.atCapital(level.dimension(),stateDestination).id().equals(state.id()),"Live state transfer updates capital indexes without removal damage");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void separatedFoundingInSameChunkKeepsBothPhysicalAnchors(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var pos=f.pos.east(5); f.level().setBlockAndUpdate(pos,ModBlocks.KINGDOM_OBELISK.defaultBlockState());
+            f.owner.setPos(Vec3.atCenterOf(pos)); f.kingdoms.select(f.owner,pos);
+            var state=f.kingdoms.found(f.owner,"Separated State");
+            h.assertTrue(state.capitalSettlementId().equals(f.city.id())&&!state.capitalObeliskId().equals(f.city.obeliskId())
+                    &&f.level().getBlockState(f.pos).is(ModBlocks.CITY_OBELISK)
+                    &&f.level().getBlockState(pos).is(ModBlocks.KINGDOM_OBELISK),"Separate monuments retain distinct physical identities");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void stateRejectsAnotherCityOfSameKingdomAndProtectsBothAnchorChunks(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var state=f.state(); var foreign=f.base.city(f.player()); f.data.affiliate(foreign,state.id());
+            var dest=f.pos.east(16); var claim=ClaimPos.at(f.city.dimension(),dest);
+            f.level().getChunkAt(dest); f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState()); f.owner.setPos(Vec3.atCenterOf(dest));
+            f.data.putClaim(claim,foreign.id());
+            reject(f,RELOCATION_DESTINATION,() -> f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
+            f.data.removeClaim(claim); f.data.putClaim(claim,f.city.id());
+            f.moves.commit(f.owner,f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
+            var claims=new ClaimService(f.data);
+            reject(f,CAPITAL_CHUNK,() -> claims.validate(f.owner,claim,state.id(),true));
+            f.owner.setPos(Vec3.atCenterOf(f.pos));
+            reject(f,CAPITAL_CHUNK,() -> claims.validate(f.owner,ClaimPos.at(f.city.dimension(),f.pos),state.id(),true));
+            h.assertTrue(f.data.isCapital(claim)&&f.data.isCapital(ClaimPos.at(f.city.dimension(),f.pos)),"Both independent monument chunks stay protected");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void crossChunkStateDiskReloadAndCanonicalRecoveryPreservePoliticalData(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var citizen=f.player(); f.base.join(f.owner,citizen,f.city); f.base.citizens.assignRole(f.owner,citizen.getUUID(),CityRole.OFFICER);
+            var state=f.state(); var invited=f.base.city(f.player());
+            f.kingdoms.administration().inviteCity(f.owner,state.id(),invited.id());
+            var dest=f.pos.east(16); f.level().getChunkAt(dest); f.data.putClaim(ClaimPos.at(f.city.dimension(),dest),f.city.id());
+            f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState()); f.owner.setPos(Vec3.atCenterOf(dest));
+            var old=f.level().getBlockEntity(state.capitalPos()).saveWithoutMetadata(f.level().registryAccess());
+            f.moves.commit(f.owner,f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
+            var directory=Files.createTempDirectory("regnum-phase-d-state-");
+            var storage=new DimensionDataStorage(directory.toFile(),f.level().getServer().getFixerUpper(),f.level().registryAccess());
+            storage.set(KingdomSavedData.FILE_ID,f.data); storage.save();
+            var disk=new DimensionDataStorage(directory.toFile(),f.level().getServer().getFixerUpper(),f.level().registryAccess());
+            var loaded=disk.computeIfAbsent(KingdomSavedData.FACTORY,KingdomSavedData.FILE_ID); loaded.requireAvailable();
+            var service=new KingdomService(f.level().getServer(),loaded); var moved=loaded.byId(state.id());
+            h.assertTrue(moved.capitalStatus()==Kingdom.CapitalStatus.UNRESOLVED
+                    &&loaded.settlement(f.city.id()).status()==Kingdom.CapitalStatus.UNRESOLVED,"Disk load requires fresh physical anchor resolution");
+            h.assertTrue(service.resolveCapital(moved)==Kingdom.CapitalStatus.PRESENT
+                    &&service.cities().resolve(loaded.settlement(f.city.id()))==Kingdom.CapitalStatus.PRESENT,"Both distant anchors resolve after disk reload");
+            h.assertTrue(loaded.byId(state.id()).equals(f.data.byId(state.id()))&&loaded.settlement(f.city.id()).equals(f.data.settlement(f.city.id()))
+                    &&loaded.role(f.city.id(),citizen.getUUID())==CityRole.OFFICER
+                    &&loaded.cityInvitations().equals(f.data.cityInvitations())
+                    &&new HashSet<>(loaded.settlementClaims(f.city.id())).equals(new HashSet<>(f.data.settlementClaims(f.city.id())))
+                    &&loaded.heraldry(state.id()).equals(f.data.heraldry(state.id())),"Disk reload preserves identities, roles, invitations, claims and heraldry");
+            // Simulate a stale source chunk and lost destination chunk after the registry save.
+            f.level().setBlockAndUpdate(state.capitalPos(),ModBlocks.KINGDOM_OBELISK.defaultBlockState());
+            f.level().getBlockEntity(state.capitalPos()).loadWithComponents(old,f.level().registryAccess());
+            f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState());
+            h.assertTrue(service.resolveCapital(moved)==Kingdom.CapitalStatus.MISSING,"Stale source is not adopted");
+            service.relocation().recover(f.admin(),state.id(),true);
+            service.relocation().recover(f.admin(),state.id(),true);
+            h.assertTrue(service.resolveCapital(loaded.byId(state.id()))==Kingdom.CapitalStatus.PRESENT
+                    &&service.cities().resolve(loaded.settlement(f.city.id()))==Kingdom.CapitalStatus.PRESENT
+                    &&loaded.byId(state.id()).capitalPos().equals(dest),"Repeatable recovery restores only the distant canonical state anchor");
+            var outsider=f.player(); outsider.setPos(Vec3.atCenterOf(state.capitalPos()));
+            boolean denied=false; try { service.select(outsider,state.capitalPos()); } catch (FoundingException expected) { denied=expected.reason()==ALREADY_BOUND; }
+            h.assertTrue(denied&&loaded.kingdoms().size()==1,"Stale state copy cannot found another kingdom");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void stateRecoveryRejectsForeignCanonicalTerritoryAndMissingCityClaim(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var state=f.state(); var dest=f.pos.east(16); f.level().getChunkAt(dest);
+            var claim=ClaimPos.at(f.city.dimension(),dest); f.data.putClaim(claim,f.city.id());
+            f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState()); f.owner.setPos(Vec3.atCenterOf(dest));
+            f.moves.commit(f.owner,f.moves.select(f.owner,state.id(),true,f.level().dimension(),dest));
+            f.level().setBlockAndUpdate(dest,Blocks.AIR.defaultBlockState());
+            var foreign=f.base.city(f.player()); f.data.removeClaim(claim); f.data.putClaim(claim,foreign.id());
+            reject(f,CAPITAL_CONFLICT,() -> f.moves.recover(f.admin(),state.id(),true));
+            f.data.removeClaim(claim); f.data.putClaim(claim,f.city.id());
+            f.data.removeClaim(ClaimPos.at(f.city.dimension(),f.pos));
+            reject(f,CAPITAL_CONFLICT,() -> f.moves.recover(f.admin(),state.id(),true));
+            h.assertTrue(f.level().getBlockState(dest).isAir(),"Rejected recovery never installs an unauthorized anchor");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="relocation")
+    public void distantFoundingRejectsCopiedIdentityAtSelectionAndCommit(GameTestHelper h) throws Exception {
+        try (var f=new Move(h)) {
+            var pos=f.pos.east(16); f.level().getChunkAt(pos); f.data.putClaim(ClaimPos.at(f.city.dimension(),pos),f.city.id());
+            f.level().setBlockAndUpdate(pos,ModBlocks.KINGDOM_OBELISK.defaultBlockState()); f.owner.setPos(Vec3.atCenterOf(pos));
+            var block=(KingdomObeliskBlockEntity)f.level().getBlockEntity(pos); var original=block.saveWithoutMetadata(f.level().registryAccess());
+            var copied=original.copy(); copied.putUUID("ObeliskId",f.city.obeliskId()); block.loadWithComponents(copied,f.level().registryAccess());
+            reject(f,ALREADY_BOUND,() -> f.kingdoms.select(f.owner,pos));
+            block.loadWithComponents(original,f.level().registryAccess()); f.kingdoms.select(f.owner,pos);
+            block.loadWithComponents(copied,f.level().registryAccess());
+            reject(f,OBELISK_UNAVAILABLE,() -> f.kingdoms.found(f.owner,"Forged Distant"));
+            h.assertTrue(f.data.kingdoms().isEmpty()&&f.data.settlement(f.city.id()).sovereign()==null,"Forged identity cannot elevate the city");
         } h.succeed();
     }
     private static void changeMode(ServerPlayer player,GameType mode) {

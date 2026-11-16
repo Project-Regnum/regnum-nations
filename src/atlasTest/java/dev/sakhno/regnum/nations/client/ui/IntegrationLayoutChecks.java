@@ -1,6 +1,8 @@
 package dev.sakhno.regnum.nations.client.ui;
 
 import dev.sakhno.regnum.nations.RegnumNations;
+import dev.sakhno.regnum.nations.api.v1.*;
+import dev.sakhno.regnum.nations.api.client.v1.*;
 import dev.sakhno.regnum.nations.kingdom.*;
 import dev.sakhno.regnum.nations.networking.*;
 import java.nio.file.*;
@@ -22,7 +24,7 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
     private static final UUID REALM=new UUID(0,1),TARGET=new UUID(0,2),TOKEN=new UUID(0,3);
     private final long started=System.nanoTime();
     private CompletableFuture<Void> reload;
-    private int stage,layouts;
+    private int stage,layouts,captureTicks;
     @Override public void onInitializeClient() {
         if (!Boolean.getBoolean("regnum.integrationLayout")) return;
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
@@ -31,6 +33,16 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                 GLFW.glfwHideWindow(mc.getWindow().getWindow());
                 if (mc.getOverlay()!=null) return;
                 if (mc.screen instanceof net.minecraft.client.gui.screens.AccessibilityOnboardingScreen) mc.setScreen(new TitleScreen());
+                if (stage>=2) {
+                    if (++captureTicks<10) return;
+                    Files.createDirectories(Path.of("checks/phase-b"));
+                    try (var pixels=net.minecraft.client.Screenshot.takeScreenshot(mc.getMainRenderTarget())) {
+                        pixels.writeToFile(Path.of("checks/phase-b/"+(stage==2?"sections":"confirmation")+".png"));
+                    }
+                    if (stage==2) { stage=3; captureTicks=0; mc.setScreen(new NationsConfirmationScreen(new TitleScreen(),Component.literal("Confirmation"),Component.literal("Long consequence and target. ".repeat(100)),true,() -> {})); }
+                    else mc.stop();
+                    return;
+                }
                 if (!(mc.screen instanceof TitleScreen)) return;
                 if (stage==0) {
                     if (!mc.getLanguageManager().getSelected().equals("en_us")) {
@@ -42,7 +54,7 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                     reload.join(); checkLocale(mc);
                     Files.createDirectories(Path.of("checks"));
                     Files.writeString(Path.of("checks/integration-layout-passed.txt"),"PASS "+layouts+" native widget layouts, English/Ukrainian, 320x240/640x360/1100x760; snapshot invalidation and sequence checks\n");
-                    RegnumNations.LOGGER.info("INTEGRATION LAYOUT CHECKS PASSED: {} layouts",layouts);stage=2;mc.stop();
+                    RegnumNations.LOGGER.info("INTEGRATION LAYOUT CHECKS PASSED: {} layouts",layouts);stage=2; mc.setScreen(new SectionSelectionScreen(new TitleScreen(),Arrays.stream(WarfarePayloads.Tab.values()).map(t -> WarfareScreen.message("tab."+t.name().toLowerCase(Locale.ROOT))).toList(),i -> {}));
                 }
             } catch (Throwable error) {
                 RegnumNations.LOGGER.error("INTEGRATION LAYOUT CHECKS FAILED",error);
@@ -53,6 +65,7 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
     }
     private void checkLocale(Minecraft mc) throws Exception {
         for (int[] size:List.of(new int[]{320,240},new int[]{640,360},new int[]{1100,760})) {
+            checkExtras(mc,size);
             for (boolean manager:List.of(false,true)) {
                 var parent=parent(manager); check(mc,parent,size,false);
                 var city=new KingdomManagementScreen(snapshot(manager,KingdomManagementPayloads.OPEN_CITY_MENU));check(mc,city,size,false);
@@ -81,18 +94,18 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                     var state=new KingdomAdministrationPayloads.State(42,TOKEN,REALM,"Integration Kingdom",manager?KingdomRole.RULER:KingdomRole.MEMBER,2,3,tab,0,1,List.of(entry),null,"",false);
                     set(screen,"state",state);set(screen,"selected",TARGET);
                     if (confirmation) { set(screen,"confirmation",KingdomAdministrationPayloads.Action.TRANSFER);set(screen,"confirmationText",Component.translatable("kingdom_admin.regnum-nations.confirm.transfer","Representative",TARGET.toString())); }
-                    check(mc,screen,size,true);
+                    check(mc,screen,size,false);
                     set(screen,"sent",1L);set(screen,"sequence",42);screen.invalidate();
                     require(screen.children().stream().filter(AbstractWidget.class::isInstance).map(AbstractWidget.class::cast).noneMatch(w -> w.active&&w.getMessage().getString().equals(Component.translatable("kingdom_admin.regnum-nations.confirm").getString())),"Invalidation must clear confirmation controls");
                     screen.accept(new KingdomAdministrationPayloads.State(41,TOKEN,REALM,"Stale",KingdomRole.RULER,2,3,tab,0,1,List.of(entry),null,"",false));
                     require(get(screen,"state")==null,"Wrong-sequence response cannot restore invalidated privileges");screen.accept(state);
                     require(get(screen,"state")==state,"Matching server snapshot restores the view");
                 }
-                for (var tab:DiplomacyPayloads.Tab.values()) for (boolean confirmation:List.of(false,true)) {
+                for (var tab:InterstatePayloads.Tab.values()) for (boolean confirmation:List.of(false,true)) {
                     var screen=new DiplomacyScreen(parent);set(screen,"initial",false);set(screen,"tab",tab);
-                    var entry=new DiplomacyPayloads.Entry(TARGET,"Other Kingdom",DiplomacyData.Relation.NEUTRAL,TOKEN,TOKEN,true,10000000000000L,false,false);
-                    set(screen,"state",new DiplomacyPayloads.State(42,REALM,"Integration Kingdom",manager,tab,0,1,List.of(entry),"",false));set(screen,"selected",TARGET);
-                    if (confirmation) { set(screen,"confirmation",DiplomacyPayloads.Action.HOSTILE);set(screen,"confirming",entry); }
+                    var entry=new InterstatePayloads.Entry(TARGET,"Other Kingdom",DiplomacyData.Relation.NEUTRAL,TOKEN,TOKEN,true,10000000000000L,false,false,DiplomacyData.ProposalType.ALLIANCE,1L,1L,0L,null);
+                    set(screen,"state",new InterstatePayloads.State(42,REALM,"Integration Kingdom",manager,tab,0,1,List.of(entry),"",false,manager?EnumSet.allOf(KingdomPermission.class):Set.of()));set(screen,"selected",TARGET);
+                    if (confirmation) { set(screen,"confirmation",InterstatePayloads.Action.HOSTILE);set(screen,"confirming",entry); }
                     check(mc,screen,size,true);
                 }
                 for (var tab:CitizenManagementPayloads.Tab.values()) for (boolean confirmation:List.of(false,true)) {
@@ -101,9 +114,50 @@ public final class IntegrationLayoutChecks implements ClientModInitializer {
                     set(screen,"state",new CitizenManagementPayloads.State(42,TOKEN,REALM,"Integration City",2,manager,manager,!manager,tab,0,1,List.of(entry),"",false));set(screen,"selected",TARGET);
                     if (confirmation) { set(screen,"confirmation",CitizenManagementPayloads.Action.KICK);set(screen,"confirmationText",Component.translatable("citizen_ui.regnum-nations.confirm.kick","Citizen",TARGET.toString())); }
                     check(mc,screen,size,false);
+                    if (confirmation) { screen.onClose(); require(get(screen,"confirmation")==null,"Escape cancels citizen confirmation"); }
+                    else {
+                        var owner=new CitizenManagementPayloads.Entry(TARGET,TARGET,"Owner",CityRole.OWNER,false,REALM,"Integration City",60);
+                        set(screen,"state",new CitizenManagementPayloads.State(42,TOKEN,REALM,"Integration City",2,true,true,false,CitizenManagementPayloads.Tab.MEMBERS,0,1,List.of(owner),"",false));
+                        set(screen,"tab",CitizenManagementPayloads.Tab.MEMBERS); check(mc,screen,size,false);
+                        require(screen.children().stream().filter(AbstractWidget.class::isInstance).map(AbstractWidget.class::cast).noneMatch(w -> w.getMessage().equals(Component.translatable("citizen_ui.regnum-nations.kick"))||w.getMessage().equals(Component.translatable("citizen_ui.regnum-nations.demote"))),"Owner has no kick or demotion control");
+                    }
                 }
             }
         }
+    }
+    private void checkExtras(Minecraft mc,int[] size) throws Exception {
+        var parent=parent(true);
+        var territory=new TerritoryScreen(parent); set(territory,"initial",false); check(mc,territory,size,false);
+        var confirm=new NationsConfirmationScreen(parent,Component.literal("Confirm"),Component.literal("Long consequence. ".repeat(150)),true,() -> {});
+        check(mc,confirm,size,false);
+        require(((AbstractWidget)confirm.getFocused()).getMessage().equals(KingdomUi.text("cancel")),"Confirmation starts on Cancel");
+        check(mc,new SectionSelectionScreen(parent,Arrays.stream(WarfarePayloads.Tab.values()).map(t -> WarfareScreen.message("tab."+t.name().toLowerCase(Locale.ROOT))).toList(),i -> {}),size,false);
+        for (var tab:WarfarePayloads.Tab.values()) for (boolean empty:List.of(true,false)) for (boolean selected:List.of(true,false)) {
+            var screen=new WarfareScreen(new DiplomacyScreen(parent)); set(screen,"initial",false); set(screen,"tab",tab);
+            var entry=new WarfarePayloads.Entry(null,null,REALM,TARGET,REALM,TARGET,"City ".repeat(12),"Kingdom ".repeat(8),"Rival",null,null,0,0,0,0,0,0,0,0,"",0,0,"",false);
+            set(screen,"state",new WarfarePayloads.Snapshot(42,REALM,tab,0,empty?0:1,empty?List.of():List.of(entry),Set.of(),"",false));
+            if (!empty&&selected) set(screen,"selected",entry);
+            check(mc,screen,size,false);
+        }
+        var entity=new EntitySnapshot(new EntityRef(EntityRef.Scope.CITY,TARGET),"Long City ".repeat(6),REALM,REALM,Optional.empty(),Optional.empty(),0xffaaaaaa,Optional.empty(),ResourceLocation.withDefaultNamespace("overworld"),BlockPos.ZERO);
+        var panelsField=EconomyUi.class.getDeclaredField("PANELS"); panelsField.setAccessible(true);
+        var registry=(Map<Object,Object>)panelsField.get(null);
+        var oldPanels=new HashMap<>(registry); registry.clear();
+        var providersField=EconomyUi.class.getDeclaredField("serverProviders"); providersField.setAccessible(true);
+        var oldProviders=providersField.get(null);
+        var provider=ResourceLocation.fromNamespaceAndPath("regnum-nations","layout_fixture");
+        try {
+            providersField.set(null,Set.of(provider));
+            for (int count:new int[]{0,1,12}) {
+                for (int i=registry.size();i<count;i++) EconomyUi.register(provider,new EconomyPanel(ResourceLocation.fromNamespaceAndPath("regnum-nations","fixture_"+i),EconomyPanel.Category.TREASURY,Component.literal("Treasury "+i+" long provider name"),Set.of(EntityRef.Scope.CITY),Set.of(),(c,p) -> p));
+                for (boolean details:List.of(false,true)) {
+                    var screen=new EconomyScreen(parent,entity.ref());
+                    set(screen,"context",new EconomyContext(entity,"owner",Set.of())); set(screen,"received",System.currentTimeMillis()); set(screen,"details",details);
+                    check(mc,screen,size,false);
+                    if (!details) require(screen.children().stream().filter(AbstractWidget.class::isInstance).map(AbstractWidget.class::cast).noneMatch(w -> w.getMessage().getString().contains(TARGET.toString())),"Overview hides UUID");
+                }
+            }
+        } finally { registry.clear(); registry.putAll(oldPanels); providersField.set(null,oldProviders); }
     }
     private void verifyHeraldrySync() {
         var arms=Heraldry.defaults(REALM);

@@ -1,8 +1,8 @@
 package dev.sakhno.regnum.nations.kingdom;
 
 import dev.sakhno.regnum.nations.kingdom.DiplomacyData.*;
-import dev.sakhno.regnum.nations.networking.DiplomacyPayloads;
-import dev.sakhno.regnum.nations.networking.DiplomacyPayloads.*;
+import dev.sakhno.regnum.nations.networking.InterstatePayloads;
+import dev.sakhno.regnum.nations.networking.InterstatePayloads.*;
 import dev.sakhno.regnum.nations.networking.KingdomAdministrationPayloads;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
@@ -129,7 +129,10 @@ public final class IntegrationTests implements FabricGameTest {
             f.run(successor,f.kb,Action.INVITE); f.run(f.b,f.ka,Action.ACCEPT);
             h.assertTrue(f.service.relation(f.ka.id(),f.kb.id())==Relation.ALLIED&&f.data.kingdomRole(f.ka.id(),f.a.getUUID())==CHANCELLOR,"Current ruler can negotiate; previous ruler follows explicit chancellor role");
             f.base.kingdoms.administration().assignRole(successor,f.ka.id(),f.a.getUUID(),MEMBER);
-            f.deny(f.a,f.request(f.a,f.kb,Action.HOSTILE),"permission"); f.run(successor,f.kb,Action.HOSTILE);
+            f.deny(f.a,f.request(f.a,f.kb,Action.HOSTILE),"permission");
+            f.deny(successor,f.request(successor,f.kb,Action.HOSTILE),"conflict");
+            f.cooldown(); f.run(successor,f.kb,Action.TERMINATE); f.run(f.b,f.ka,Action.ACCEPT);
+            f.run(successor,f.kb,Action.HOSTILE);
             h.assertTrue(f.service.relation(f.ka.id(),f.kb.id())==Relation.HOSTILE,"Historical founder has no residual authority after demotion");
         } h.succeed();
     }
@@ -141,6 +144,7 @@ public final class IntegrationTests implements FabricGameTest {
             f.base.kingdoms.administration().assignRole(f.a,f.ka.id(),official.getUUID(),OFFICER);
             f.deny(official,f.request(official,f.kb,Action.HOSTILE),"permission"); f.deny(f.b,stale,"stale");
             f.data.setKingdomRole(f.ka.id(),official.getUUID(),CHANCELLOR); f.deny(f.b,stale,"stale");
+            f.deny(official,f.request(official,f.kb,Action.INVITE),"cooldown"); f.cooldown();
             f.run(official,f.kb,Action.INVITE); f.deny(f.b,stale,"stale"); f.run(f.b,f.ka,Action.ACCEPT);
             h.assertTrue(f.service.relation(f.ka.id(),f.kb.id())==Relation.ALLIED,"Only a replacement invitation can be accepted after revocation");
         } h.succeed();
@@ -219,11 +223,12 @@ public final class IntegrationTests implements FabricGameTest {
     }
 
     private static final class Fixture implements AutoCloseable {
-        final CitizenshipTests.Fixture base;final KingdomSavedData data;final ServerPlayer a,b;final Kingdom ka,kb;final DiplomacyService service;final GameTestHelper h;final boolean live;int sequence;
+        final CitizenshipTests.Fixture base;final KingdomSavedData data;final ServerPlayer a,b;final Kingdom ka,kb;final DiplomacyService service;final GameTestHelper h;final boolean live;final java.util.concurrent.atomic.AtomicLong now=new java.util.concurrent.atomic.AtomicLong(System.currentTimeMillis());int sequence;
         Fixture(GameTestHelper h,boolean live) throws Exception {
             this.h=h;this.live=live;base=new CitizenshipTests.Fixture(h,live);data=base.data;a=base.player();b=base.player();
-            ka=base.kingdom(a);kb=base.kingdom(b);data.add(ka);data.add(kb);service=base.kingdoms.diplomacy();
+            ka=base.kingdom(a);kb=base.kingdom(b);data.add(ka);data.add(kb);service=new DiplomacyService(base.kingdoms,now::get,() -> DiplomacyConfig.invitationMillis);
         }
+        void cooldown() { now.set(Math.max(now.get(),data.diplomacy.get(new Pair(ka.id(),kb.id())).nextProposalAt())); }
         ServerPlayer member() throws Exception { var player=base.player();data.addCitizen(ka.capitalSettlementId(),player.getUUID());return player; }
         State view(ServerPlayer player) { return service.handle(player,new Request(++sequence,Action.VIEW,Tab.KINGDOMS,0,null,null,null,null)); }
         Request request(ServerPlayer player,Kingdom target,Action action) throws Exception {

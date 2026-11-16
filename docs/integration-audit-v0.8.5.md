@@ -22,7 +22,7 @@ The supplied working directory is clean on feat/kingdom-administration-v0.8.4.
 Existing administration, diplomacy, protection and obelisk worktrees are left
 untouched. Integration uses its own worktree at
 /home/sanyacat/Documents/regnum-nations-integration-v0.8.5 and branch
-integration/nations-v0.8.5 from origin/main. The unrelated tooltip-removal branch
+integration/regnum-v0.8.5 from origin/main. The unrelated tooltip-removal branch
 70a26bf is not part of the three requested PRs. A later read-only audit of all
 worktrees found uncommitted edits to art/obelisks/city_obelisk.bbmodel and
 art/obelisks/kingdom_obelisk.bbmodel in the separate regnum-nations-obelisk-art
@@ -288,7 +288,7 @@ not transactional. No new gameplay features or dependencies were introduced.
 
 ## Delivery scope
 
-The integration branch is `integration/nations-v0.8.5`, targeting `main`, with PR
+The integration branch is `integration/regnum-v0.8.5`, targeting `main`, with PR
 title `chore: integrate and stabilize Nations v0.8.5`. The validated integration
 commit applies all three source commits in the requested order and records their
 full hashes; their original commits/branches and PR status are not rewritten.

@@ -62,8 +62,8 @@ def run_server(directory,init,number,realm_id,*,rename=True):
             if phase==0 and 'Done (' in line:
                 send('forceload add -4 -3 4 0'); phase=1; action_at=time.monotonic()
             if phase==1 and time.monotonic()-action_at>=3:
-                send('nations admin list')
-                if number==1 and rename: send(f'nations admin rename {realm_id} Restart Heraldry Verified')
+                send('regnum admin list')
+                if number==1 and rename: send(f'regnum admin rename {realm_id} Restart Heraldry Verified')
                 send('data get block -4 161 0'); send('data get block 0 162 -3'); phase=2; action_at=time.monotonic()
             if phase==2 and time.monotonic()-action_at>=3:
                 send('save-all flush'); phase=3; action_at=time.monotonic()

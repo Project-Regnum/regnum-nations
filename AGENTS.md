@@ -30,7 +30,8 @@ The project is in early development. Do not assume that proposed gameplay mechan
   filenames and saved key bindings. `RegnumNations.legacyId` is for these contracts;
   `RegnumNations.id` is for new presentation resources.
 - Preserve NBT keys, schema migrations, UUIDs, settlements, kingdoms and claims.
-- `/nations` and the `/reigns` alias must share server permission checks.
+- `/regnum` is canonical. Retain `/nations` and `/reigns` only for the documented
+  script/command-block compatibility contract; all roots share server permission checks.
 - Update metadata, mixins, all source sets and packaged resources when moving classes.
 
 ## Architecture

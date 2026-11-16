@@ -111,10 +111,10 @@ restart an active/finished objective or reuse an old city snapshot.
 An operator with permission level 3 can run:
 
 ```text
-/nations warfare cancel <objective UUID>
+/regnum warfare cancel <objective UUID>
 ```
 
-The `/reigns` alias uses the same command and service checks. Governments can
+The `/regnum` root uses the same command and service checks. Governments can
 cancel their own unstarted plans; only operators can administratively cancel a
 live siege. The attacker can withdraw instead. The objective UUID appears in the
 folio detail view. All warfare presentation is localized in English and Ukrainian.

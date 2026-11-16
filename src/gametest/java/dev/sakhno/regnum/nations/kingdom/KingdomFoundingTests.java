@@ -320,21 +320,21 @@ public class KingdomFoundingTests implements FabricGameTest {
 		CommandSourceStack source = player.createCommandSourceStack().withPermission(0).withSource(feedback);
 		var dispatcher = level.getServer().getCommands().getDispatcher();
 		KingdomService service = KingdomService.get(level.getServer());
-		helper.assertTrue(dispatcher.execute("reigns", source) == 1 && hasKey(feedback.messages.getLast(),
-				"message.regnum-nations.founding.help"), "Ordinary players must discover localized help");
-		helper.assertTrue(dispatcher.execute("reigns found No Selection", source) == 0 && hasKey(feedback.messages.getLast(),
+		helper.assertTrue(dispatcher.execute("regnum", source) == 1 && hasKey(feedback.messages.getLast(),
+				"chat.regnum-nations.help.title"), "Ordinary players must discover localized help");
+		helper.assertTrue(dispatcher.execute("regnum found No Selection", source) == 0 && hasKey(feedback.messages.getLast(),
 				"message.regnum-nations.founding.no_selection"), "Command must require an explicit selection");
 		helper.getBlockState(POS).useWithoutItem(level, player,
 				new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false));
 		helper.assertTrue(player.interactions.size() == 1 && hasKey(player.interactions.getFirst(),
 				"message.regnum-nations.founding.selected"), "Interaction must send one private localized selection prompt");
 		ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect(player.connection, level.getServer());
-		helper.assertTrue(dispatcher.execute("reigns found Disconnected Vale", source) == 0 && hasKey(feedback.messages.getLast(),
+		helper.assertTrue(dispatcher.execute("regnum found Disconnected Vale", source) == 0 && hasKey(feedback.messages.getLast(),
 				"message.regnum-nations.founding.no_selection"), "Actual disconnect hook must invalidate selection");
 		service.select(player, pos);
 		player.setPos(Vec3.atCenterOf(pos).add(KingdomService.MAX_DISTANCE + 1, 0, 0));
 		CompoundTag before = service.data().save(new CompoundTag(), level.registryAccess());
-		helper.assertTrue(dispatcher.execute("reigns found Spoofed Position Vale", source.withPosition(Vec3.atCenterOf(pos))) == 0
+		helper.assertTrue(dispatcher.execute("regnum found Spoofed Position Vale", source.withPosition(Vec3.atCenterOf(pos))) == 0
 				&& hasKey(feedback.messages.getLast(), "message.regnum-nations.founding.too_far"),
 				"Command must validate the actual player position, not an execute/source position");
 		helper.assertTrue(before.equals(service.data().save(new CompoundTag(), level.registryAccess())),
@@ -342,16 +342,16 @@ public class KingdomFoundingTests implements FabricGameTest {
 		player.setPos(Vec3.atCenterOf(pos).add(0, 0, 2));
 		service.select(player, pos);
 		String name = "Command Vale " + UUID.randomUUID().toString().substring(0, 8);
-		helper.assertTrue(dispatcher.execute("reigns found " + name, source) == 1 && hasKey(feedback.messages.getLast(),
+		helper.assertTrue(dispatcher.execute("regnum found " + name, source) == 1 && hasKey(feedback.messages.getLast(),
 				"message.regnum-nations.founding.success"), "Non-OP founding must support unquoted names with spaces");
 		Kingdom kingdom = service.data().byFounder(player.getUUID());
 		helper.assertTrue(kingdom != null && kingdom.name().display().equals(name), "Command must use actual server player identity");
-		helper.assertTrue(dispatcher.execute("reigns kingdom", source) == 1 && hasKey(feedback.messages.getLast(),
+		helper.assertTrue(dispatcher.execute("regnum kingdom", source) == 1 && hasKey(feedback.messages.getLast(),
 				"message.regnum-nations.capital.present"), "Kingdom command must show localized capital status");
 		level.destroyBlock(pos, false);
 		helper.assertTrue(service.data().byFounder(player.getUUID()).capitalStatus() == Kingdom.CapitalStatus.MISSING,
 				"Actual block removal hook must mark the capital missing");
-		helper.assertTrue(dispatcher.execute("reigns kingdom", source) == 1 && hasKey(feedback.messages.getLast(),
+		helper.assertTrue(dispatcher.execute("regnum kingdom", source) == 1 && hasKey(feedback.messages.getLast(),
 				"message.regnum-nations.capital.missing"), "Destruction must retain a viewable record");
 		helper.setBlock(POS, ModBlocks.KINGDOM_OBELISK);
 		helper.getBlockState(POS).useWithoutItem(level, player,
@@ -362,7 +362,7 @@ public class KingdomFoundingTests implements FabricGameTest {
 		KingdomObeliskBlockEntity replacement = helper.getBlockEntity(POS);
 		helper.assertTrue(replacement.getKingdomId() == null, "Interaction must not adopt a replacement capital");
 		Feedback console = new Feedback();
-		helper.assertTrue(dispatcher.execute("reigns found Console Vale", level.getServer().createCommandSourceStack()
+		helper.assertTrue(dispatcher.execute("regnum found Console Vale", level.getServer().createCommandSourceStack()
 				.withSource(console)) == 0 && hasKey(console.messages.getLast(), "message.regnum-nations.founding.invalid_player"),
 				"Console founding must be safely rejected with localized feedback");
 		helper.assertFalse(feedback.informedAdmins, "Founding messages must not broadcast to administrators");

@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import dev.sakhno.regnum.nations.block.CityObeliskBlockEntity;
 import dev.sakhno.regnum.nations.block.KingdomObeliskBlockEntity;
 import dev.sakhno.regnum.nations.networking.WarfarePayloads.*;
@@ -224,10 +225,10 @@ public final class WarfareService {
         for (var player:p.viewers()) bar.addPlayer(player);
     }
     private void notify(ObjectiveRecord r,String event) {
-        Component message=text("notification."+event,kingdomName(r.attacker()),kingdomName(r.defender()),cityName(r.city()),text("state."+r.state().name().toLowerCase(Locale.ROOT)));
+        Component message=ChatUi.text("warfare.regnum-nations.notification."+event,kingdomName(r.attacker()),kingdomName(r.defender()),cityName(r.city()),text("state."+r.state().name().toLowerCase(Locale.ROOT)));
         Set<UUID> members=new HashSet<>(data.kingdomMembers(r.attacker())); members.addAll(data.kingdomMembers(r.defender()));
         // Membership UUID lookup only, never a repeating full-server player scan.
-        for (UUID id:members) { var player=kingdoms.server().getPlayerList().getPlayer(id); if (player!=null) player.displayClientMessage(message,false); }
+        for (UUID id:members) { var player=kingdoms.server().getPlayerList().getPlayer(id); if (player!=null) ChatUi.notify(player, message,false); }
     }
     private String kingdomName(UUID id) { var k=data.byId(id); return k==null?id.toString():k.name().display(); }
     private String cityName(UUID id) { var city=data.settlement(id); return city==null?id.toString():city.name().display(); }

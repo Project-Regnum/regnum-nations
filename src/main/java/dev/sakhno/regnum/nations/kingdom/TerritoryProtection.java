@@ -1,11 +1,11 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +43,7 @@ public final class TerritoryProtection {
 
     private static boolean anchorDenied(Level level,Player player,BlockPos pos) {
         if (level instanceof ServerLevel serverLevel&&ObeliskRelocationService.protectedAnchor(serverLevel,pos)) {
-            player.displayClientMessage(Component.translatable("relocation.regnum-nations.protected"),true); return true;
+            ChatUi.warn(player, ChatUi.text("relocation.regnum-nations.protected"),true); return true;
         }
         return false;
     }
@@ -55,7 +55,7 @@ public final class TerritoryProtection {
 	public static boolean denied(Level level, Player player, BlockPos pos, CityPermission permission) {
 		if (!(level instanceof ServerLevel serverLevel)) return false;
 		if (ClaimService.canAccess(serverLevel, player, pos, permission)) return false;
-		if (player != null) player.displayClientMessage(Component.translatable("message.regnum-nations.territory.protected"), true);
+		if (player != null) ChatUi.warn(player, ChatUi.text("message.regnum-nations.territory.protected"), true);
 		return true;
 	}
 

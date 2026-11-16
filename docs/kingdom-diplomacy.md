@@ -79,7 +79,7 @@ documents variant detection, extension retention and unavoidable rollback limits
 
 ## UI and networking
 
-Open `/nations menu` (or `/reigns menu`), then **Kingdom → Diplomacy**. The existing
+Open `/regnum menu`, then **Kingdom → Diplomacy**. The existing
 kingdom control row gains the diplomacy button. English and Ukrainian are included.
 There are no tooltips or hover descriptions on diplomacy controls.
 

@@ -29,9 +29,13 @@ public final class ClaimService {
         manage(player,pos,viewedKingdom,release,null);
     }
 
+    public UUID prepareAbandonment(ServerPlayer player,ClaimPos pos,UUID viewedKingdom) throws FoundingException {
+        return TerritoryServer.prepareAbandonment(player,pos,viewedKingdom,data);
+    }
+
     public void manage(ServerPlayer player,ClaimPos pos,UUID viewedKingdom,boolean release,UUID confirmation) throws FoundingException {
 		Settlement kingdom = validate(player, pos, viewedKingdom, release);
-		if (release) { TerritoryServer.consumeAbandonment(player,pos,kingdom.id(),confirmation); data.removeClaim(pos); }
+		if (release) { TerritoryServer.consumeAbandonment(player,pos,kingdom.id(),confirmation,data); data.removeClaim(pos); }
 		else data.putClaim(pos, kingdom.id());
 	}
 

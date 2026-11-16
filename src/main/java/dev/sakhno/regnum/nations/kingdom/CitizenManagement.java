@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import dev.sakhno.regnum.nations.networking.CitizenManagementPayloads.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -76,8 +77,7 @@ public final class CitizenManagement {
                 var online=actor.serverLevel().getServer().getPlayerList().getPlayer(entry.player());
                 if (online==null) throw new FoundingException(PLAYER_OFFLINE);
                 Settlement invited=citizens.invite(actor,online);
-                online.displayClientMessage(net.minecraft.network.chat.Component.translatable("citizen.regnum-nations.invitation",actor.getGameProfile().getName(),
-                        invited.name().display(),invited.id().toString(),invited.id().toString()),false);
+                ChatUi.notify(online, ChatUi.citizenInvitation(actor.getGameProfile().getName(),invited.name().display(),invited.id()),false);
             }
             case ACCEPT,DECLINE -> {
                 if (session.tab()!=Tab.INBOX) throw new FoundingException(CITIZEN_UI_TARGET);

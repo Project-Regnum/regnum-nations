@@ -1,5 +1,6 @@
 package dev.sakhno.regnum.nations.block;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import com.mojang.serialization.MapCodec;
 import dev.sakhno.regnum.nations.kingdom.*;
 import net.minecraft.core.BlockPos;
@@ -24,10 +25,10 @@ public final class CityObeliskBlock extends KingdomObeliskBlock {
             Settlement city=service.data().cityAt(level.dimension(),pos);
             if (city!=null&&city.obeliskId().equals(block.getObeliskId())&&service.cities().resolve(city)==Kingdom.CapitalStatus.PRESENT) {
                 KingdomManagementServer.openCityMenu(serverPlayer,city.id());
-            } else if (city!=null||block.getSettlementId()!=null) player.displayClientMessage(Component.translatable("message.regnum-nations.founding.already_bound"),false);
+            } else if (city!=null||block.getSettlementId()!=null) ChatUi.warn(player, Component.translatable("message.regnum-nations.founding.already_bound"),false);
             else try {
                 service.cities().select(serverPlayer,pos); KingdomManagementServer.openCityFounding(serverPlayer,block.getObeliskId());
-            } catch (FoundingException e) { player.displayClientMessage(Component.translatable(e.translationKey()),false); }
+            } catch (FoundingException e) { ChatUi.reject(player, Component.translatable(e.translationKey()),false); }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

@@ -6,8 +6,8 @@ Integrated from PR #14 (`42929b1`) with protection #15 and diplomacy #13. Existi
 `Settlement` ownership, citizenship, `CityPermissions`, claim ownership, capital
 restrictions, deletion tombstones and saved-data filename remain authoritative.
 The old kingdom invitation API in `SettlementService` now delegates to the same
-persistent invitation lifecycle used by the UI. `/nations invite <player>` and
-`/nations join <kingdom UUID>` remain available, including through `/reigns`.
+persistent invitation lifecycle used by the UI. `/regnum invite <player>` and
+`/regnum join <kingdom UUID>` remain available under `/regnum`.
 
 Common code contains the records, policy, service, persistence and bounded payloads.
 `KingdomAdministrationView` is a server session/presentation adapter, following the

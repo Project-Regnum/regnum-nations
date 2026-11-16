@@ -1,8 +1,8 @@
 package dev.sakhno.regnum.nations.kingdom;
 
 import dev.sakhno.regnum.nations.kingdom.DiplomacyData.*;
-import dev.sakhno.regnum.nations.networking.DiplomacyPayloads.*;
-import dev.sakhno.regnum.nations.networking.DiplomacyPayloads.Entry;
+import dev.sakhno.regnum.nations.networking.InterstatePayloads.*;
+import dev.sakhno.regnum.nations.networking.InterstatePayloads.Entry;
 import io.netty.buffer.Unpooled;
 import java.nio.file.Files;
 import java.util.*;
@@ -36,6 +36,7 @@ public final class DiplomacyTests implements FabricGameTest {
             f.reject(f.a,f.request(f.a,f.kb,Action.ACCEPT),"permission");
             f.reject(f.b,f.request(f.b,f.ka,Action.CANCEL),"permission");
             f.run(f.b,f.ka,Action.REJECT); f.reject(f.b,stale,"stale");
+            f.reject(f.a,f.request(f.a,f.kb,Action.INVITE),"cooldown"); f.cooldown();
             f.run(f.a,f.kb,Action.INVITE); var replacement=f.request(f.b,f.ka,Action.ACCEPT);
             h.assertTrue(!replacement.invitation().equals(stale.invitation()),"Replacement request has a new identity");
             f.reject(f.b,stale,"stale"); f.run(f.a,f.kb,Action.CANCEL); f.reject(f.b,replacement,"stale");
@@ -74,9 +75,13 @@ public final class DiplomacyTests implements FabricGameTest {
         } h.succeed();
     }
     @GameTest(template=EMPTY_STRUCTURE,batch="diplomacy")
-    public void hostilityEndsAllianceAndRequiresBothDeclarersToWithdraw(GameTestHelper h) throws Exception {
+    public void hostilityRequiresNegotiatedTreatyEndAndBothDeclarersToWithdraw(GameTestHelper h) throws Exception {
         try (var f=new Fixture(h)) {
-            f.ally(); var before=f.base.saved(); f.run(f.a,f.kb,Action.HOSTILE);
+            f.ally(); var before=f.base.saved();
+            f.reject(f.a,f.request(f.a,f.kb,Action.HOSTILE),"conflict");
+            f.cooldown(); f.run(f.a,f.kb,Action.TERMINATE);
+            h.assertTrue(f.relation()==Relation.ALLIED,"Termination proposal leaves the treaty active until acceptance");
+            f.run(f.b,f.ka,Action.ACCEPT); f.run(f.a,f.kb,Action.HOSTILE);
             h.assertTrue(f.relation()==Relation.HOSTILE,"One declaration appears hostile to both parties");
             f.reject(f.a,f.request(f.a,f.kb,Action.HOSTILE),"conflict");
             f.reject(f.b,f.request(f.b,f.ka,Action.INVITE),"conflict");
@@ -92,11 +97,13 @@ public final class DiplomacyTests implements FabricGameTest {
     @GameTest(template=EMPTY_STRUCTURE,batch="diplomacy")
     public void allianceTerminationIsNeutralAndOldConfirmationsCannotEndNewAlliance(GameTestHelper h) throws Exception {
         try (var f=new Fixture(h)) {
-            f.ally(); var old=f.request(f.a,f.kb,Action.TERMINATE); var simultaneous=f.request(f.b,f.ka,Action.TERMINATE);
+            f.ally(); f.cooldown(); var old=f.request(f.a,f.kb,Action.TERMINATE); var simultaneous=f.request(f.b,f.ka,Action.TERMINATE);
             f.service.act(f.a,old); f.reject(f.b,simultaneous,"stale");
-            h.assertTrue(f.relation()==Relation.NEUTRAL,"Either party can terminate alliance to neutrality");
+            h.assertTrue(f.relation()==Relation.ALLIED,"Termination requires the recipient’s consent");
+            f.run(f.b,f.ka,Action.ACCEPT);
+            h.assertTrue(f.relation()==Relation.NEUTRAL,"Accepted termination returns both parties to neutrality");
             f.reject(f.a,f.request(f.a,f.kb,Action.TERMINATE),"conflict");
-            f.ally(); f.reject(f.a,old,"stale");
+            f.reject(f.a,f.request(f.a,f.kb,Action.INVITE),"cooldown"); f.cooldown(); f.ally(); f.reject(f.a,old,"stale");
             h.assertTrue(f.relation()==Relation.ALLIED,"An old confirmation cannot terminate a newly negotiated alliance");
         } h.succeed();
     }
@@ -107,8 +114,11 @@ public final class DiplomacyTests implements FabricGameTest {
             var hostile=f.request(f.a,f.kb,Action.HOSTILE); f.service.act(f.a,hostile);
             f.reject(f.b,accept,"stale");
             h.assertTrue(f.view(f.b,Tab.INCOMING).entries().isEmpty()&&f.relation()==Relation.HOSTILE,"Declaration clears pending invitation");
-            f.run(f.a,f.kb,Action.NEUTRAL); f.ally();
-            var terminate=f.request(f.b,f.ka,Action.TERMINATE); f.run(f.a,f.kb,Action.HOSTILE); f.reject(f.b,terminate,"stale");
+            f.run(f.a,f.kb,Action.NEUTRAL); f.cooldown(); f.ally();
+            f.cooldown(); var terminate=f.request(f.b,f.ka,Action.TERMINATE);
+            f.reject(f.a,f.request(f.a,f.kb,Action.HOSTILE),"conflict");
+            f.service.act(f.b,terminate); f.run(f.a,f.kb,Action.ACCEPT);
+            f.run(f.a,f.kb,Action.HOSTILE); f.reject(f.b,terminate,"stale");
         } h.succeed();
     }
     @GameTest(template=EMPTY_STRUCTURE,batch="diplomacy")
@@ -230,6 +240,66 @@ public final class DiplomacyTests implements FabricGameTest {
             h.assertTrue(clamped.page()==2,"Untrusted page indexes are clamped safely");
         } h.succeed();
     }
+    @GameTest(template=EMPTY_STRUCTURE,batch="diplomacy")
+    public void allProposalTypesRequireConsentAndTreatiesBlockWarAndHostility(GameTestHelper h) throws Exception {
+        try (var f=new Fixture(h)) {
+            f.run(f.a,f.kb,Action.PROPOSE_PACT);
+            h.assertTrue(f.relation()==Relation.NEUTRAL,"Pact proposal alone changes no relation");
+            f.run(f.b,f.ka,Action.ACCEPT);
+            h.assertTrue(f.relation()==Relation.NON_AGGRESSION,"Accepted pact is symmetric");
+            f.reject(f.a,f.request(f.a,f.kb,Action.DECLARE_WAR),"war_treaty");
+            f.reject(f.b,f.request(f.b,f.ka,Action.HOSTILE),"conflict");
+            f.cooldown(); f.run(f.b,f.ka,Action.END_PACT);
+            h.assertTrue(f.relation()==Relation.NON_AGGRESSION,"Pact remains active while termination awaits consent");
+            f.run(f.a,f.kb,Action.ACCEPT); f.run(f.a,f.kb,Action.DECLARE_WAR);
+            h.assertTrue(f.relation()==Relation.AT_WAR,"War may start only after treaty termination");
+            f.reject(f.a,f.request(f.a,f.kb,Action.NEUTRAL),"conflict");
+            f.cooldown(); f.run(f.b,f.ka,Action.PROPOSE_PEACE); f.run(f.a,f.kb,Action.REJECT);
+            h.assertTrue(f.relation()==Relation.AT_WAR,"Rejected peace does not end war");
+            f.cooldown(); f.run(f.a,f.kb,Action.PROPOSE_PEACE); f.run(f.b,f.ka,Action.ACCEPT);
+            h.assertTrue(f.relation()==Relation.NEUTRAL,"Only accepted peace ends war");
+            f.cooldown(); f.ally(); f.cooldown(); f.run(f.a,f.kb,Action.TERMINATE);
+            f.run(f.b,f.ka,Action.REJECT); h.assertTrue(f.relation()==Relation.ALLIED,"Rejected termination retains alliance");
+            f.cooldown(); f.run(f.b,f.ka,Action.TERMINATE); f.run(f.a,f.kb,Action.ACCEPT);
+            h.assertTrue(f.relation()==Relation.NEUTRAL,"All five proposal types follow negotiated transitions");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="diplomacy")
+    public void proposalCooldownSurvivesReloadAndAllowsExactDeadline(GameTestHelper h) throws Exception {
+        try (var f=new Fixture(h)) {
+            f.run(f.a,f.kb,Action.INVITE); f.run(f.b,f.ka,Action.REJECT);
+            long deadline=f.base.data.diplomacy.get(new Pair(f.ka.id(),f.kb.id())).nextProposalAt();
+            h.assertTrue(deadline>f.now.get(),"Configured proposal cooldown is active");
+            var loaded=KingdomSavedData.load(f.base.saved(),h.getLevel().registryAccess()); loaded.requireAvailable();
+            var restored=new DiplomacyService(new KingdomService(h.getLevel().getServer(),loaded),f.now::get,() -> f.lifetime);
+            f.now.set(deadline-1); var request=f.request(f.b,f.ka,Action.INVITE);
+            var before=loaded.save(new CompoundTag(),h.getLevel().registryAccess()); loaded.setDirty(false);
+            var denied=restored.handle(f.b,request);
+            h.assertTrue(!denied.success()&&denied.result().equals("diplomacy.regnum-nations.cooldown")
+                    &&!loaded.isDirty()&&before.equals(loaded.save(new CompoundTag(),h.getLevel().registryAccess())),"Pair-wide cooldown rejects after reload without changing persistence");
+            f.now.set(deadline); var accepted=restored.handle(f.b,request);
+            h.assertTrue(accepted.success()&&loaded.diplomacy.get(new Pair(f.ka.id(),f.kb.id())).invitation().sender().equals(f.kb.id()),"Either side can propose at the exact persisted deadline");
+        } h.succeed();
+    }
+    @GameTest(template=EMPTY_STRUCTURE,batch="diplomacy")
+    public void legacyWireCannotAcceptNewTreatyTerminationProposals(GameTestHelper h) throws Exception {
+        try (var f=new Fixture(h)) {
+            f.ally(); f.cooldown(); f.run(f.a,f.kb,Action.TERMINATE);
+            var current=f.request(f.b,f.ka,Action.ACCEPT);
+            var legacy=new dev.sakhno.regnum.nations.networking.DiplomacyPayloads.Request(current.sequence(),
+                    dev.sakhno.regnum.nations.networking.DiplomacyPayloads.Action.ACCEPT,
+                    dev.sakhno.regnum.nations.networking.DiplomacyPayloads.Tab.KINGDOMS,0,current.kingdom(),current.target(),current.revision(),current.invitation());
+            var buffer=new RegistryFriendlyByteBuf(Unpooled.buffer(),h.getLevel().registryAccess());
+            try {
+                dev.sakhno.regnum.nations.networking.DiplomacyPayloads.Request.CODEC.encode(buffer,legacy);
+                h.assertTrue(legacy.equals(dev.sakhno.regnum.nations.networking.DiplomacyPayloads.Request.CODEC.decode(buffer)),"Legacy wire still round trips unchanged");
+            } finally { buffer.release(); }
+            var before=f.base.saved(); f.base.data.setDirty(false); var rejected=f.service.handle(f.b,legacy);
+            h.assertTrue(!rejected.success()&&rejected.result().equals("diplomacy.regnum-nations.upgrade_client")
+                    &&before.equals(f.base.saved())&&!f.base.data.isDirty()&&f.relation()==Relation.ALLIED,"Old clients cannot consume proposals they cannot describe");
+            f.service.act(f.b,current); h.assertTrue(f.relation()==Relation.NEUTRAL,"Matching current protocol can accept termination");
+        } h.succeed();
+    }
     private static final class Fixture implements AutoCloseable {
         final GameTestHelper h; final CitizenshipTests.Fixture base;
         final ServerPlayer a,b; final Kingdom ka,kb; final AtomicLong now=new AtomicLong(1_000_000);
@@ -256,6 +326,7 @@ public final class DiplomacyTests implements FabricGameTest {
         void run(ServerPlayer actor,Kingdom target,Action action) throws Exception {
             var reply=service.handle(actor,request(actor,target,action)); h.assertTrue(reply.success(),"Expected success for "+action+", got "+reply.result());
         }
+        void cooldown() { var entry=base.data.diplomacy.get(new Pair(ka.id(),kb.id())); now.set(Math.max(now.get(),entry.nextProposalAt())); }
         void ally() throws Exception { run(a,kb,Action.INVITE); run(b,ka,Action.ACCEPT); }
         Relation relation() throws Exception {
             var relation=service.relation(ka.id(),kb.id()); h.assertTrue(relation==service.relation(kb.id(),ka.id()),"Relation is symmetric"); return relation;

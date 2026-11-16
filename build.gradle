@@ -154,6 +154,27 @@ tasks.named('check') {
 	dependsOn tasks.named('testKingdomNames')
 }
 
+// Native text and Brigadier checks only: no client, server, world or GameTest runner.
+sourceSets {
+    chatTest {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+tasks.register('testChatUi', JavaExec) {
+    group = 'verification'
+    description = 'Checks localized native chat components and command routing without Minecraft startup.'
+    dependsOn tasks.named('chatTestClasses')
+    classpath = sourceSets.chatTest.runtimeClasspath
+    mainClass = 'dev.sakhno.regnum.nations.kingdom.ChatUiTest'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+    workingDir = layout.buildDirectory.dir('run/chatTest').get().asFile
+    doFirst { workingDir.mkdirs() }
+}
+
+tasks.named('check') { dependsOn tasks.named('testChatUi') }
+
 // Opt-in asset review in a disposable client world. Never uses the player's run/.
 sourceSets {
 	obeliskTest {

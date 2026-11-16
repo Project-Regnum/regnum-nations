@@ -127,12 +127,9 @@ public final class ObeliskRelocationService {
         if (level==null||!level.isInWorldBounds(destination)||!level.getWorldBorder().isWithinBounds(destination)
                 || level.getChunkSource().getChunkNow(destination.getX()>>4,destination.getZ()>>4)==null) throw new FoundingException(RELOCATION_DESTINATION);
         Settlement city=owner(anchor);
-        if (!city.id().equals(data.claimOwner(ClaimPos.at(dimension,anchor.pos())))
-                ||!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())))) throw new FoundingException(CAPITAL_CONFLICT);
-        if (!city.id().equals(data.claimOwner(ClaimPos.at(dimension,destination)))) throw new FoundingException(RELOCATION_DESTINATION);
-        Kingdom capital=anchor.state();
-        if (capital==null) for (Kingdom candidate:data.kingdoms()) if (candidate.capitalSettlementId().equals(city.id())) capital=candidate;
-        if (capital!=null&&!ClaimPos.at(capital.dimension(),capital.capitalPos()).equals(ClaimPos.at(dimension,destination))) throw new FoundingException(RELOCATION_CAPITAL);
+        if (!kingdoms.cities().containsAnchorTerritory(city,dimension,anchor.pos())
+                ||!kingdoms.cities().containsAnchorTerritory(city,city.dimension(),city.obeliskPos())) throw new FoundingException(CAPITAL_CONFLICT);
+        if (!kingdoms.cities().containsAnchorTerritory(city,dimension,destination)) throw new FoundingException(RELOCATION_DESTINATION);
         if (data.anchorAt(dimension,destination)||!level.getBlockState(destination).isAir()||level.getBlockEntity(destination)!=null) throw new FoundingException(RELOCATION_CONFLICT);
         KingdomObeliskBlockEntity source=block(level,anchor.pos(),anchor.cityBlock());
         if (!source.getObeliskId().equals(anchor.identity())||!Objects.equals(source.getKingdomId(),anchor.binding())) throw new FoundingException(RELOCATION_CONFLICT);
@@ -158,8 +155,10 @@ public final class ObeliskRelocationService {
         if (source.getServer()!=server) throw KingdomService.adminError("permission");
         Anchor anchor=anchor(target,state); ServerLevel level=server.getLevel(anchor.dimension());
         if (level==null||level.getChunkSource().getChunkNow(anchor.pos().getX()>>4,anchor.pos().getZ()>>4)==null) throw new FoundingException(OBELISK_UNAVAILABLE);
+        if (!level.isInWorldBounds(anchor.pos())||!level.getWorldBorder().isWithinBounds(anchor.pos())) throw new FoundingException(RELOCATION_DESTINATION);
         Settlement city=owner(anchor);
-        if (!city.id().equals(data.claimOwner(ClaimPos.at(anchor.dimension(),anchor.pos())))
+        if (!kingdoms.cities().containsAnchorTerritory(city,anchor.dimension(),anchor.pos())
+                ||!kingdoms.cities().containsAnchorTerritory(city,city.dimension(),city.obeliskPos())
                 ||data.ownedSettlements(city.ownerId()).size()!=1) throw new FoundingException(CAPITAL_CONFLICT);
         Settlement atCity=data.cityAt(anchor.dimension(),anchor.pos()); Kingdom atState=data.atCapital(anchor.dimension(),anchor.pos());
         if (atCity!=null&&(anchor.city()==null||!atCity.id().equals(anchor.city().id()))

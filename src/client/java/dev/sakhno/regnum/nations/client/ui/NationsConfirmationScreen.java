@@ -30,7 +30,8 @@ public final class NationsConfirmationScreen extends RoyalScreen {
                     submitted = true; b.active = false; minecraft.setScreen(parent); confirmed.run();
                 }, destructive ? ButtonStyle.DANGER : ButtonStyle.PRIMARY));
         confirm.active = !submitted;
-        addRenderableWidget(new RoyalButton(bounds.left() + w + GAP, bounds.footerY(), w, text("cancel"), b -> onClose()));
+        var cancel = addRenderableWidget(new RoyalButton(bounds.left() + w + GAP, bounds.footerY(), w, text("cancel"), b -> onClose()));
+        setInitialFocus(cancel);
     }
     @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public Component getNarrationMessage() { return title.copy().append(". ").append(explanation); }

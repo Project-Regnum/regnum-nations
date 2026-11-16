@@ -46,7 +46,7 @@ public final class HeraldryTests implements FabricGameTest {
         var before=data.heraldry(f.realm.id()); data.rename(f.realm.id(),new KingdomName("Renamed Arms"));
         h.assertTrue(data.heraldry(f.realm.id()).equals(before)&&data.settlementClaims(f.realm.id()).equals(f.data.settlementClaims(f.realm.id())),"Name does not control arms or territory");
         var saved=data.save(new CompoundTag(),h.getLevel().registryAccess()); var again=KingdomSavedData.load(saved,h.getLevel().registryAccess());
-        h.assertTrue(saved.getInt("Version")==8&&saved.equals(again.save(new CompoundTag(),h.getLevel().registryAccess()))&&!again.isDirty(),"Schema 8 reaches an idempotent save"); h.succeed();
+        h.assertTrue(saved.getInt("Version")==KingdomSchema.CURRENT&&saved.equals(again.save(new CompoundTag(),h.getLevel().registryAccess()))&&!again.isDirty(),"Heraldry migration reaches the current schema with an idempotent save"); h.succeed();
     }
     @GameTest(template=EMPTY_STRUCTURE,batch="heraldry")
     public void malformedOrFutureArmsRecoverWithoutLosingKingdomData(GameTestHelper h) throws Exception {

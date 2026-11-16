@@ -18,12 +18,12 @@ founder. Each chunk has one owner. Negative coordinates use floor-based chunk co
 
 ## Commands
 
-- `/nations claim`: claim your current chunk as your founded kingdom. It must be
+- `/regnum claim`: claim your current chunk as your founded kingdom. It must be
   unclaimed and share a cardinal edge with an existing claim in the same dimension.
-- `/nations unclaim`: release your current owned non-capital chunk.
-- `/nations territory`: inspect dimension, chunk coordinates, owner name/UUID, and
+- `/regnum unclaim`: release your current owned non-capital chunk.
+- `/regnum territory`: inspect dimension, chunk coordinates, owner name/UUID, and
   that owner's total claim count. Anyone can inspect; only founders manage land.
-- `/nations`: discover founding and territory commands.
+- `/regnum`: discover founding and territory commands.
 
 All operations use the actual server player's position, dimension, identity, and
 current saved data. Management rejects dead, removed, and spectator players. OP
@@ -78,8 +78,8 @@ preserve their NBT and fail closed for claim management/build permission checks.
 
 Singleplayer (`./gradlew runClient`, disposable Creative world):
 
-1. Obtain an obelisk, place and select it, then `/nations found Golden Vale`.
-   `/nations territory` must show its kingdom as owner of the capital chunk.
+1. Obtain an obelisk, place and select it, then `/regnum found Golden Vale`.
+   `/regnum territory` must show its kingdom as owner of the capital chunk.
 2. Use F3+G to see chunk boundaries. Claim a cardinal neighbor. Try a remote or
    diagonal-only chunk (reject), repeat the existing claim (reject), and try to
    unclaim the capital (reject). Release the neighbor and inspect wilderness.

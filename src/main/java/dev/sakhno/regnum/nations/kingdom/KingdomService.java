@@ -1,9 +1,9 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
@@ -272,8 +272,8 @@ public final class KingdomService {
 	}
 
 	static CommandSyntaxException adminError(String key, Object... args) {
-		return new SimpleCommandExceptionType(
-				Component.translatable("admin.regnum-nations." + key, args)).create();
+		return new SimpleCommandExceptionType(ChatUi.error(
+                ChatUi.text("admin.regnum-nations." + key, args))).create();
 	}
 
 	/** Exact UUID or full normalized name only. Never guess a prefix or choose an ambiguous match. */

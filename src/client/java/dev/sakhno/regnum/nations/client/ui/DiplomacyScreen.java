@@ -37,6 +37,7 @@ public final class DiplomacyScreen extends RoyalScreen {
         Button b=addRenderableWidget(new RoyalButton(x,y,w,label,ignored -> action.run(),style));
         b.setTooltip(null);
         availability.add(() -> b.active=enabled.getAsBoolean());
+        if (label.equals(text("cancel"))) setInitialFocus(b);
     }
     @Override protected void init() {
         availability.clear(); bounds=folioBounds(width,height,720,460); int w=bounds.contentWidth(),third=(w-2*GAP)/3;
@@ -80,7 +81,7 @@ public final class DiplomacyScreen extends RoyalScreen {
         }
         int half=(w-GAP)/2;
         button(bounds.left(),bounds.footerY(),half,text("refresh"),this::read,() -> !busy()&&confirmation==null,ButtonStyle.NORMAL);
-        button(bounds.left()+half+GAP,bounds.footerY(),half,text("close"),this::onClose,() -> true,ButtonStyle.NORMAL);
+        button(bounds.left()+half+GAP,bounds.footerY(),half,text("back"),this::onClose,() -> true,ButtonStyle.NORMAL);
         availability.forEach(Runnable::run);
         if (initial) { initial=false; read(); }
     }
@@ -173,7 +174,8 @@ public final class DiplomacyScreen extends RoyalScreen {
         }
         availability.forEach(Runnable::run);
     }
-    @Override public void onClose() { parent.refreshOnOpen(); minecraft.setScreen(parent); }
+    @Override public void onClose() {
+        if (confirmation!=null) { confirmation=null; confirming=null; rebuildWidgets(); return; } parent.refreshOnOpen(); minecraft.setScreen(parent); }
     @Override public Component getNarrationMessage() { return title.copy().append(". ").append(feedback); }
     @Override public void render(GuiGraphics g,int mx,int my,float delta) {
         g.fill(0,0,width,height,BACKGROUND); AtlasGraphics.folio(g,bounds.x(),bounds.y(),bounds.width(),bounds.height());

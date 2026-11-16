@@ -250,7 +250,7 @@ immediately before this build.
    client areas of 1280×800 (16:10), 1280×720 (16:9), 1280×960 (4:3), and 640×480
    (320×240 logical). Move the pointer to an outer margin and press **F2**; keep the
    original Minecraft image in `<game directory>/screenshots/`.
-2. Use `/nations city` for City, `/nations menu` for Kingdom, the Territories index
+2. Use `/regnum city` for City, `/regnum menu` for Kingdom, the Territories index
    tab for the personal-domain register, and **M** or Map for cartography. Capture
    City and Kingdom with the technical record both collapsed and expanded. Scroll
    the rows and territory rules, checking their full hover text and keyboard focus.
@@ -484,7 +484,7 @@ request to stop testing.
 
 1. Run `./gradlew runClient` and use a disposable Creative world with commands
    enabled. Found a city and elevate it with a neighboring State Obelisk, or open
-   an existing realm. Use `/nations menu` and select **Kingdom**.
+   an existing realm. Use `/regnum menu` and select **Kingdom**.
 2. In Video Settings choose GUI scale **2**. Use actual client areas of 1280×800
    (16:10), 1280×720 (16:9), 1280×960 (4:3), and 640×480 (minimum logical 320×240).
    Window borders/title bars do not count toward client-area dimensions.
@@ -670,7 +670,7 @@ stay in bounds. View/Manage switching and mutation refresh retain pan/zoom.
 
 ### Administrative dissolution
 
-`/nations admin delete <exact UUID or full quoted name>` prints the server-resolved
+`/regnum admin delete <exact UUID or full quoted name>` prints the server-resolved
 name, consequence summary and red, bold, underlined **[CONFIRM DISSOLUTION]** alongside
 **[CANCEL]**. `ClickEvent.Action.RUN_COMMAND` executes the exact server-issued UUID/token
 command; it never accepts a display name as authority. Chat uses Minecraft's native
@@ -681,8 +681,8 @@ console and unsupported chat interaction; `SUGGEST_COMMAND` can populate the cha
 The token is not the primary control. Old textual confirmation remains supported:
 
 ```text
-/nations admin delete <kingdomUUID> confirm <token>
-/nations admin delete <kingdomUUID> cancel <token>
+/regnum admin delete <kingdomUUID> confirm <token>
+/regnum admin delete <kingdomUUID> cancel <token>
 ```
 
 The 30-second server-tick deadline, level-3 permission rechecks, executor/session and

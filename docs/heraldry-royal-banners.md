@@ -5,7 +5,7 @@
 This feature branches from PR #16's **unmerged** integration head
 `33532d6c6ddfa95580e19db16895f990724d6821`, not outdated main. PR #16 combines
 administration, diplomacy and territory hardening at schema 7. The feature PR
-targets `integration/nations-v0.8.5` to keep its diff reviewable. Merge #16 first,
+targets `integration/regnum-v0.8.5` to keep its diff reviewable. Merge #16 first,
 then retarget this PR to main; do not merge this feature independently onto an
 older foundation. No existing PR is closed or merged by this work.
 

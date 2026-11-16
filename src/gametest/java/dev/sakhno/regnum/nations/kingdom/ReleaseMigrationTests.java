@@ -49,7 +49,7 @@ public final class ReleaseMigrationTests implements FabricGameTest {
             var record=raw.getList("Kingdoms",Tag.TAG_COMPOUND).getCompound(0); record.putString("RecordExtension","preserve");
             var untouched=raw.copy(); var data=KingdomSavedData.load(raw,level.registryAccess()); data.requireAvailable();
             var before=data.save(new CompoundTag(),level.registryAccess());
-            h.assertTrue(raw.equals(untouched)&&before.getInt("Version")==8&&data.byId(record.getUUID("Id")).capitalObeliskId().equals(record.getUUID("Obelisk")),"Fixture migration retains source, kingdom and obelisk identities: "+entry.getKey());
+            h.assertTrue(raw.equals(untouched)&&before.getInt("Version")==KingdomSchema.CURRENT&&data.byId(record.getUUID("Id")).capitalObeliskId().equals(record.getUUID("Obelisk")),"Fixture migration retains source, kingdom and obelisk identities: "+entry.getKey());
             var directory=Files.createTempDirectory("regnum-release-migration-");
             try {
                 var writer=new DimensionDataStorage(directory.toFile(),level.getServer().getFixerUpper(),level.registryAccess());

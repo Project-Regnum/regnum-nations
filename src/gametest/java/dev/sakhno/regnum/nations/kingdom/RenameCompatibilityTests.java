@@ -111,14 +111,15 @@ public final class RenameCompatibilityTests implements FabricGameTest {
                 "Existing wire channel IDs must remain stable");
         var dispatcher = h.getLevel().getServer().getCommands().getDispatcher();
         var root = dispatcher.getRoot();
-        h.assertTrue(root.getChild("reigns").getRedirect() == root.getChild("nations"),
+        h.assertTrue(root.getChild("reigns").getRedirect() == root.getChild("regnum")
+                && root.getChild("nations").getRedirect() == root.getChild("regnum"),
                 "Legacy commands must redirect to the same permission-checked command tree");
         var source = h.getLevel().getServer().createCommandSourceStack().withSuppressedOutput();
-        for (String command : new String[] {"nations", "reigns"}) {
+        for (String command : new String[] {"regnum", "nations", "reigns"}) {
             h.assertTrue(dispatcher.execute(command, source.withPermission(0)) == 1,
-                    "Both command roots must retain public help");
+                    "All command roots must retain public help");
             h.assertTrue(dispatcher.execute(command + " admin help", source.withPermission(3)) == 1,
-                    "Both command roots must retain authorized administration");
+                    "All command roots must retain authorized administration");
             try {
                 dispatcher.execute(command + " admin help", source.withPermission(2));
                 h.fail("Command alias must not bypass administrator permissions");

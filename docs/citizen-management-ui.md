@@ -1,6 +1,6 @@
 # Citizen management UI — v0.8.1
 
-Open **City → Citizens** from an obelisk or `/nations city`. Existing city
+Open **City → Citizens** from an obelisk or `/regnum city`. Existing city
 management now resolves the viewer's current membership, including non-owner
 citizens, while retaining owner-only controls. The Citizens action is also
 available without city membership so newcomers can accept received invitations.

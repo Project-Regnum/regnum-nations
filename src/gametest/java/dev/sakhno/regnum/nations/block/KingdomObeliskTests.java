@@ -156,10 +156,11 @@ public class KingdomObeliskTests implements FabricGameTest {
 		helper.assertTrue(first.messages.size() == 1 && second.messages.isEmpty(),
 				"Only the interacting player must receive exactly one message");
 		Component message = first.messages.getFirst();
-		helper.assertTrue(message.getContents() instanceof TranslatableContents, "Status must use client localization");
-		TranslatableContents contents = (TranslatableContents) message.getContents();
+        Component status=message.getSiblings().stream().filter(c -> c.getContents() instanceof TranslatableContents t
+                && t.getKey().equals("message.regnum-nations.kingdom_obelisk.status")).findFirst().orElseThrow();
+        TranslatableContents contents=(TranslatableContents)status.getContents();
 		helper.assertTrue(contents.getKey().equals("message.regnum-nations.kingdom_obelisk.status"), "Wrong translation key");
-		helper.assertTrue(contents.getArgs().length == 1 && contents.getArgs()[0].equals(expected.toString()),
+		helper.assertTrue(contents.getArgs().length == 1 && contents.getArgs()[0] instanceof Component id && id.getString().equals(expected.toString()),
 				"Message must contain the server's persisted UUID");
 		state.useWithoutItem(helper.getLevel(), second, hit);
 		helper.assertTrue(first.messages.size() == 1 && second.messages.size() == 1, "Messages must not be broadcast");

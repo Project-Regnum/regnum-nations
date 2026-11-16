@@ -302,7 +302,7 @@ closed or retargeted automatically.
 
 ## 13. Delivery identity and CI
 
-Branch: `fix/nations-v0.9.1-release-hardening`.
+Branch: `fix/regnum-v0.9.1-release-hardening`.
 Target: `feat/heraldry-royal-banners-v0.9.0`.
 Title: `fix: Nations v0.9.1 integration and release hardening`.
 Commit SHA / PR URL / latest CI status: recorded in the PR description and delivery

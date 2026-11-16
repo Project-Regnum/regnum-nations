@@ -64,7 +64,8 @@ public class KingdomManagementTests implements FabricGameTest {
         h.assertTrue(KingdomManagementServer.gate(player,100,true) == null,"First action must pass the network gate");
         claims.manage(player,neighbor,kingdom.id(),false);
         reject(h,data,TERRITORY_OCCUPIED,() -> claims.manage(player,neighbor,kingdom.id(),false));
-        claims.manage(player,neighbor,kingdom.id(),true);
+        reject(h,data,CLAIM_CONFIRMATION,() -> claims.manage(player,neighbor,kingdom.id(),true));
+        claims.manage(player,neighbor,kingdom.id(),true,claims.prepareAbandonment(player,neighbor,kingdom.id()));
         CompoundTag before = data.save(new CompoundTag(),level.registryAccess()); data.setDirty(false);
         h.assertTrue("ui.regnum-nations.duplicate".equals(KingdomManagementServer.gate(player,100,true))
                 && "ui.regnum-nations.duplicate".equals(KingdomManagementServer.gate(player,99,true)),

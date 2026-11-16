@@ -1,6 +1,10 @@
 package dev.sakhno.regnum.nations.kingdom;
 
+import dev.sakhno.regnum.nations.chat.ChatUi;
+import dev.sakhno.regnum.nations.chat.CommandHelp;
+
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Locale;
@@ -18,39 +22,34 @@ final class CitizenshipCommands {
 
     static LiteralArgumentBuilder<CommandSourceStack> commands() {
         return Commands.literal("citizen")
-                .executes(ctx -> { ctx.getSource().sendSuccess(() -> text("help"), false); return 1; })
+                .executes(ctx -> help(ctx.getSource(),1))
+                .then(Commands.literal("help").executes(ctx -> help(ctx.getSource(),1))
+                        .then(Commands.argument("page",IntegerArgumentType.integer(1,CommandHelp.CITIZEN_PAGES))
+                                .executes(ctx -> help(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"page")))))
                 .then(Commands.literal("invite").then(Commands.argument("player", EntityArgument.player())
                         .executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
                             ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
                             Settlement city = service.invite(actor, target);
-                            target.displayClientMessage(text("invitation", actor.getGameProfile().getName(),
-                                    city.name().display(), city.id().toString(), city.id().toString()), false);
-                            ctx.getSource().sendSuccess(() -> text("invited", target.getGameProfile().getName()), false);
+                            ChatUi.notify(target, ChatUi.citizenInvitation(actor.getGameProfile().getName(), city.name().display(), city.id()), false);
+                            ChatUi.confirm(ctx.getSource(), () -> text("invited", target.getGameProfile().getName()), false);
                         }))))
                 .then(Commands.literal("accept").then(Commands.argument("cityUUID", UuidArgument.uuid())
                         .executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
                             service.accept(actor, UuidArgument.getUuid(ctx, "cityUUID"));
-                            ctx.getSource().sendSuccess(() -> text("accepted"), false);
+                            ChatUi.confirm(ctx.getSource(), () -> text("accepted"), false);
                         }))))
                 .then(Commands.literal("decline").then(Commands.argument("cityUUID", UuidArgument.uuid())
                         .executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
                             service.decline(actor, UuidArgument.getUuid(ctx, "cityUUID"));
-                            ctx.getSource().sendSuccess(() -> text("declined"), false);
+                            ChatUi.confirm(ctx.getSource(), () -> text("declined"), false);
                         }))))
                 .then(Commands.literal("leave").executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
                     service.leave(actor);
-                    ctx.getSource().sendSuccess(() -> text("left"), false);
+                    ChatUi.confirm(ctx.getSource(), () -> text("left"), false);
                 })))
-                .then(Commands.literal("list").executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
-                    var members = service.list(actor);
-                    Settlement city = service.current(actor);
-                    ctx.getSource().sendSuccess(() -> text("list", city.name().display(), members.size()), false);
-                    for (UUID member : members) {
-                        String name = name(actor, member);
-                        CityRole role = service.role(actor, member);
-                        ctx.getSource().sendSuccess(() -> text("role_entry", name, member.toString(), roleName(role)), false);
-                    }
-                })))
+                .then(Commands.literal("list").executes(ctx -> list(ctx.getSource(), 1))
+                        .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                                .executes(ctx -> list(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "page")))))
                 .then(Commands.literal("role").then(Commands.argument("player", StringArgumentType.word())
                         .suggests((ctx, builder) -> net.minecraft.commands.SharedSuggestionProvider.suggest(ctx.getSource().getOnlinePlayerNames(), builder))
                         .then(Commands.argument("role", StringArgumentType.word())
@@ -62,23 +61,26 @@ final class CitizenshipCommands {
                                     try { role = CityRole.valueOf(StringArgumentType.getString(ctx, "role").toUpperCase(Locale.ROOT)); }
                                     catch (IllegalArgumentException invalid) { throw new FoundingException(FoundingException.Reason.INVALID_CITY_ROLE); }
                                     service.assignRole(actor, target, role);
-                                    ctx.getSource().sendSuccess(() -> text("role_assigned", name(actor, target), target.toString(), roleName(role)), false);
+                                    ChatUi.confirm(ctx.getSource(), () -> text("role_assigned", name(actor, target), target.toString(), roleName(role)), false);
                                 })))))
                 .then(Commands.literal("roles").executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
                     service.current(actor);
+                    var result=ChatUi.heading(Component.translatable("chat.regnum-nations.roles"));
                     for (CityRole role : CityRole.values()) {
-                        ctx.getSource().sendSuccess(() -> text("role_description." + role.name().toLowerCase(Locale.ROOT), roleName(role)), false);
+                        result.append(ChatUi.line(text("role_description." + role.name().toLowerCase(Locale.ROOT), roleName(role))));
                     }
+                    ctx.getSource().sendSuccess(() -> result, false);
                 })))
                 .then(Commands.literal("permissions").executes(ctx -> execute(ctx.getSource(), (service, actor) -> {
                     CityRole role = service.role(actor, actor.getUUID());
-                    ctx.getSource().sendSuccess(() -> text("permissions", roleName(role)), false);
+                    var result=ChatUi.heading(text("permissions", roleName(role)));
                     for (CityPermission permission : CityPermission.values()) {
                         boolean allowed = service.permits(actor, permission);
-                        ctx.getSource().sendSuccess(() -> text("permission_entry",
+                        result.append(ChatUi.line(text("permission_entry",
                                 text("permission." + permission.name().toLowerCase(Locale.ROOT)),
-                                Component.translatable("ui.regnum-nations." + (allowed ? "yes" : "no"))), false);
+                                ChatUi.text("ui.regnum-nations." + (allowed ? "yes" : "no")))));
                     }
+                    ctx.getSource().sendSuccess(() -> result, false);
                 })))
                 .then(Commands.literal("kick").then(Commands.argument("player", StringArgumentType.word())
                         .suggests((ctx, builder) -> net.minecraft.commands.SharedSuggestionProvider.suggest(ctx.getSource().getOnlinePlayerNames(), builder))
@@ -86,10 +88,32 @@ final class CitizenshipCommands {
                             String input = StringArgumentType.getString(ctx, "player");
                             UUID target = target(service, actor, input);
                             service.kick(actor, target);
-                            ctx.getSource().sendSuccess(() -> text("kicked", input), false);
+                            ChatUi.confirm(ctx.getSource(), () -> text("kicked", input), false);
                             var online = ctx.getSource().getServer().getPlayerList().getPlayer(target);
-                            if (online != null) online.displayClientMessage(text("removed"), false);
+                            if (online != null) ChatUi.notify(online, text("removed"), false);
                         }))));
+    }
+
+    private static int help(CommandSourceStack source,int page) {
+        source.sendSuccess(() -> CommandHelp.citizens(page),false);
+        return 1;
+    }
+
+    private static int list(CommandSourceStack source, int page) throws CommandSyntaxException {
+        return execute(source, (service, actor) -> {
+            var members=service.list(actor);
+            Settlement city=service.current(actor);
+            int pages=Math.max(1,(members.size()+7)/8);
+            if (page>pages) throw KingdomService.adminError("page",pages);
+            var result=ChatUi.heading(text("list",city.name().display(),members.size()));
+            for (int i=(page-1)*8;i<Math.min(page*8,members.size());i++) {
+                UUID member=members.get(i);
+                String name=name(actor,member);
+                result.append(ChatUi.line(text("role_entry",name.isEmpty()?member.toString():name,member.toString(),roleName(service.role(actor,member)))));
+            }
+            result.append(ChatUi.pagination(page,pages,p -> "/regnum citizen list " + p));
+            source.sendSuccess(() -> result,false);
+        });
     }
 
     /** Resolve offline citizens from local UUID/profile records; never ask an external name service. */
@@ -127,7 +151,7 @@ final class CitizenshipCommands {
             action.run(KingdomService.get(source.getServer()).citizenship(), actor);
             return 1;
         } catch (FoundingException failure) {
-            source.sendFailure(Component.translatable(failure.translationKey()));
+            ChatUi.fail(source, ChatUi.text(failure.translationKey()));
             return 0;
         }
     }
@@ -137,6 +161,6 @@ final class CitizenshipCommands {
     }
 
     private static Component text(String key, Object... args) {
-        return Component.translatable("citizen.regnum-nations." + key, args);
+        return ChatUi.text("citizen.regnum-nations." + key, args);
     }
 }

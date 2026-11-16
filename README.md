@@ -15,11 +15,11 @@ a municipal seal, ceremonial charters and stronger political borders. The Kingdo
 composition and deterministic heraldry remain. Server rules and networking are
 unchanged. Rendered checks cover City, Found City and the independent Kingdom state;
 the remaining screens await manual visual review (see the design system).
-Use City and State Obelisks, the compact `/nations menu`, and M for the political map.
+Use City and State Obelisks, the compact `/regnum menu`, and M for the political map.
 The v0.7.0 citizenship milestone adds owner-issued player invitations, persistent
 UUID membership and citizen building access. v0.7.1 adds fixed owner/officer/citizen
 roles and centralized permissions; officers may invite while owners retain claim
-and membership management. Use `/nations citizen` for help.
+and membership management. Use `/regnum citizen` for help.
 v0.8.0 adds safe owner-confirmed obelisk relocation, active-anchor destruction
 protection and explicit administrator recovery. See [relocation and settlement
 integrity](docs/obelisk-relocation.md) for commands, restrictions and crash recovery.
@@ -64,10 +64,14 @@ See [territory claims, protections, and manual checks](docs/territory-claims.md)
 
 Install matching client/server versions and replace the old JAR; do not load both.
 World registry IDs, UUIDs, saved-data filenames, map configuration and the saved M
-binding stay compatible. `/nations` is the preferred command; `/reigns` remains an
-alias. Presentation assets and Java packages now use the Regnum Nations name.
+binding stay compatible. `/regnum` is canonical; `/regnum help` opens paginated help.
+`/nations` and `/reigns` remain compatibility redirects for scripts and saved command
+blocks. Presentation assets and Java packages use the Regnum Nations name.
 See the [migration contract and upgrade steps](docs/rename-migration.md) before
 upgrading a player world. Build output is `build/libs/regnum-nations-0.8.5.jar`.
+
+See [chat components, commands, verification and changed files](docs/chat-ui-overhaul.md)
+for the canonical command and chat UI update.
 
 ## Development
 

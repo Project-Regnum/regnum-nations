@@ -30,6 +30,7 @@ public final class PoliticalMapServer {
         TerritoryProtectionConfig.load(properties);
         PayloadTypeRegistry.playC2S().register(Request.TYPE, Request.CODEC);
         PayloadTypeRegistry.playS2C().register(Snapshot.TYPE, Snapshot.CODEC);
+        PayloadTypeRegistry.playS2C().register(AtlasPayloads.Dungeons.TYPE, AtlasPayloads.Dungeons.CODEC);
         PayloadTypeRegistry.playS2C().register(AtlasPayloads.Session.TYPE, AtlasPayloads.Session.CODEC);
         PayloadTypeRegistry.playS2C().register(AtlasPayloads.Markers.TYPE, AtlasPayloads.Markers.CODEC);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -76,6 +77,17 @@ public final class PoliticalMapServer {
                             sovereign != null && sovereign.capitalSettlementId().equals(city.id())));
                 }
             } catch (FoundingException e) { status = 2; }
+            if (ServerPlayNetworking.canSend(player,AtlasPayloads.Dungeons.TYPE)) {
+                var dungeonMarkers=new ArrayList<net.minecraft.nbt.CompoundTag>();
+                for(var raw:DungeonTerritories.snapshot(context.server())) {
+                    var d=(net.minecraft.nbt.CompoundTag)raw;
+                    if(!d.getString("Dimension").equals(dimension.location().toString())||Math.abs((d.getInt("X")>>4)-center.x)>radius+3||Math.abs((d.getInt("Z")>>4)-center.z)>radius+3)continue;
+                    var marker=new net.minecraft.nbt.CompoundTag();
+                    for(String key:List.of("Id","Type","Name","Tier","PartySize","X","Y","Z","Level","Defeated"))marker.put(key,d.get(key).copy());
+                    dungeonMarkers.add(marker);if(dungeonMarkers.size()==128)break;
+                }
+                ServerPlayNetworking.send(player,new AtlasPayloads.Dungeons(dimension.location(),dungeonMarkers));
+            }
             ServerPlayNetworking.send(player, new Snapshot(request.sequence(), dimension.location(), center.x, center.z, radius, status, List.copyOf(cells)));
             if (ServerPlayNetworking.canSend(player, AtlasPayloads.Markers.TYPE))
                 ServerPlayNetworking.send(player, new AtlasPayloads.Markers(request.sequence(), dimension.location(), markers));

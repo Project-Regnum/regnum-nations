@@ -55,6 +55,7 @@ public final class KingdomService {
 		this.server = server;
 		this.data = data;
         data.onLifecycleChange(change -> dev.sakhno.regnum.nations.api.v1.NationsEvents.CHANGED.invoker().changed(server, change));
+        data.dungeonReservation = p -> DungeonTerritories.neutral(server,p.dimension().location().toString(),p.x(),p.z());
         data.onPoliticalChange(() -> { KingdomManagementServer.invalidate(server); HeraldryServer.reconcile(server,data); });
 		this.cities = new SettlementService(this,server,data);
 		this.citizenship = new CitizenshipService(this,server,data,System::nanoTime);

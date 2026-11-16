@@ -46,4 +46,19 @@ public final class AtlasPayloads {
         });
         @Override public Type<Markers> type() { return TYPE; }
     }
+    public record Dungeons(ResourceLocation dimension, List<net.minecraft.nbt.CompoundTag> entries) implements CustomPacketPayload {
+        public Dungeons { entries=List.copyOf(entries); }
+        public static final Type<Dungeons> TYPE=new Type<>(RegnumNations.id("atlas_dungeons"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Dungeons> CODEC=StreamCodec.of((b,p)->{
+            b.writeResourceLocation(p.dimension()); b.writeVarInt(p.entries().size());
+            for(var entry:p.entries()) b.writeNbt(entry);
+        },b->{
+            ResourceLocation dim=b.readResourceLocation();int n=b.readVarInt();
+            if(n<0||n>128)throw new IllegalArgumentException("Too many dungeons");
+            var entries=new ArrayList<net.minecraft.nbt.CompoundTag>();
+            for(int j=0;j<n;j++) {var entry=b.readNbt();if(entry==null)throw new IllegalArgumentException("Missing dungeon");entries.add(entry);}
+            return new Dungeons(dim,entries);
+        });
+        @Override public Type<Dungeons> type(){return TYPE;}
+    }
 }

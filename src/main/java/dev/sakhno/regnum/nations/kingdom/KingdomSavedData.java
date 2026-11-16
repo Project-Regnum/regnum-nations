@@ -347,6 +347,8 @@ public final class KingdomSavedData extends SavedData {
         }
         setDirty();
     }
+    java.util.function.Predicate<ClaimPos> dungeonReservation = p -> false;
+    private boolean dungeonReserved(ClaimPos pos) { return dungeonReservation.test(pos); }
     public UUID claimOwner(ClaimPos pos) { return claims.get(pos); }
     public List<ClaimPos> settlementClaims(UUID id) { return List.copyOf(claimsByCity.getOrDefault(id,Set.of())); }
     public long settlementClaimCount(UUID id) { return claimsByCity.getOrDefault(id,Set.of()).size(); }
@@ -377,7 +379,7 @@ public final class KingdomSavedData extends SavedData {
         if (citizens.containsKey(kingdom.founderId())) throw new FoundingException(ALREADY_CITIZEN);
         if (kingdoms.containsKey(kingdom.id())||deleted.containsKey(kingdom.id())||settlements.containsKey(kingdom.id())||!kingdom.capitalSettlementId().equals(kingdom.id())||kingdom.id().equals(kingdom.capitalObeliskId())) throw new IllegalArgumentException("Duplicate identity");
         ClaimPos capital=ClaimPos.at(kingdom.dimension(),kingdom.capitalPos());
-        if (claims.containsKey(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
+        if (dungeonReserved(capital) || claims.containsKey(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
         Settlement city=legacyCity(kingdom);
         index(kingdom); settlements.put(city.id(),city); claims.put(capital,city.id()); indexClaim(capital,city.id()); setDirty(); politicalChanged();
         entityChanged(KINGDOM_CREATED, null, PoliticalSnapshots.of(kingdom));
@@ -391,7 +393,7 @@ public final class KingdomSavedData extends SavedData {
                 || anchorAt(city.dimension(),city.obeliskPos()) || usesObelisk(city.obeliskId())) throw new FoundingException(ALREADY_BOUND);
         if (city.sovereign()!=null||city.legacyAnchor()) throw new IllegalArgumentException("Native city must start independent");
         ClaimPos capital=ClaimPos.at(city.dimension(),city.obeliskPos());
-        if (claims.containsKey(capital)||isCapital(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
+        if (dungeonReserved(capital)||claims.containsKey(capital)||isCapital(capital)) throw new FoundingException(TERRITORY_OCCUPIED);
         settlements.put(city.id(),city); claims.put(capital,city.id()); indexClaim(capital,city.id()); setDirty(); politicalChanged();
         entityChanged(CITY_CREATED, null, PoliticalSnapshots.of(this, city));
     }
@@ -442,6 +444,7 @@ public final class KingdomSavedData extends SavedData {
         for (var before : detached) entityChanged(CITY_LEFT_KINGDOM, before, PoliticalSnapshots.of(this, settlement(before.ref().id())));
     }
     void putClaim(ClaimPos pos,UUID city) {
+        if (dungeonReserved(pos)) throw new IllegalStateException("Neutral dungeon territory");
         if (!settlements.containsKey(city)||claims.containsKey(pos)&&!city.equals(claims.get(pos))) throw new IllegalArgumentException("Invalid claim owner or overlap");
         var before = claims.put(pos,city); indexClaim(pos,city); territoryRevisions.merge(city,1L,Long::sum); setDirty();
         politicalChanged();

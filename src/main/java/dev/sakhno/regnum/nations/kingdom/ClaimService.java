@@ -62,6 +62,7 @@ public final class ClaimService {
 		if (release) {
 			validateRelease(kingdom, pos);
 		} else {
+			if (DungeonTerritories.neutral(player.getServer(),pos.dimension().location().toString(),pos.x(),pos.z())) throw new FoundingException(TERRITORY_OCCUPIED);
 			if (data.claimOwner(pos) != null) throw new FoundingException(TERRITORY_OCCUPIED);
 			if (data.settlementClaimCount(kingdom.id())>=TerritoryConfig.settlementLimit()) throw new FoundingException(CLAIM_LIMIT);
             Set<ClaimPos> connected=reachable(new HashSet<>(data.settlementClaims(kingdom.id())),capital);
@@ -126,6 +127,7 @@ public final class ClaimService {
 
 	/** Block-action gate shared by build and interaction hooks. Wilderness needs no municipal permission. */
 	public static boolean canAccess(ServerLevel level, Player player, BlockPos pos, CityPermission permission) {
+		if (DungeonTerritories.inside(level,pos)) return permission == CityPermission.INTERACT || permission == CityPermission.BUILD && player!=null && player.isCreative() && player.hasPermissions(2);
 		KingdomSavedData data = KingdomService.get(level.getServer()).data();
 		if (!data.available()) return false;
 		UUID ownerId=data.claimOwner(ClaimPos.at(level.dimension(),pos));
@@ -142,6 +144,7 @@ public final class ClaimService {
 	public static boolean sameTerritory(ServerLevel level, BlockPos source, BlockPos target) {
 		KingdomSavedData data = KingdomService.get(level.getServer()).data();
 		if (!data.available()) return false;
+		if (DungeonTerritories.inside(level,source) || DungeonTerritories.inside(level,target)) return false;
 		UUID sourceOwner = data.claimOwner(ClaimPos.at(level.dimension(), source));
 		UUID targetOwner = data.claimOwner(ClaimPos.at(level.dimension(), target));
 		return java.util.Objects.equals(sourceOwner, targetOwner)
@@ -152,6 +155,6 @@ public final class ClaimService {
 	public static void filterExplosion(ServerLevel level, java.util.List<BlockPos> affected) {
 		KingdomSavedData data = KingdomService.get(level.getServer()).data();
 		if (!data.available()) affected.clear();
-		else affected.removeIf(pos -> data.claimOwner(ClaimPos.at(level.dimension(), pos)) != null);
+		else affected.removeIf(pos -> data.claimOwner(ClaimPos.at(level.dimension(), pos)) != null || DungeonTerritories.inside(level,pos));
 	}
 }

@@ -204,6 +204,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private static int subdued(int color) { return dev.sakhno.regnum.nations.kingdom.PoliticalColors.subdued(color); }
     @Override public void tick() {
         if (minecraft.player == null || minecraft.level == null) { minecraft.setScreen(null); return; }
+        if(!dungeonMarkers.isEmpty() && !actionPending && !state.equals("loading") && System.currentTimeMillis()-lastMapRequest>=10000) {fitNextSnapshot=false;request();}
         if (refreshDue && !actionPending && System.currentTimeMillis()-lastMapRequest >= 550) request();
         if (needsDetails && !actionPending && detailsRequested == 0 && System.currentTimeMillis()-detailsAt >= 175) sendDetails(Action.INSPECT);
         if (detailsRequested != 0 && System.currentTimeMillis()-detailsRequested > 10000) {
@@ -223,6 +224,14 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private final List<Cell> legendEntries=new ArrayList<>();
     private final List<String> legendNames=new ArrayList<>();
     private final List<MapLabel> labels=new ArrayList<>();
+    private List<net.minecraft.nbt.CompoundTag> dungeonMarkers=List.of();
+    private net.minecraft.resources.ResourceLocation dungeonDimension;
+    public void acceptDungeons(AtlasPayloads.Dungeons payload) {
+        dungeonDimension=payload.dimension();dungeonMarkers=payload.entries();
+    }
+    private String dungeonName(net.minecraft.nbt.CompoundTag d) {
+        return d.getString("Name")+" · "+switch(d.getInt("Tier")){case 1 -> "I";case 2 -> "II";default -> "III";};
+    }
     private record MarkerPoint(AtlasPayloads.CityMarker marker,Cell cell,int x,int y) { }
     private record MapMarker(MarkerPoint point,List<MarkerPoint> members) { }
     private final List<MapMarker> mapMarkers=new ArrayList<>();
@@ -374,6 +383,15 @@ public final class PoliticalMapScreen extends RoyalScreen {
                 g.drawString(font,"+",p.x()+7,p.y()-7,AtlasGraphics.LIGHT,false);
             }
         }
+        if (minecraft.level.dimension().location().equals(dungeonDimension)) for(var d:dungeonMarkers) {
+            int l=(int)Math.floor(ox+d.getInt("X")/16.0*zoom),t=(int)Math.floor(oz+d.getInt("Z")/16.0*zoom);
+            int r=(int)Math.floor(ox+(d.getInt("X")+48)/16.0*zoom),b=(int)Math.floor(oz+(d.getInt("Z")+48)/16.0*zoom);
+            g.fill(l,t,r,b,0x304d394f);outline(g,l,t,r,b,0xffa798ad);
+            int ex=(int)Math.floor(ox+(d.getInt("X")+24)/16.0*zoom);
+            g.fill(ex-4,t-4,ex+5,t+5,0xff252329);outline(g,ex-4,t-4,ex+5,t+5,0xffbaa36a);
+            g.drawString(font,"!",ex-1,t-3,0xffe3c47e,false);
+            if(zoom>=8)g.drawString(font,dungeonName(d),ex+7,t-4,0xffd9c79d,false);
+        }
         int px=(int)Math.floor(ox+minecraft.player.getX()/16*zoom),pz=(int)Math.floor(oz+minecraft.player.getZ()/16*zoom);
         AtlasGraphics.mapPlayer(g,px,pz,minecraft.player.getYRot());
         if (!state.equals("ready")) {
@@ -412,6 +430,18 @@ public final class PoliticalMapScreen extends RoyalScreen {
         g.drawString(font,scale,scaleX,10,MUTED,false);
         super.render(g,mx,my,delta);
         if (!panning && inside(mx,my)) {
+            if(minecraft.level.dimension().location().equals(dungeonDimension)) {
+                var tips=new ArrayList<String>();
+                for(var d:dungeonMarkers) {
+                    double l=ox+d.getInt("X")/16.0*zoom,t=oz+d.getInt("Z")/16.0*zoom;
+                    if(mx>=l-4&&mx<=l+3*zoom+4&&my>=t-6&&my<=t+3*zoom+4) {
+                        int power=Math.clamp(d.getInt("Level"),1,5);
+                        tips.add(dungeonName(d)+"\nNeutral · PvP always enabled\n"+new String[]{"Dormant","Stirring","Dangerous","Awakened","Critical"}[power-1]+" · "+(d.getBoolean("Defeated")?"Recovering":"Boss available"));
+                    }
+                }
+                if(!tips.isEmpty()){atlasTooltip(g,Component.literal(String.join("\n\n",tips)),mx,my);return;}
+            }
+
             if (layer!=2) for (MapMarker marker:mapMarkers) {
                 var p=marker.point();
                 if (mx>=p.x()-8 && mx<=p.x()+(marker.members().size()>1?14:8) && Math.abs(my-p.y())<=8) {

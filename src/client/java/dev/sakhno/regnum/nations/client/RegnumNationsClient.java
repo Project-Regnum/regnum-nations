@@ -19,6 +19,8 @@ public class RegnumNationsClient implements ClientModInitializer {
         ObeliskRenderer.initialize();
         dev.sakhno.regnum.nations.client.heraldry.HeraldryClient.initialize();
         dev.sakhno.regnum.nations.client.terrain.AtlasTerrain.initialize();
+        ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.AtlasPayloads.Dungeons.TYPE,
+                (payload,context)->{if(context.client().screen instanceof PoliticalMapScreen map)map.acceptDungeons(payload);});
         ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.AtlasPayloads.Session.TYPE,
                 (payload, context) -> dev.sakhno.regnum.nations.client.terrain.diorama.MapSession.setWorld(payload.world()));
         ClientPlayNetworking.registerGlobalReceiver(dev.sakhno.regnum.nations.networking.AtlasPayloads.Markers.TYPE,

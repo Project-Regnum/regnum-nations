@@ -161,9 +161,10 @@ public final class WarfareService {
         if (!(chunk.getBlockEntity(r.pos()) instanceof KingdomObeliskBlockEntity block)||block.isRemoved()||!r.obelisk().equals(block.getObeliskId())) return "missing";
         Settlement city=data.settlement(r.city());
         if (city==null) return "missing";
+        kingdoms.cleanDeletedBinding(level,r.pos(),block);
         if (city.legacyAnchor()) {
             var capital=data.atCapital(city.dimension(),city.obeliskPos());
-            return !(block instanceof CityObeliskBlockEntity)&&(capital==null?block.getKingdomId()==null:capital.id().equals(block.getKingdomId()))?"present":"missing";
+            return !(block instanceof CityObeliskBlockEntity)&&(capital==null?block.getKingdomId()==null:KingdomSavedData.sharesAnchor(city,capital)&&capital.id().equals(block.getKingdomId()))?"present":"missing";
         }
         return block instanceof CityObeliskBlockEntity&&city.id().equals(block.getKingdomId())?"present":"missing";
     }

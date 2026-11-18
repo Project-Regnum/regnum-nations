@@ -11,12 +11,15 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.sakhno.regnum.nations.RegnumNations;
+import dev.sakhno.regnum.nations.api.v1.EntityRef;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.Component;
 
 /** Permission-gated command adapter. Services repeat authorization at every mutation boundary. */
@@ -39,7 +42,10 @@ public final class KingdomAdminCommands {
                         .then(Commands.literal("cancel").then(Commands.argument("token",StringArgumentType.word()).executes(context -> delete(context,"cancel"))))))
                 .then(Commands.literal("settlements").executes(context -> cities(context,1))
                         .then(Commands.argument("page",IntegerArgumentType.integer(1)).executes(context -> cities(context,IntegerArgumentType.getInteger(context,"page")))))
-                .then(Commands.literal("settlement").then(Commands.argument("id",StringArgumentType.word()).executes(KingdomAdminCommands::cityInfo)))
+                .then(Commands.literal("settlement").then(Commands.argument("id",StringArgumentType.word()).executes(KingdomAdminCommands::cityInfo)
+                        .then(Commands.literal("delete").executes(context -> deleteCity(context,"request"))
+                                .then(Commands.literal("confirm").then(Commands.argument("token",UuidArgument.uuid()).executes(context -> deleteCity(context,"confirm"))))
+                                .then(Commands.literal("cancel").then(Commands.argument("token",UuidArgument.uuid()).executes(context -> deleteCity(context,"cancel")))))))
                 .then(Commands.literal("tp").then(target().executes(context -> mutate(context,"tp"))))
                 .then(Commands.literal("rename").then(target()
                         .then(Commands.argument("newName",StringArgumentType.greedyString()).executes(context -> mutate(context,"rename")))))
@@ -197,19 +203,57 @@ public final class KingdomAdminCommands {
     private static int cityInfo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var source=context.getSource(); KingdomService.requireAdministrator(source); var service=KingdomService.get(source.getServer()); var data=service.data();
         try {
-            data.requireAvailable(); java.util.UUID id;
-            try {
-                String identifier=StringArgumentType.getString(context,"id"); id=java.util.UUID.fromString(identifier);
-                if (!id.toString().equalsIgnoreCase(identifier)) throw new IllegalArgumentException("Not a canonical UUID");
-            }
-            catch (IllegalArgumentException e) { throw KingdomService.adminError("unknown_city"); }
+            data.requireAvailable();
+            UUID id=cityId(context);
             Settlement city=data.settlement(id); if (city==null) throw KingdomService.adminError("unknown_city");
-            ChatUi.feedback(source, () -> text("city_info",city.name().display(),city.id().toString(),city.ownerId().toString(),city.founderId().toString(),city.dimension().location().toString(),
-                    city.obeliskPos().toShortString(),city.obeliskId().toString(),city.sovereign()==null?text("independent"):Component.literal(city.sovereign().toString()),
-                    data.settlementClaimCount(id),ChatUi.text("message.regnum-nations.capital."+service.cities().resolve(city).name().toLowerCase(Locale.ROOT)),
-                    ChatUi.text("ui.regnum-nations."+(data.ownedSettlements(city.ownerId()).size()>1||!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())))?"yes":"no"))),false);
+            var status=service.cities().resolve(city);
+            var anchorClaim=data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos()));
+            var domains=data.ownedSettlements(city.ownerId()).size();
+            var anchorConflict=data.cityAnchorConflict(city);
+            var dimensionMissing=source.getServer().getLevel(city.dimension())==null;
+            boolean repair=domains>1||data.capitalConflict(city)||dimensionMissing||status==Kingdom.CapitalStatus.MISSING;
+            var result=text("city_info",city.name().display(),id,city.ownerId(),city.founderId(),city.dimension().location(),
+                    city.obeliskPos().toShortString(),city.obeliskId(),city.sovereign()==null?text("independent"):Component.literal(city.sovereign().toString()),
+                    data.settlementClaimCount(id),ChatUi.text("message.regnum-nations.capital."+status.name().toLowerCase(Locale.ROOT)),yesNo(repair))
+                    .copy().append(ChatUi.line(text("city_integrity",yesNo(city.legacyAnchor()),
+                            yesNo(KingdomSavedData.sharesAnchor(city,data.sovereign(city))),yesNo(anchorConflict),
+                            yesNo(dimensionMissing),domains,anchorClaim==null?ChatUi.text("chat.regnum-nations.none"):anchorClaim)));
+            ChatUi.feedback(source, () -> result,false);
             return 1;
         } catch (FoundingException e) { ChatUi.fail(source, ruleError(e)); return 0; }
+    }
+
+    private static UUID cityId(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        String input=StringArgumentType.getString(context,"id");
+        try {
+            UUID id=UUID.fromString(input);
+            if (id.toString().equalsIgnoreCase(input)) return id;
+        } catch (IllegalArgumentException ignored) { }
+        throw KingdomService.adminError("unknown_city");
+    }
+
+    private static Component yesNo(boolean value) { return ChatUi.text("ui.regnum-nations."+(value?"yes":"no")); }
+
+    private static int deleteCity(CommandContext<CommandSourceStack> context,String action) throws CommandSyntaxException {
+        var source=context.getSource();
+        KingdomService.requireAdministrator(source);
+        var service=KingdomService.get(source.getServer());
+        var target=EntityRef.city(cityId(context));
+        try {
+            if (action.equals("request")) {
+                var request=service.prepareDeletion(source,target);
+                var data=service.data();
+                var city=data.settlement(target.id());
+                source.sendSuccess(() -> KingdomDeletionPrompt.createCity(city,data.settlementClaimCount(city.id()),
+                        data.citizens(city.id()).size(),request.token(),request.existing()),false);
+            } else {
+                UUID token=UuidArgument.getUuid(context,"token");
+                if (action.equals("cancel")) service.cancelDeletion(source,target,token);
+                else service.confirmDeletion(source,target,token);
+                ChatUi.confirm(source, () -> text(action.equals("cancel")?"city_delete_cancelled":"city_deleted",target.id()),false);
+            }
+            return 1;
+        } catch (FoundingException e) { ChatUi.fail(source,ruleError(e)); return 0; }
     }
 
     private static Component ruleError(FoundingException e) {

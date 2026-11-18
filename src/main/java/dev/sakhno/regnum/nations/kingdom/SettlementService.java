@@ -52,14 +52,15 @@ public final class SettlementService {
         if (block.getSettlementId()!=null) throw new FoundingException(ALREADY_BOUND);
         if (!PoliticalColors.valid(color)) throw new FoundingException(INVALID_COLOR);
         KingdomName name; try { name=new KingdomName(input); } catch (IllegalArgumentException e) { throw new FoundingException(INVALID_NAME); }
-        UUID id; do { id=UUID.randomUUID(); } while (data.settlement(id)!=null||data.byId(id)!=null||data.deletedAnchor(id)!=null||id.equals(expected));
+        UUID id; do { id=UUID.randomUUID(); } while (data.entityIdUsed(id)||id.equals(expected));
         Settlement city=new Settlement(id,name,player.getUUID(),player.getUUID(),selection.dimension(),selection.pos(),expected,
                 System.currentTimeMillis(),Kingdom.CapitalStatus.PRESENT,null,color,false);
-        data.addSettlement(city); block.bindSettlement(id); return city;
+        data.addSettlement(city,() -> block.bindSettlement(city.id())); return city;
     }
     private CityObeliskBlockEntity cityBlock(ServerPlayer player,BlockPos pos) throws FoundingException {
         var chunk=player.serverLevel().getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
         if (chunk==null||!chunk.getBlockState(pos).is(ModBlocks.CITY_OBELISK)||!(chunk.getBlockEntity(pos) instanceof CityObeliskBlockEntity block)||block.isRemoved()) throw new FoundingException(OBELISK_UNAVAILABLE);
+        kingdoms.cleanDeletedBinding(player.serverLevel(),pos,block);
         return block;
     }
     public Kingdom.CapitalStatus resolve(Settlement city) {
@@ -70,9 +71,11 @@ public final class SettlementService {
                 status=Kingdom.CapitalStatus.MISSING;
                 if (chunk.getBlockEntity(city.obeliskPos()) instanceof KingdomObeliskBlockEntity block && !block.isRemoved()
                         && block.getObeliskId().equals(city.obeliskId())) {
+                    kingdoms.cleanDeletedBinding(level,city.obeliskPos(),block);
                     if (city.legacyAnchor()&&chunk.getBlockState(city.obeliskPos()).is(ModBlocks.KINGDOM_OBELISK)) {
-                        kingdoms.cleanDeletedBinding(level,city.obeliskPos(),block);
-                        if (block.getKingdomId()==null||Objects.equals(block.getKingdomId(),city.sovereign())) status=Kingdom.CapitalStatus.PRESENT;
+                        Kingdom state=data.atCapital(city.dimension(),city.obeliskPos());
+                        if (KingdomSavedData.sharesAnchor(city,state)) status=kingdoms.resolveCapital(state);
+                        else if (state==null&&block.getKingdomId()==null&&!data.cityAnchorConflict(city)) status=Kingdom.CapitalStatus.PRESENT;
                     } else if (!city.legacyAnchor()&&block instanceof CityObeliskBlockEntity cityBlock&&chunk.getBlockState(city.obeliskPos()).is(ModBlocks.CITY_OBELISK)
                             && (cityBlock.getSettlementId()==null||cityBlock.getSettlementId().equals(city.id()))) {
                         if (cityBlock.getSettlementId()==null) cityBlock.bindSettlement(city.id()); status=Kingdom.CapitalStatus.PRESENT;
@@ -93,7 +96,8 @@ public final class SettlementService {
         if (!containsAnchorTerritory(city,player.level().dimension(),statePos)) throw new FoundingException(STATE_ANCHOR);
         if (resolve(city)!=Kingdom.CapitalStatus.PRESENT) throw new FoundingException(OBELISK_UNAVAILABLE);
         if (!containsAnchorTerritory(city,city.dimension(),city.obeliskPos())) throw new FoundingException(CAPITAL_CONFLICT);
-        return city;
+        // Resolution may have persisted the transition from UNRESOLVED to PRESENT.
+        return data.settlement(city.id());
     }
     /** Legacy commands now delegate to the persistent city-ID invitation lifecycle. */
     public UUID invite(ServerPlayer leader,ServerPlayer recipient) throws FoundingException {

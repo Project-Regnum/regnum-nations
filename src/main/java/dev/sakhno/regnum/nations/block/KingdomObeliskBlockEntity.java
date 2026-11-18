@@ -25,15 +25,12 @@ public class KingdomObeliskBlockEntity extends BlockEntity {
 	@Override
 	public void setLevel(Level level) {
 		super.setLevel(level);
-		if (!level.isClientSide) {
-			getObeliskId();
-			if (level instanceof net.minecraft.server.level.ServerLevel serverLevel && serverLevel.getServer().isSameThread() && stateIsState())
-				dev.sakhno.regnum.nations.kingdom.KingdomService.get(serverLevel.getServer()).cleanDeletedBinding(serverLevel,worldPosition,this);
-		}
+		// Attachment can run during chunk post-load. setChanged() would request that same unfinished chunk.
+		if (!level.isClientSide && obeliskId == null) obeliskId = UUID.randomUUID();
 	}
 
 	/**
-	 * Returns the server's persistent identity, initializing only new or missing data.
+	 * Returns the server's persistent identity, repairing missing data on an attached entity.
 	 * Chunk loading restores NBT before attaching this entity to its level.
 	 */
 	public UUID getObeliskId() {
@@ -64,7 +61,6 @@ public class KingdomObeliskBlockEntity extends BlockEntity {
 		setChanged();
 	}
 
-	private boolean stateIsState() { return getBlockState().is(ModBlocks.KINGDOM_OBELISK); }
 	protected String bindingTag() { return "KingdomId"; }
 	public void clearKingdom(UUID expected) {
 		if (level==null||level.isClientSide||!level.getServer().isSameThread()) throw new IllegalStateException("Server thread required");
@@ -76,10 +72,6 @@ public class KingdomObeliskBlockEntity extends BlockEntity {
 		super.loadAdditional(tag, registries);
 		obeliskId = tag.hasUUID(ID_TAG) ? tag.getUUID(ID_TAG) : null;
 		kingdomId = tag.hasUUID(bindingTag()) ? tag.getUUID(bindingTag()) : null;
-		// Also handle missing/malformed data applied to an already attached entity.
-		if (level != null && !level.isClientSide) {
-			getObeliskId();
-		}
 	}
 
 	@Override

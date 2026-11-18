@@ -117,7 +117,7 @@ public final class KingdomManagementServer {
         }
         if (city!=null) {
             var status=service.cities().resolve(city);
-            boolean repair=data.ownedSettlements(city.ownerId()).size()>1||!city.id().equals(data.claimOwner(ClaimPos.at(city.dimension(),city.obeliskPos())));
+            boolean repair=data.ownedSettlements(city.ownerId()).size()>1||data.capitalConflict(city);
             cityView=new CityOverview(city.id(),city.name().display(),playerName(player,city.ownerId()),city.dimension().location(),city.obeliskPos(),
                     status.name().toLowerCase(Locale.ROOT),data.settlementClaimCount(city.id()),city.ownerId().equals(player.getUUID()),city.sovereign(),
                     kingdom==null?"":kingdom.name().display(),data.politicalColor(city),repair);

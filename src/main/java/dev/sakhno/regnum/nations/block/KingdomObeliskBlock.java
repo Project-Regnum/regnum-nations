@@ -64,9 +64,13 @@ public class KingdomObeliskBlock extends BaseEntityBlock {
 						&& kingdom.id().equals(obelisk.getKingdomId())) {
 					message.append(" ").append(ChatUi.text("message.regnum-nations.kingdom_obelisk.bound",
 							kingdom.name().display()));
-					guiOpened = dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openMenu(serverPlayer, kingdom.id());
+					guiOpened = player.isShiftKeyDown() && legacyCity!=null && legacyCity.legacyAnchor()
+							&& legacyCity.id().equals(kingdom.capitalSettlementId()) && legacyCity.obeliskId().equals(obelisk.getObeliskId())
+							? dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openCityMenu(serverPlayer,legacyCity.id())
+							: dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openMenu(serverPlayer,kingdom.id());
 				} else if (kingdom==null && legacyCity!=null
-						&& legacyCity.legacyAnchor() && legacyCity.obeliskId().equals(obelisk.getObeliskId()) && !player.isShiftKeyDown()) {
+						&& legacyCity.legacyAnchor() && legacyCity.obeliskId().equals(obelisk.getObeliskId()) && !player.isShiftKeyDown()
+						&& service.cities().resolve(legacyCity)==Kingdom.CapitalStatus.PRESENT) {
 					guiOpened = dev.sakhno.regnum.nations.kingdom.KingdomManagementServer.openCityMenu(serverPlayer,legacyCity.id());
 					message.append(" ").append(ChatUi.text("city.regnum-nations.bound",legacyCity.name().display()));
 				} else if (obelisk.getKingdomId() != null || kingdom != null) {

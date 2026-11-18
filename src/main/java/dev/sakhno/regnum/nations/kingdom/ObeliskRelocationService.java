@@ -101,15 +101,16 @@ public final class ObeliskRelocationService {
         Settlement city=state?(kingdom==null?null:data.settlement(kingdom.capitalSettlementId())):data.settlement(target);
         if (city==null||state&&kingdom==null) throw new FoundingException(CITY_MISSING);
         // Historical combined city/state obelisks must move both references together.
-        if (city.legacyAnchor()) {
-            for (Kingdom candidate:data.kingdoms()) if (candidate.capitalSettlementId().equals(city.id())) kingdom=candidate;
-        }
+        if (data.cityAnchorConflict(city)) throw new FoundingException(RELOCATION_CONFLICT);
+        Kingdom cityAnchorState=data.atCapital(city.dimension(),city.obeliskPos());
+        boolean shared=KingdomSavedData.sharesAnchor(city,cityAnchorState);
+        if (shared) kingdom=cityAnchorState;
         if (kingdom!=null&&(!kingdom.dimension().equals(city.dimension())||!kingdom.id().equals(city.sovereign()))) throw new FoundingException(RELOCATION_CONFLICT);
         boolean cityBlock=!state&&!city.legacyAnchor();
         BlockPos pos=cityBlock||kingdom==null?city.obeliskPos():kingdom.capitalPos();
         UUID identity=cityBlock||kingdom==null?city.obeliskId():kingdom.capitalObeliskId();
         UUID binding=cityBlock?city.id():kingdom==null?null:kingdom.id();
-        return new Anchor(cityBlock||city.legacyAnchor()?city:null,kingdom,city.dimension(),pos,identity,binding,cityBlock);
+        return new Anchor(!state||shared?city:null,kingdom,city.dimension(),pos,identity,binding,cityBlock);
     }
     private Settlement owner(Anchor anchor) {
         return anchor.city()!=null?anchor.city():data.settlement(anchor.state().capitalSettlementId());
@@ -132,6 +133,7 @@ public final class ObeliskRelocationService {
         if (!kingdoms.cities().containsAnchorTerritory(city,dimension,destination)) throw new FoundingException(RELOCATION_DESTINATION);
         if (data.anchorAt(dimension,destination)||!level.getBlockState(destination).isAir()||level.getBlockEntity(destination)!=null) throw new FoundingException(RELOCATION_CONFLICT);
         KingdomObeliskBlockEntity source=block(level,anchor.pos(),anchor.cityBlock());
+        kingdoms.cleanDeletedBinding(level,anchor.pos(),source);
         if (!source.getObeliskId().equals(anchor.identity())||!Objects.equals(source.getKingdomId(),anchor.binding())) throw new FoundingException(RELOCATION_CONFLICT);
     }
     private KingdomObeliskBlockEntity block(ServerLevel level,BlockPos pos,boolean city) throws FoundingException {
@@ -169,6 +171,7 @@ public final class ObeliskRelocationService {
         var entity=level.getBlockEntity(anchor.pos());
         if (entity!=null) {
             if (!(entity instanceof KingdomObeliskBlockEntity block)||anchor.cityBlock()!=(block instanceof CityObeliskBlockEntity)) throw new FoundingException(RELOCATION_CONFLICT);
+            kingdoms.cleanDeletedBinding(level,anchor.pos(),block);
             if (block.getKingdomId()!=null&&!Objects.equals(block.getKingdomId(),anchor.binding())
                     ||!block.getObeliskId().equals(anchor.identity())&&(block.getKingdomId()!=null||data.usesObelisk(block.getObeliskId()))) throw new FoundingException(RELOCATION_CONFLICT);
         }

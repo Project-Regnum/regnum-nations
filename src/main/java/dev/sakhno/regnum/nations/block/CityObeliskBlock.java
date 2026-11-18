@@ -22,6 +22,7 @@ public final class CityObeliskBlock extends KingdomObeliskBlock {
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit) {
         if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof CityObeliskBlockEntity block) {
             var service=KingdomService.get(serverPlayer.serverLevel().getServer()); service.forget(player.getUUID());
+            service.cleanDeletedBinding(serverPlayer.serverLevel(),pos,block);
             Settlement city=service.data().cityAt(level.dimension(),pos);
             if (city!=null&&city.obeliskId().equals(block.getObeliskId())&&service.cities().resolve(city)==Kingdom.CapitalStatus.PRESENT) {
                 KingdomManagementServer.openCityMenu(serverPlayer,city.id());

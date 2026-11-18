@@ -56,7 +56,7 @@ public final class ClaimService {
 		if (!CityPermissions.allows(data,kingdom,player.getUUID(),release?CityPermission.ABANDON_TERRITORY:CityPermission.EXPAND_TERRITORY)) throw new FoundingException(NOT_OWNER);
 		if (viewedKingdom != null && !kingdom.id().equals(viewedKingdom) && !viewedKingdom.equals(kingdom.sovereign())) throw new FoundingException(NOT_OWNER);
 		ClaimPos capital = ClaimPos.at(kingdom.dimension(), kingdom.obeliskPos());
-		if (!kingdom.id().equals(data.claimOwner(capital))) throw new FoundingException(CAPITAL_CONFLICT);
+		if (data.capitalConflict(kingdom)) throw new FoundingException(CAPITAL_CONFLICT);
 		if (!pos.dimension().equals(player.level().dimension())) throw new FoundingException(WRONG_DIMENSION);
 		if (standing&&!pos.equals(ClaimPos.at(player.level().dimension(), player.blockPosition()))) throw new FoundingException(NOT_IN_CHUNK);
 		if (release) {

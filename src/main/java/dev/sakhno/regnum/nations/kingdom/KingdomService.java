@@ -10,6 +10,8 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.Blocks;
 
 import dev.sakhno.regnum.nations.block.KingdomObeliskBlockEntity;
+import dev.sakhno.regnum.nations.block.CityObeliskBlockEntity;
+import dev.sakhno.regnum.nations.api.v1.EntityRef;
 import dev.sakhno.regnum.nations.block.ModBlocks;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -45,7 +47,7 @@ public final class KingdomService {
     private final DiplomacyService diplomacy;
     private final WarfareService warfare;
 	private final Map<String,DeleteConfirmation> confirmations=new HashMap<>();
-	private record DeleteConfirmation(UUID kingdom,UUID token,Object actor,long at) { }
+	private record DeleteConfirmation(EntityRef target,UUID token,Object actor,long at) { }
 	private final Map<UUID, Pending> pending = new HashMap<>();
 
 	private record Pending(ServerPlayer player, ResourceKey<Level> dimension, BlockPos pos,
@@ -161,13 +163,13 @@ public final class KingdomService {
 		UUID kingdomId;
 		do {
 			kingdomId = UUID.randomUUID();
-		} while (kingdomId.equals(selection.obeliskId()) || containsKingdom(kingdomId) || data.settlement(kingdomId)!=null || data.deletedAnchor(kingdomId)!=null);
+		} while (kingdomId.equals(selection.obeliskId()) || data.entityIdUsed(kingdomId));
 		Kingdom kingdom = new Kingdom(kingdomId, name, player.getUUID(), selection.dimension(), selection.pos(),
 				selection.obeliskId(), System.currentTimeMillis(), Kingdom.CapitalStatus.PRESENT,
 				city==null?kingdomId:city.id(),color,"unspecified");
-		// Identity events describe the committed registry; anchor binding follows on this server thread.
-		if (city==null) data.add(kingdom); else data.elevate(kingdom,city);
-		obelisk.bindKingdom(kingdomId);
+		Runnable bindAnchor = () -> obelisk.bindKingdom(kingdom.id());
+		if (city==null) data.add(kingdom,bindAnchor);
+		else data.elevate(kingdom,city,bindAnchor);
 		return kingdom;
 	}
 
@@ -203,6 +205,13 @@ public final class KingdomService {
 	/** Clear only an exact, persisted deletion tombstone; never adopt or overwrite another binding. */
 	public void cleanDeletedBinding(ServerLevel level,BlockPos pos,KingdomObeliskBlockEntity block) {
 		checkThread();
+		if (block instanceof CityObeliskBlockEntity cityBlock) {
+			var tombstone=data.deletedCityAnchor(cityBlock.getSettlementId());
+			if (tombstone!=null&&tombstone.dimension().equals(level.dimension())
+					&&tombstone.pos().equals(pos)&&tombstone.obelisk().equals(block.getObeliskId()))
+				cityBlock.clearKingdom(cityBlock.getSettlementId());
+			return;
+		}
 		var tombstone=data.deletedAnchor(block.getKingdomId());
 		if (tombstone!=null&&data.byId(tombstone.kingdom())==null&&tombstone.dimension().equals(level.dimension())
 				&&tombstone.pos().equals(pos)&&tombstone.obelisk().equals(block.getObeliskId())) block.clearKingdom(tombstone.kingdom());
@@ -214,10 +223,16 @@ public final class KingdomService {
 	}
 	/** Repeated requests keep the current token and deadline; a different target must wait or cancel. */
 	public DeletionRequest prepareDeletion(CommandSourceStack source,UUID id) throws FoundingException,CommandSyntaxException {
-		checkThread(); String outcome="rejected";
+		return prepareDeletion(source,EntityRef.kingdom(id));
+	}
+	DeletionRequest prepareDeletion(CommandSourceStack source,EntityRef target) throws FoundingException,CommandSyntaxException {
+		checkThread(); UUID id=target.id(); String outcome="rejected";
 		try {
 			requireAdministrator(source); if (source.getServer()!=server) throw adminError("permission"); data.requireAvailable();
-			if (data.byId(id)==null) throw adminError("unknown_kingdom",id.toString());
+			if (target.scope()==EntityRef.Scope.CITY) {
+				if (data.settlement(id)==null) throw new FoundingException(CITY_MISSING);
+				data.validateSettlementDeletion(id);
+			} else if (data.byId(id)==null) throw adminError("unknown_kingdom",id.toString());
 			long now=server.overworld().getGameTime();
 			confirmations.values().removeIf(c -> now-c.at()<0 || now-c.at()>=SELECTION_TICKS);
 			var existing=confirmations.get(executorKey(source));
@@ -226,43 +241,61 @@ public final class KingdomService {
 					confirmations.remove(executorKey(source));
 					throw adminError("delete_session_changed");
 				}
-				if (!existing.kingdom().equals(id)) throw adminError("delete_pending_other",existing.kingdom().toString());
+				if (!existing.target().equals(target)) throw adminError("delete_pending_other",existing.target().id().toString());
 				outcome="existing confirmation retained; deadline unchanged";
 				return new DeletionRequest(existing.token(),true);
 			}
-			UUID token=UUID.randomUUID(); confirmations.put(executorKey(source),new DeleteConfirmation(id,token,source.getEntity(),now));
+			UUID token=UUID.randomUUID(); confirmations.put(executorKey(source),new DeleteConfirmation(target,token,source.getEntity(),now));
 			outcome="confirmation issued"; return new DeletionRequest(token,false);
-		} finally { KingdomAdminCommands.audit(source,"delete-request",id.toString(),"",outcome); }
+		} finally { KingdomAdminCommands.audit(source,"delete-request",id.toString(),target.scope().name(),outcome); }
 	}
 	/** Stale Cancel links cannot invalidate a newer request. No persistent data is mutated. */
 	public void cancelDeletion(CommandSourceStack source,UUID id,UUID token) throws CommandSyntaxException {
-		checkThread(); String outcome="rejected";
+		cancelDeletion(source,EntityRef.kingdom(id),token);
+	}
+	void cancelDeletion(CommandSourceStack source,EntityRef target,UUID token) throws CommandSyntaxException {
+		checkThread(); UUID id=target.id(); String outcome="rejected";
 		try {
 			requireAdministrator(source); if (source.getServer()!=server) throw adminError("permission");
 			var confirmation=confirmations.get(executorKey(source));
 			long age=confirmation==null?-1:server.overworld().getGameTime()-confirmation.at();
-			if (confirmation==null || confirmation.actor()!=source.getEntity() || !confirmation.kingdom().equals(id)
+			if (confirmation==null || confirmation.actor()!=source.getEntity() || !confirmation.target().equals(target)
 					|| !confirmation.token().equals(token) || age<0 || age>=SELECTION_TICKS) throw adminError("delete_confirmation_invalid");
 			confirmations.remove(executorKey(source)); outcome="cancelled; no saved state changed";
-		} finally { KingdomAdminCommands.audit(source,"delete-cancel",id.toString(),"",outcome); }
+		} finally { KingdomAdminCommands.audit(source,"delete-cancel",id.toString(),target.scope().name(),outcome); }
 	}
 	public void confirmDeletion(CommandSourceStack source,UUID id,UUID token) throws FoundingException,CommandSyntaxException {
-		checkThread(); DeleteConfirmation confirmation=confirmations.remove(executorKey(source)); String outcome="rejected";
+		confirmDeletion(source,EntityRef.kingdom(id),token);
+	}
+	void confirmDeletion(CommandSourceStack source,EntityRef target,UUID token) throws FoundingException,CommandSyntaxException {
+		checkThread(); UUID id=target.id(); DeleteConfirmation confirmation=confirmations.remove(executorKey(source)); String outcome="rejected";
 		try {
 			requireAdministrator(source); if (source.getServer()!=server) throw adminError("permission"); data.requireAvailable();
 			long age=confirmation==null?-1:server.overworld().getGameTime()-confirmation.at();
-			if (confirmation==null||confirmation.actor()!=source.getEntity()||!confirmation.kingdom().equals(id)||!confirmation.token().equals(token)
+			if (confirmation==null||confirmation.actor()!=source.getEntity()||!confirmation.target().equals(target)||!confirmation.token().equals(token)
 					||age<0||age>=SELECTION_TICKS) throw adminError("delete_confirmation_invalid");
-			Kingdom kingdom=data.byId(id); if (kingdom==null) throw adminError("unknown_kingdom",id.toString());
-			data.deleteKingdom(id);
-			ServerLevel level=server.getLevel(kingdom.dimension());
-			if (level!=null) {
-				var chunk=level.getChunkSource().getChunkNow(kingdom.capitalPos().getX()>>4,kingdom.capitalPos().getZ()>>4);
-				if (chunk!=null&&chunk.getBlockEntity(kingdom.capitalPos()) instanceof KingdomObeliskBlockEntity block) cleanDeletedBinding(level,kingdom.capitalPos(),block);
+			if (target.scope()==EntityRef.Scope.CITY) {
+				Settlement city=data.settlement(id);
+				if (city==null) throw new FoundingException(CITY_MISSING);
+				data.deleteSettlement(id);
+				cleanLoadedBinding(city.dimension(),city.obeliskPos());
+				outcome="city deleted; municipal claims and memberships released";
+			} else {
+				Kingdom kingdom=data.byId(id);
+				if (kingdom==null) throw adminError("unknown_kingdom",id.toString());
+				data.deleteKingdom(id);
+				cleanLoadedBinding(kingdom.dimension(),kingdom.capitalPos());
+				outcome="deleted; settlements and claims preserved as independent city-states";
 			}
-			KingdomManagementServer.invalidate(server);
-			outcome="deleted; settlements and claims preserved as independent city-states";
-		} finally { KingdomAdminCommands.audit(source,"delete-confirm",id.toString(),"",outcome); }
+		} finally { KingdomAdminCommands.audit(source,"delete-confirm",id.toString(),target.scope().name(),outcome); }
+	}
+
+	private void cleanLoadedBinding(ResourceKey<Level> dimension,BlockPos pos) {
+		ServerLevel level=server.getLevel(dimension);
+		if (level==null) return;
+		var chunk=level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
+		if (chunk!=null&&chunk.getBlockEntity(pos) instanceof KingdomObeliskBlockEntity block)
+			cleanDeletedBinding(level,pos,block);
 	}
 
 	/** Services independently authorize administrators, including calls outside Brigadier routing. */
@@ -357,10 +390,6 @@ public final class KingdomService {
 			}
 		}
 		return null;
-	}
-
-	private boolean containsKingdom(UUID id) {
-		return data.kingdoms().stream().anyMatch(kingdom -> kingdom.id().equals(id));
 	}
 
 	static void checkDistance(ServerPlayer player, BlockPos pos) throws FoundingException {

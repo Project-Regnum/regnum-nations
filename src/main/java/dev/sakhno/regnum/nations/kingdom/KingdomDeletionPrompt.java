@@ -13,14 +13,22 @@ final class KingdomDeletionPrompt {
         return "/regnum admin delete "+kingdom+" "+action+" "+token;
     }
     static Component create(Kingdom kingdom,UUID token,boolean existing) {
-        String confirm=command(kingdom.id(),"confirm",token),cancel=command(kingdom.id(),"cancel",token);
-        Component danger=ChatUi.run(text("delete_action"),confirm,text("delete_action_hint",kingdom.name().display()))
+        return create(kingdom.name().display(),existing,"delete_",command(kingdom.id(),"confirm",token),command(kingdom.id(),"cancel",token));
+    }
+    static Component createCity(Settlement city,long claims,int members,UUID token,boolean existing) {
+        String command="/regnum admin settlement "+city.id()+" delete ";
+        return create(city.name().display(),existing,"city_delete_",
+                command+"confirm "+token,command+"cancel "+token,city.id(),claims,members);
+    }
+    private static Component create(String name,boolean existing,String key,
+                                    String confirm,String cancel,Object... details) {
+        Component danger=ChatUi.run(text(key+"action"),confirm,text(key+"action_hint",name))
                 .withStyle(ChatFormatting.RED,ChatFormatting.BOLD);
         Component dismiss=ChatUi.run(text("delete_cancel_action"),cancel,text("delete_cancel_hint"));
         Component fallback=ChatUi.suggest(text("delete_fallback",confirm,cancel),confirm,
                 Component.translatable("chat.regnum-nations.copy_confirmation_hint"));
-        return ChatUi.warning(text(existing?"delete_pending_same":"delete_heading",kingdom.name().display()))
-                .append(ChatUi.line(text("delete_consequences")))
+        return ChatUi.warning(text(key+(existing?"pending_same":"heading"),name))
+                .append(ChatUi.line(text(key+"consequences",details)))
                 .append(ChatUi.line(danger)).append("  ").append(dismiss).append(ChatUi.line(fallback));
     }
 }

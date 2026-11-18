@@ -6,12 +6,13 @@ import net.minecraft.nbt.*;
 /** Additive, deterministic schema-10 normalization and lossless extension-field retention. */
 final class KingdomSchema {
     static final int CURRENT=10;
-    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies Warfare PoliticalClaims");
+    private static final Set<String> ROOT=fields("Version Kingdoms Settlements Claims DeletedStateAnchors DeletedCityAnchors Citizens KingdomRoles CityInvitations Diplomacy BannerSecret EconomyPolicies Warfare PoliticalClaims");
     private static final Map<String,Set<String>> FIELDS=Map.ofEntries(
             Map.entry("Kingdoms",fields("Id Name Founder Dimension Position Obelisk CreatedAt CapitalStatus CapitalSettlement Color Government Ruler Heraldry HeraldryRecovery")),
             Map.entry("Settlements",fields("Id Name Founder Owner Dimension Position Obelisk CreatedAt CapitalStatus Sovereign Color LegacyAnchor")),
             Map.entry("Claims",fields("Dimension X Z Kingdom Settlement")),
             Map.entry("DeletedStateAnchors",fields("Id Dimension Position Obelisk")),
+            Map.entry("DeletedCityAnchors",fields("Id Dimension Position Obelisk")),
             Map.entry("Citizens",fields("Player Settlement Role")),
             Map.entry("KingdomRoles",fields("Kingdom Player Role")),
             Map.entry("CityInvitations",fields("Id Kingdom City Inviter CreatedAt")),

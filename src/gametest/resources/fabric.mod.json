@@ -12,6 +12,8 @@
       "dev.sakhno.regnum.nations.kingdom.KingdomManagementTests",
       "dev.sakhno.regnum.nations.kingdom.KingdomAdminTests",
       "dev.sakhno.regnum.nations.kingdom.SovereigntyTests",
+      "dev.sakhno.regnum.nations.kingdom.SettlementLifecycleTests",
+      "dev.sakhno.regnum.nations.kingdom.SettlementLifecycleTests$Restart",
       "dev.sakhno.regnum.nations.kingdom.CitizenshipTests",
       "dev.sakhno.regnum.nations.kingdom.CityRoleTests",
       "dev.sakhno.regnum.nations.kingdom.RoyalCartographyTests",

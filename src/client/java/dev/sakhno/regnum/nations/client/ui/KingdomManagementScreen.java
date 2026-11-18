@@ -83,7 +83,7 @@ public final class KingdomManagementScreen extends RoyalScreen {
     }
     public void accept(State reply) { if (reply.sequence()==sequence) { requested=0; update(reply); } }
     public void update(State reply) {
-        if (reply.city()!=null||reply.result().isEmpty()) {
+        if (reply.city()!=null||reply.result().isEmpty()||reply.result().equals("ui.regnum-nations.kingdom_missing")) {
             state=reply; viewedCity=reply.city()==null?null:reply.city().id();
         }
         failed=!reply.result().isEmpty()&&!reply.success();

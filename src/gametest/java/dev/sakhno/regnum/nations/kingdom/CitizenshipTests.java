@@ -270,11 +270,10 @@ public class CitizenshipTests implements FabricGameTest {
     public void lostOwnerAuthorityInvalidatesInvitation(GameTestHelper h) throws Exception {
         try (var f = new Fixture(h, false)) {
             var owner = f.player(); var target = f.player(); var successor = f.player(); var city = f.city(owner);
+            f.join(owner, successor, city);
+            f.advance();
             f.citizens.invite(owner, target);
-            // Simulate replacement of the authoritative city record; there is no player transfer command yet.
-            f.data.deleteSettlement(city.id());
-            f.data.addSettlement(new Settlement(city.id(), city.name(), city.founderId(), successor.getUUID(), city.dimension(),
-                    city.obeliskPos(), city.obeliskId(), city.createdAt(), city.status(), null, city.color(), false));
+            f.data.transferSettlement(city.id(), successor.getUUID());
             reject(f, CITIZEN_INVITATION_REQUIRED, () -> f.citizens.accept(target, city.id()));
         }
         h.succeed();

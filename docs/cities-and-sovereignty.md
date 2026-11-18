@@ -432,7 +432,7 @@ city color. All claims remain settlement-owned, so none are indiscriminately era
 Unrelated cities/kingdoms are untouched. No physical block is removed. The loaded
 state binding clears only when dimension, position, placed UUID and deleted kingdom
 match; unloaded or stale block NBT is cleared using the persisted exact tombstone
-on a later load/main-thread interaction. Unrelated bindings never clear.
+on a later main-thread interaction or anchor check after the chunk loads. Unrelated bindings never clear.
 
 Confirmed dissolution also invalidates connected clients' open management and map
 views. They discard cached affiliation, ownership previews and older replies, then
@@ -591,3 +591,63 @@ those behaviors visually or across real client connections.
 - [src/main/resources/assets/project-reigns/models/item/city_obelisk.json](../src/main/resources/assets/project-reigns/models/item/city_obelisk.json)
 - [src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json](../src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json)
 - [src/main/resources/data/project-reigns/loot_table/blocks/city_obelisk.json](../src/main/resources/data/project-reigns/loot_table/blocks/city_obelisk.json)
+
+## Combined capital lifecycle and world recovery
+
+Starting from a State Obelisk without an existing city creates one combined
+capital under the original compatibility rules. The city owns the municipal
+claim and has its own scoped Economy identity even when its UUID equals that of
+the kingdom. Use `/regnum city` or sneak-right-click the shared obelisk with empty
+hands to manage the city. After dissolution, ordinary right-click opens the
+surviving independent city, and sneak-right-click can select it for refounding.
+A later state founded at a separate obelisk keeps the original municipal anchor,
+including across reload and recovery. City Obelisk founding still creates an
+independent city, and promotion reuses its city UUID and existing claim table.
+
+Before investigating an affected world, stop the server and back up the entire
+world, configuration and Economy data together. Use a disposable backup copy
+for inspection and recovery. Keep the old binaries with the backup for rollback.
+
+1. Use `/regnum admin settlements` to find the exact city UUID, then
+   `/regnum admin settlement <cityUUID>` to check the owner, sovereign, anchor
+   type, coordinates, placed UUID, claim owner and conflicts. Load the canonical
+   chunk and inspect again if the status is unresolved. A combined anchor, missing
+   block or independent city by itself does not prove that the settlement is
+   invalid. Compare the record with the world and the owner's settlement history.
+2. For a legitimate city with a missing block and a verified canonical position,
+   use `/regnum admin recover city <cityUUID>` with that chunk loaded.
+   This keeps the owner, citizens, existing claims and treasury identity. The
+   recovery command refuses conflicting ownership, anchors and unsafe locations.
+3. For a record confirmed to be unwanted, first dissolve its kingdom if the
+   record is an active capital. Dissolution preserves all settlements and claims
+   while detaching sovereignty. Then use `/regnum admin settlement <cityUUID> delete`.
+   Review the exact target, the municipal claim count and membership count, then
+   use its Confirm action or `/regnum admin settlement <cityUUID> delete confirm <token>`.
+   Level 3 permission is checked at both steps. The confirmation expires after
+   30 server seconds and is single-use. Cancellation uses `delete cancel <token>`.
+   A ruler's city and cities with an active warfare objective retain their
+   existing safeguards.
+4. Check the area, city list, members and treasury access again after saving and
+   restarting the copy. Deletion releases only claims owned by the selected
+   city, removes its municipal memberships and policies, and preserves all other
+   cities. It retains the physical obelisk and retires the city UUID. Nations
+   neither transfers nor deletes Economy accounts. A replacement city receives
+   a new scoped identity and cannot inherit the retired treasury.
+
+Schema 10 gains optional `DeletedCityAnchors` in the existing
+`project-reigns-kingdoms.dat`. The tombstones reserve deleted city UUIDs and
+allow exact stale City Obelisk bindings to clear when the loaded anchor is checked. Schemas 1–2
+still reconcile missing claims as part of migration. Schema 3 and later retain
+the recorded claim table. A missing anchor claim in these saves requires
+inspection rather than receiving new territory on reload.
+
+If an earlier version already overwrote the original city anchor when saving a
+re-elevated capital, compare the city and state anchors with a backup from before
+the change. The current save may not contain enough information to recover the
+original anchor safely. Restore the matching whole-world backup, or have an
+administrator with NBT experience reconcile the affected city's position and
+placed UUID against its verified pre-incident block and existing claim on a copy.
+Keep the city UUID, owner UUID, membership, claim owners and all Economy account
+keys intact. If the registry reports invalid NBT or dangling claim or membership
+references at startup, it preserves the input and disables mutation. Use the
+server log to identify the invalid record and reconcile it against the backup.

@@ -9,6 +9,12 @@ import dev.sakhno.regnum.nations.client.terrain.diorama.bake.TileImage;
 import dev.sakhno.regnum.nations.client.terrain.diorama.bake.TileKey;
 import dev.sakhno.regnum.nations.client.terrain.diorama.data.TileStore;
 import dev.sakhno.regnum.nations.client.ui.PoliticalMapScreen;
+import dev.sakhno.regnum.nations.networking.AtlasPayloads;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -46,6 +52,10 @@ public final class AtlasClientChecks implements ClientModInitializer {
     private String pendingCapture;
     private int hoverX,hoverY,hoverTicks;
     private dev.sakhno.regnum.nations.client.terrain.diorama.render.MapLevel previousMap;
+    private final String worldName = "atlas-check-" + System.currentTimeMillis();
+    private CompletableFuture<?> dungeonAction;
+    private volatile UUID bastionId;
+    private int dungeonSequence;
 
     @Override public void onInitializeClient() {
         if (!Boolean.getBoolean("regnum.atlasTest")) return;
@@ -82,7 +92,7 @@ public final class AtlasClientChecks implements ClientModInitializer {
                 mc.options.renderDistance().set(4); mc.options.simulationDistance().set(5);
                 mc.options.guiScale().set(2); mc.options.framerateLimit().set(60);
                 mc.options.tutorialStep=TutorialSteps.NONE;
-                mc.createWorldOpenFlows().createFreshLevel("atlas-check-"+System.currentTimeMillis(),
+                mc.createWorldOpenFlows().createFreshLevel(worldName,
                         new LevelSettings("Atlas checks",GameType.CREATIVE,false,Difficulty.PEACEFUL,true,new GameRules(),WorldDataConfiguration.DEFAULT),
                         new WorldOptions(1234567L,false,false),WorldPresets::createNormalWorldDimensions,new TitleScreen());
                 stage=1;
@@ -262,16 +272,155 @@ public final class AtlasClientChecks implements ClientModInitializer {
                 if (mc.level==null || mc.level.dimension()!=Level.NETHER || MapSession.get()==null) return;
                 check(MapSession.get().map()!=previousMap,"Dimension switch must isolate terrain state");
                 if (++ticks<80) return;
-                mc.setScreen(new PoliticalMapScreen()); ticks=0; stage=13;
+                screen = new PoliticalMapScreen(); mc.setScreen(screen); ticks=0; stage=13;
             }
             case 13 -> {
                 if (++ticks<100) return;
                 screenshot(mc,"nether.png");
-                Files.writeString(output.resolve("passed.txt"),"Actual terrain and structures; vertical projection; server capital marker; negative-coordinate pan, zoom and exact selection; block-edit refresh; tile persistence; small window; GUI scales 1/2/3; viewport gain; exact marker anchors; clustering; manage layout; fog; dimension isolation: PASS\n");
-                RegnumNations.LOGGER.info("ATLAS CLIENT CHECKS PASSED: {}",output);
-                stage=14; mc.stop();
+                if (!FabricLoader.getInstance().isModLoaded("regnum-world")) {
+                    finish(mc, "");
+                    return;
+                }
+                check(dungeonMarkers().isEmpty(), "Start with an empty dungeon overlay");
+                dungeonAction = onServer(mc, this::registerDungeons);
+                stage = 30;
+            }
+            case 30 -> {
+                if (!dungeonAction.isDone()) return;
+                dungeonAction.join();
+                var markers = dungeonMarkers();
+                if (markers.size() != 3) return;
+                check(markers.stream().map(AtlasPayloads.DungeonMarker::type).toList()
+                                .equals(java.util.List.of("mine", "catacombs", "bastion")),
+                        "The open map must receive all three types after registration");
+                check(markers.get(0).entrance().equals(new BlockPos(-40, 74, -32))
+                                && markers.get(1).entrance().equals(new BlockPos(24, 75, -32))
+                                && markers.get(2).entrance().equals(new BlockPos(-8, 76, 32)),
+                        "Atlas marker positions must use the true entrance heights and signed coordinates");
+                set("zoom", 16.0);
+                set("layer", 1);
+                pointCursor(mc, 2, 2);
+                ticks = 0; stage = 31;
+            }
+            case 31 -> {
+                if (++ticks < 5) return;
+                var labels = new java.util.ArrayList<String>();
+                for (var label : (java.util.List<?>)field("labels")) labels.add((String)recordField(label, "name"));
+                check(labels.containsAll(java.util.List.of("Forgotten Mine", "Ancient Catacombs", "Ruined Bastion")),
+                        "Adjacent markers must have room for all three readable labels");
+                screenshot(mc, "dungeons-political.png");
+                set("layer", 2);
+                ticks = 0; stage = 32;
+            }
+            case 32 -> {
+                if (++ticks < 5) return;
+                screenshot(mc, "dungeons-terrain.png");
+                set("layer", 0);
+                dungeonSequence = (int)field("sequence");
+                dungeonAction = onServer(mc, server -> dungeonCommand(server, "recover"));
+                stage = 33;
+            }
+            case 33 -> {
+                if (!dungeonAction.isDone()) return;
+                dungeonAction.join();
+                if (dungeonSequence == (int)field("sequence") || dungeonMarkers().size() != 3) return;
+                check((double)field("zoom") == 16, "Recovery refresh must preserve the map view");
+                dungeonAction = onServer(mc, server -> dungeonCommand(server, "remove"));
+                stage = 34;
+            }
+            case 34 -> {
+                if (!dungeonAction.isDone()) return;
+                dungeonAction.join();
+                if (dungeonMarkers().size() != 2) return;
+                check(dungeonMarkers().stream().noneMatch(marker -> marker.type().equals("bastion")),
+                        "Removing the dungeon must remove its marker on the open map");
+                screenshot(mc, "dungeons-after-removal.png");
+                mc.level.disconnect();
+                mc.disconnect(new TitleScreen());
+                stage = 35;
+            }
+            case 35 -> {
+                if (mc.getSingleplayerServer() != null || !(mc.screen instanceof TitleScreen)) return;
+                mc.createWorldOpenFlows().openWorld(worldName, () -> {
+                    throw new AssertionError("Could not reopen the Atlas test world");
+                });
+                stage = 36;
+            }
+            case 36 -> {
+                if (mc.player == null || mc.screen != null || mc.level.dimension() != Level.NETHER) return;
+                screen = new PoliticalMapScreen();
+                mc.setScreen(screen);
+                stage = 37;
+            }
+            case 37 -> {
+                if (dungeonMarkers().isEmpty()) return;
+                check(dungeonMarkers().stream().map(AtlasPayloads.DungeonMarker::type).toList()
+                                .equals(java.util.List.of("mine", "catacombs")),
+                        "World reload must preserve both registrations and omit the removed Bastion");
+                finish(mc, " World dungeon registration, exact entrance coordinates, recovery, removal and saved-world reload: PASS");
             }
         }
+    }
+
+    private void finish(Minecraft mc, String dungeonChecks) throws Exception {
+        Files.writeString(output.resolve("passed.txt"), "Actual terrain and structures; vertical projection; server capital marker; negative-coordinate pan, zoom and exact selection; block-edit refresh; tile persistence; small window; GUI scales 1/2/3; viewport gain; exact marker anchors; clustering; manage layout; fog; dimension isolation: PASS"
+                + dungeonChecks + "\n");
+        RegnumNations.LOGGER.info("ATLAS CLIENT CHECKS PASSED: {}", output);
+        stage = 38;
+        mc.stop();
+    }
+
+    @SuppressWarnings("unchecked")
+    private java.util.List<AtlasPayloads.DungeonMarker> dungeonMarkers() throws Exception {
+        return (java.util.List<AtlasPayloads.DungeonMarker>)field("dungeonMarkers");
+    }
+
+    private static CompletableFuture<?> onServer(Minecraft mc, ServerAction action) {
+        var server = mc.getSingleplayerServer();
+        return server.submit(() -> {
+            try { action.run(server); }
+            catch (Exception error) { throw new IllegalStateException(error); }
+        });
+    }
+
+    @FunctionalInterface
+    private interface ServerAction {
+        void run(MinecraftServer server) throws Exception;
+    }
+
+    private void registerDungeons(MinecraftServer server) throws ReflectiveOperationException {
+        var type = Class.forName("zooller.regnumworld.dungeon.DungeonData");
+        var registry = type.getMethod("get", MinecraftServer.class).invoke(null, server);
+        var record = Class.forName("zooller.regnumworld.dungeon.DungeonData$Dungeon");
+        var create = record.getConstructor(String.class, String.class, int.class, int.class, int.class);
+        var register = type.getMethod("register", record);
+        int[][] origins = {{-64, -32}, {0, -32}, {-32, 32}};
+        String[] types = {"mine", "catacombs", "bastion"};
+        for (int i = 0; i < types.length; i++) {
+            var dungeon = create.newInstance(types[i], Level.NETHER.location().toString(), origins[i][0], 70, origins[i][1]);
+            record.getField("frontY").setInt(dungeon, 74 + i);
+            register.invoke(registry, dungeon);
+            if (i == 2) bastionId = (UUID)record.getField("id").get(dungeon);
+        }
+        var changed = Class.forName("zooller.regnumworld.dungeon.Dungeons").getDeclaredMethod("atlasChanged", ServerLevel.class);
+        changed.setAccessible(true);
+        changed.invoke(null, server.getLevel(Level.NETHER));
+    }
+
+    private void dungeonCommand(MinecraftServer server, String action) {
+        var output = new java.util.ArrayList<Component>();
+        var source = server.createCommandSourceStack().withPermission(4).withSource(new CommandSource() {
+            @Override public void sendSystemMessage(Component message) { output.add(message); }
+            @Override public boolean acceptsSuccess() { return true; }
+            @Override public boolean acceptsFailure() { return true; }
+            @Override public boolean shouldInformAdmins() { return false; }
+        });
+        var commands = server.getCommands();
+        commands.performPrefixedCommand(source, "regnum dungeon " + action + " " + bastionId);
+        var click = output.getLast().getSiblings().stream().map(c -> c.getStyle().getClickEvent())
+                .filter(event -> event != null && event.getValue().startsWith("/regnum dungeon confirm ")).findFirst().orElseThrow();
+        commands.performPrefixedCommand(source, click.getValue());
+        check(output.getLast().getString().equals("Dungeon " + action + " complete."), "Dungeon " + action + " must succeed");
     }
 
     private void checkLayout(Minecraft mc) throws Exception {

@@ -9,6 +9,8 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -57,4 +59,41 @@ public final class AtlasWorldTests implements FabricGameTest {
         } finally { buffer.release(); }
         h.succeed();
     }
+
+    @GameTest(template=EMPTY_STRUCTURE,batch="atlas")
+    public void dungeonMarkersIncludeFarawayRecordsAcrossBatches(GameTestHelper h) {
+        var records = new ListTag();
+        for (int i = 0; i < 129; i++) {
+            var tag = new CompoundTag();
+            tag.putString("Dimension", Level.OVERWORLD.location().toString());
+            tag.putString("Type", "mine");
+            tag.putString("Name", "Forgotten Mine");
+            tag.putIntArray("Entrances", new int[]{-8024 - 48 * i, 72, -9008, -8024 - 48 * i, 65, -8961});
+            records.add(tag);
+        }
+        var otherDimension = new CompoundTag();
+        otherDimension.putString("Dimension", Level.NETHER.location().toString());
+        otherDimension.putString("Type", "bastion");
+        records.add(otherDimension);
+        var batches = PoliticalMapServer.dungeonBatches(records, Level.OVERWORLD.location(), 91);
+        h.assertTrue(batches.size() == 2 && batches.getFirst().entries().size() == 128
+                && !batches.getFirst().last() && batches.getLast().last(), "Large atlases must split into bounded batches");
+        var marker = batches.getLast().entries().getFirst();
+        h.assertTrue(marker.entrance().equals(new BlockPos(-14168, 72, -9008)), "Retain the exact entrance of a remote dungeon");
+
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), h.getLevel().registryAccess());
+        try {
+            for (var batch : batches) {
+                AtlasPayloads.DungeonMarkers.CODEC.encode(buffer, batch);
+                h.assertTrue(batch.equals(AtlasPayloads.DungeonMarkers.CODEC.decode(buffer)), "Each batch must round trip");
+                buffer.clear();
+            }
+        } finally {
+            buffer.release();
+        }
+        var empty = PoliticalMapServer.dungeonBatches(records, Level.END.location(), 92).getFirst();
+        h.assertTrue(empty.last() && empty.entries().isEmpty(), "An empty dimension needs a completed empty snapshot");
+        h.succeed();
+    }
+
 }

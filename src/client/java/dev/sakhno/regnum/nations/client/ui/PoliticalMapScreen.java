@@ -143,6 +143,8 @@ public final class PoliticalMapScreen extends RoyalScreen {
         refreshDue = false; lastMapRequest = System.currentTimeMillis();
         sequence = KingdomUi.nextSequence();
         requested = System.currentTimeMillis(); state = "loading"; snapshot = null; cells.clear(); cityMarkers=List.of();
+        clearDungeonMarkers();
+        requestedDimension = minecraft.level.dimension().location();
         if (fitNextSnapshot) {
             centerX = minecraft.player.getX() / 16; centerZ = minecraft.player.getZ() / 16;
             legendOffset = 0;
@@ -178,6 +180,7 @@ public final class PoliticalMapScreen extends RoyalScreen {
         management=null; ownSettlement=null; details=null;
         detailsSequence=KingdomUi.nextSequence(); detailsRequested=0; actionPending=false; needsDetails=true;
         sequence=KingdomUi.nextSequence(); snapshot=null; cells.clear(); cityMarkers=List.of();
+        clearDungeonMarkers();
         state="loading"; fitNextSnapshot=false; refreshDue=true;
         feedback=Component.empty(); actionFailed=false; updateActions();
     }
@@ -204,7 +207,11 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private static int subdued(int color) { return dev.sakhno.regnum.nations.kingdom.PoliticalColors.subdued(color); }
     @Override public void tick() {
         if (minecraft.player == null || minecraft.level == null) { minecraft.setScreen(null); return; }
-        if(!dungeonMarkers.isEmpty() && !actionPending && !state.equals("loading") && System.currentTimeMillis()-lastMapRequest>=10000) {fitNextSnapshot=false;request();}
+        if (requestedDimension != null && !requestedDimension.equals(minecraft.level.dimension().location())) {
+            snapshot = null; cells.clear(); cityMarkers = List.of(); clearDungeonMarkers();
+            state = "stale"; details = null; needsDetails = false;
+            fitNextSnapshot = true; refreshDue = true;
+        }
         if (refreshDue && !actionPending && System.currentTimeMillis()-lastMapRequest >= 550) request();
         if (needsDetails && !actionPending && detailsRequested == 0 && System.currentTimeMillis()-detailsAt >= 175) sendDetails(Action.INSPECT);
         if (detailsRequested != 0 && System.currentTimeMillis()-detailsRequested > 10000) {
@@ -216,7 +223,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
         refreshButton.active = !actionPending && !state.equals("loading") && System.currentTimeMillis()-lastMapRequest >= 550;
         updateActions();
         if (requested != 0 && state.equals("loading") && !refreshDue && System.currentTimeMillis() - requested > 10000) state = "error";
-        if (snapshot != null && minecraft.level != null && !snapshot.dimension().equals(minecraft.level.dimension().location())) { snapshot = null; cells.clear(); cityMarkers=List.of(); state = "stale"; details = null; needsDetails = false; }
     }
     private record Tile(Cell cell,int left,int top,int right,int bottom,int borders,int politicalBorders) { }
     private record MapLabel(String name,int x,int y,int width) { }
@@ -224,18 +230,72 @@ public final class PoliticalMapScreen extends RoyalScreen {
     private final List<Cell> legendEntries=new ArrayList<>();
     private final List<String> legendNames=new ArrayList<>();
     private final List<MapLabel> labels=new ArrayList<>();
-    private List<net.minecraft.nbt.CompoundTag> dungeonMarkers=List.of();
-    private net.minecraft.resources.ResourceLocation dungeonDimension;
+    private net.minecraft.resources.ResourceLocation requestedDimension;
+    private List<AtlasPayloads.DungeonMarker> dungeonMarkers = List.of();
+    private final List<AtlasPayloads.DungeonMarker> pendingDungeonMarkers = new ArrayList<>();
+
+    private void clearDungeonMarkers() {
+        dungeonMarkers = List.of();
+        pendingDungeonMarkers.clear();
+    }
+
+    private boolean currentDimension(net.minecraft.resources.ResourceLocation dimension) {
+        return minecraft.level != null && dimension.equals(requestedDimension)
+                && dimension.equals(minecraft.level.dimension().location());
+    }
+
     public void acceptDungeons(AtlasPayloads.Dungeons payload) {
-        dungeonDimension=payload.dimension();dungeonMarkers=payload.entries();
+        if (!currentDimension(payload.dimension())) return;
+        dungeonMarkers = payload.entries().stream().map(AtlasPayloads.DungeonMarker::fromTag).toList();
     }
-    private String dungeonName(net.minecraft.nbt.CompoundTag d) {
-        return d.getString("Name")+" · "+switch(d.getInt("Tier")){case 1 -> "I";case 2 -> "II";default -> "III";};
+
+    public void acceptDungeonMarkers(AtlasPayloads.DungeonMarkers payload) {
+        if (payload.sequence() != sequence || snapshot == null || !currentDimension(payload.dimension())) return;
+        pendingDungeonMarkers.addAll(payload.entries());
+        if (payload.last()) {
+            dungeonMarkers = List.copyOf(pendingDungeonMarkers);
+            pendingDungeonMarkers.clear();
+        }
     }
+
+    public void dungeonsChanged(AtlasPayloads.DungeonChange payload) {
+        if (!currentDimension(payload.dimension())) return;
+        fitNextSnapshot = false;
+        refreshDue = true;
+    }
+
+    private Component dungeonName(AtlasPayloads.DungeonMarker marker) {
+        return Component.translatableWithFallback("map.regnum-nations.dungeon." + marker.type(), marker.name());
+    }
+
+    private record DungeonPoint(int x, int y, int left, int top, int right, int bottom) { }
+    private record DungeonTile(AtlasPayloads.DungeonMarker marker, DungeonPoint point) { }
+
+    private DungeonPoint dungeonPoint(AtlasPayloads.DungeonMarker marker, double ox, double oz) {
+        var entrance = marker.entrance();
+        return new DungeonPoint((int)Math.floor(ox + (entrance.getX() + 0.5) / 16 * zoom),
+                (int)Math.floor(oz + (entrance.getZ() + 0.5) / 16 * zoom),
+                (int)Math.floor(ox + (entrance.getX() - 24) / 16.0 * zoom),
+                (int)Math.floor(oz + entrance.getZ() / 16.0 * zoom),
+                (int)Math.floor(ox + (entrance.getX() + 24) / 16.0 * zoom),
+                (int)Math.floor(oz + (entrance.getZ() + 48) / 16.0 * zoom));
+    }
+
+    private static int dungeonColor(AtlasPayloads.DungeonMarker marker) {
+        return switch (marker.type()) {
+            case "mine" -> 0xffe3c47e;
+            case "catacombs" -> 0xffc0aed4;
+            case "bastion" -> 0xffdd9a84;
+            default -> AtlasGraphics.BRASS;
+        };
+    }
+
     private record MarkerPoint(AtlasPayloads.CityMarker marker,Cell cell,int x,int y) { }
     private record MapMarker(MarkerPoint point,List<MarkerPoint> members) { }
     private final List<MapMarker> mapMarkers=new ArrayList<>();
     private List<AtlasPayloads.CityMarker> layoutCityMarkers;
+    private List<AtlasPayloads.DungeonMarker> layoutDungeonMarkers;
+    private final List<DungeonTile> dungeonTiles = new ArrayList<>();
     private double layoutCenterX=Double.NaN,layoutCenterZ,layoutZoom;
     private int layoutRight,layoutBottom,layoutPlayerX,layoutPlayerZ;
     private Snapshot layoutSnapshot;
@@ -243,10 +303,12 @@ public final class PoliticalMapScreen extends RoyalScreen {
     /** Geometry, label widths and legend order change with the viewport/snapshot, not each frame. */
     private void prepareLayout(int playerX,int playerZ) {
         if (layoutCenterX==centerX && layoutCenterZ==centerZ && layoutZoom==zoom && layoutRight==right
-                && layoutBottom==bottom && layoutSnapshot==snapshot && layoutCityMarkers==cityMarkers && layoutPlayerX==playerX && layoutPlayerZ==playerZ) return;
+                && layoutBottom==bottom && layoutSnapshot==snapshot && layoutCityMarkers==cityMarkers
+                && layoutDungeonMarkers==dungeonMarkers && layoutPlayerX==playerX && layoutPlayerZ==playerZ) return;
         layoutCenterX=centerX; layoutCenterZ=centerZ; layoutZoom=zoom; layoutRight=right; layoutBottom=bottom;
         layoutSnapshot=snapshot; layoutCityMarkers=cityMarkers; layoutPlayerX=playerX; layoutPlayerZ=playerZ;
-        tiles.clear(); legendEntries.clear(); legendNames.clear(); labels.clear(); mapMarkers.clear();
+        layoutDungeonMarkers = dungeonMarkers;
+        tiles.clear(); legendEntries.clear(); legendNames.clear(); labels.clear(); mapMarkers.clear(); dungeonTiles.clear();
         Map<UUID,List<Tile>> groups=new HashMap<>();
         double ox=originX(),oz=originZ();
         for (Cell c:cells.values()) {
@@ -290,8 +352,13 @@ public final class PoliticalMapScreen extends RoyalScreen {
             var p=marker.point();
             occupied.add(new int[]{p.x()-8,p.y()-8,p.x()+9+(marker.members().size()>1?8:0),p.y()+9});
         }
-        if (zoom<10) return;
-        for (MapMarker marker:mapMarkers) {
+        for (var marker : dungeonMarkers) {
+            var pin = dungeonPoint(marker, ox, oz);
+            if (pin.right() + 5 < 8 || pin.left() - 5 >= right || pin.bottom() < top || pin.y() - 5 >= bottom) continue;
+            dungeonTiles.add(new DungeonTile(marker, pin));
+            occupied.add(new int[]{pin.x()-5, pin.y()-5, pin.x()+6, pin.y()+6});
+        }
+        if (zoom >= 10) for (MapMarker marker:mapMarkers) {
             var p=marker.point();
             int w=font.width(p.cell().name())+8;
             // Prefer beside the icon, then below/above. Suppress labels that do not fit.
@@ -299,15 +366,30 @@ public final class PoliticalMapScreen extends RoyalScreen {
                     {px+(int)zoom+11,p.y()-6},{px-w-10,p.y()-6}};
             for (int i=0;i<positions.length;i++) {
                 if (i>=4 && (p.marker().pos().getX()>>4!=playerX || p.marker().pos().getZ()>>4!=playerZ)) continue;
-                int[] position=positions[i];
-                int l=position[0],t=position[1];
-                if (l<12 || l+w>right-4 || t<top+4 || t+13>bottom-4) continue;
-                boolean overlaps=false;
-                for (int[] box:occupied) if (l<box[2]+2 && l+w+2>box[0] && t<box[3]+2 && t+15>box[1]) { overlaps=true; break; }
-                if (overlaps) continue;
-                labels.add(new MapLabel(p.cell().name(),l,t,w)); occupied.add(new int[]{l,t,l+w,t+13}); break;
+                if (addLabel(p.cell().name(), positions[i][0], positions[i][1], w, occupied)) break;
             }
         }
+        if (zoom >= 8) for (var tile : dungeonTiles) {
+            var pin = tile.point();
+            if (!inside(pin.x(), pin.y())) continue;
+            String name = dungeonName(tile.marker()).getString();
+            int w = font.width(name) + 8;
+            int[][] positions = {{pin.x()+8, pin.y()-6}, {pin.x()-w-8, pin.y()-6},
+                    {pin.x()-w/2, pin.y()+9}, {pin.x()-w/2, pin.y()-22}};
+            for (int[] position : positions) {
+                if (addLabel(name, position[0], position[1], w, occupied)) break;
+            }
+        }
+    }
+
+    private boolean addLabel(String name, int l, int t, int w, List<int[]> occupied) {
+        if (l < 12 || l + w > right - 4 || t < top + 4 || t + 13 > bottom - 4) return false;
+        for (int[] box : occupied) {
+            if (l < box[2] + 2 && l + w + 2 > box[0] && t < box[3] + 2 && t + 15 > box[1]) return false;
+        }
+        labels.add(new MapLabel(name, l, t, w));
+        occupied.add(new int[]{l, t, l + w, t + 13});
+        return true;
     }
     @Override public void render(GuiGraphics g,int mx,int my,float delta) {
         g.fill(0,0,width,height,BACKGROUND);
@@ -371,10 +453,6 @@ public final class PoliticalMapScreen extends RoyalScreen {
             outline(g,l,t,r,b,AtlasGraphics.SHADOW,1);
             outline(g,l+1,t+1,r-1,b-1,SELECTED,1);
         }
-        if (layer!=2) for (MapLabel label:labels) {
-            g.fill(label.x(),label.y(),label.x()+label.width(),label.y()+13,LABEL_BACK);
-            g.drawString(font,label.name(),label.x()+4,label.y()+3,INK,false);
-        }
         if (layer!=2) for (MapMarker marker:mapMarkers) {
             var p=marker.point();
             AtlasGraphics.mapSettlement(g,p.x(),p.y(),p.marker().capital(),p.cell().color());
@@ -383,14 +461,18 @@ public final class PoliticalMapScreen extends RoyalScreen {
                 g.drawString(font,"+",p.x()+7,p.y()-7,AtlasGraphics.LIGHT,false);
             }
         }
-        if (minecraft.level.dimension().location().equals(dungeonDimension)) for(var d:dungeonMarkers) {
-            int l=(int)Math.floor(ox+d.getInt("X")/16.0*zoom),t=(int)Math.floor(oz+d.getInt("Z")/16.0*zoom);
-            int r=(int)Math.floor(ox+(d.getInt("X")+48)/16.0*zoom),b=(int)Math.floor(oz+(d.getInt("Z")+48)/16.0*zoom);
-            g.fill(l,t,r,b,0x304d394f);outline(g,l,t,r,b,0xffa798ad);
-            int ex=(int)Math.floor(ox+(d.getInt("X")+24)/16.0*zoom);
-            g.fill(ex-4,t-4,ex+5,t+5,0xff252329);outline(g,ex-4,t-4,ex+5,t+5,0xffbaa36a);
-            g.drawString(font,"!",ex-1,t-3,0xffe3c47e,false);
-            if(zoom>=8)g.drawString(font,dungeonName(d),ex+7,t-4,0xffd9c79d,false);
+        if (layer != 2 && currentDimension(minecraft.level.dimension().location())) for (var tile : dungeonTiles) {
+            var pin = tile.point();
+            int color = dungeonColor(tile.marker());
+            g.fill(pin.left(), pin.top(), pin.right(), pin.bottom(), (color & 0xffffff) | 0x28000000);
+            outline(g, pin.left(), pin.top(), pin.right(), pin.bottom(), color);
+            g.fill(pin.x()-4, pin.y()-4, pin.x()+5, pin.y()+5, AtlasGraphics.SHADOW);
+            outline(g, pin.x()-4, pin.y()-4, pin.x()+5, pin.y()+5, color);
+            g.drawString(font, "!", pin.x()-1, pin.y()-3, color, false);
+        }
+        if (layer!=2) for (MapLabel label:labels) {
+            g.fill(label.x(),label.y(),label.x()+label.width(),label.y()+13,LABEL_BACK);
+            g.drawString(font,label.name(),label.x()+4,label.y()+3,INK,false);
         }
         int px=(int)Math.floor(ox+minecraft.player.getX()/16*zoom),pz=(int)Math.floor(oz+minecraft.player.getZ()/16*zoom);
         AtlasGraphics.mapPlayer(g,px,pz,minecraft.player.getYRot());
@@ -430,16 +512,19 @@ public final class PoliticalMapScreen extends RoyalScreen {
         g.drawString(font,scale,scaleX,10,MUTED,false);
         super.render(g,mx,my,delta);
         if (!panning && inside(mx,my)) {
-            if(minecraft.level.dimension().location().equals(dungeonDimension)) {
-                var tips=new ArrayList<String>();
-                for(var d:dungeonMarkers) {
-                    double l=ox+d.getInt("X")/16.0*zoom,t=oz+d.getInt("Z")/16.0*zoom;
-                    if(mx>=l-4&&mx<=l+3*zoom+4&&my>=t-6&&my<=t+3*zoom+4) {
-                        int power=Math.clamp(d.getInt("Level"),1,5);
-                        tips.add(dungeonName(d)+"\nNeutral · PvP always enabled\n"+new String[]{"Dormant","Stirring","Dangerous","Awakened","Critical"}[power-1]+" · "+(d.getBoolean("Defeated")?"Recovering":"Boss available"));
-                    }
+            if (layer != 2 && currentDimension(minecraft.level.dimension().location())) {
+                for (var tile : dungeonTiles) {
+                    var pin = tile.point();
+                    if (mx < pin.left() - 4 || mx > pin.right() + 4 || my < pin.top() - 5 || my > pin.bottom() + 4) continue;
+                    var marker = tile.marker();
+                    var entrance = marker.entrance();
+                    var tip = dungeonName(marker).copy().append("\n").append(text("dungeon.neutral", marker.tier()))
+                            .append("\n").append(text("dungeon.entrance", entrance.getX(), entrance.getY(), entrance.getZ()))
+                            .append("\n").append(text("dungeon.power_" + Math.clamp(marker.level(), 1, 5)));
+                    if (marker.defeated()) tip.append(" · ").append(text("dungeon.recovering"));
+                    atlasTooltip(g, tip, mx, my);
+                    return;
                 }
-                if(!tips.isEmpty()){atlasTooltip(g,Component.literal(String.join("\n\n",tips)),mx,my);return;}
             }
 
             if (layer!=2) for (MapMarker marker:mapMarkers) {

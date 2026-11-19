@@ -15,8 +15,18 @@ public final class DungeonTerritories {
     }
     public static ListTag snapshot(MinecraftServer server) {
         if(!FabricLoader.getInstance().isModLoaded("regnum-world"))return new ListTag();
-        try{return (ListTag)provider().getMethod("snapshot",MinecraftServer.class).invoke(null,server);}
-        catch(Exception e){throw new IllegalStateException("Dungeon atlas provider failed",e);}
+        try {
+            var world = provider();
+            java.lang.reflect.Method snapshot;
+            try {
+                snapshot = world.getMethod("atlasSnapshot", MinecraftServer.class);
+            } catch (NoSuchMethodException olderWorld) {
+                snapshot = world.getMethod("snapshot", MinecraftServer.class);
+            }
+            return (ListTag) snapshot.invoke(null, server);
+        } catch (ReflectiveOperationException | LinkageError error) {
+            throw new IllegalStateException("Dungeon atlas provider failed", error);
+        }
     }
     public static boolean inside(ServerLevel world,net.minecraft.core.BlockPos pos) {
         if(!FabricLoader.getInstance().isModLoaded("regnum-world"))return false;

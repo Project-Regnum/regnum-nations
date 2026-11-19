@@ -54,6 +54,10 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	if (providers.gradleProperty('atlasTestWorldJar').isPresent()) {
+		modRuntimeOnly files(providers.gradleProperty('atlasTestWorldJar').get())
+	}
 }
 
 processResources {
@@ -230,7 +234,7 @@ publishing {
 }
 
 // Loom runs on the build JVM; execute gameplay/rule verification on the supported runtime.
-['runGameTest', 'testKingdomNames', 'runIntegrationLayoutTest', 'runHeraldryVisualTest', 'runMultiplayerAuditOne', 'runMultiplayerAuditTwo'].each { taskName ->
+['runGameTest', 'testKingdomNames', 'runAtlasTest', 'runIntegrationLayoutTest', 'runHeraldryVisualTest', 'runMultiplayerAuditOne', 'runMultiplayerAuditTwo'].each { taskName ->
     tasks.named(taskName, JavaExec) {
         javaLauncher = javaToolchains.launcherFor {
             languageVersion = JavaLanguageVersion.of(21)

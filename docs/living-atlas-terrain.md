@@ -171,3 +171,21 @@ multiplayer client session, End/modded-dimension visuals, resource-pack reload
 visuals, long-flight performance and very large display sizes were not tested.
 The existing headless suite exercised dedicated-server loading and save migration;
 an upgrade of a real player world still needs the existing migration procedure.
+
+## Dungeon markers
+
+With Regnum World installed, the combined and political layers show Mine,
+Catacombs and Bastion markers and neutral footprints. Hover a marker to see its
+entrance coordinates and tier. Dungeon coverage includes all registrations in the
+current dimension, independently of the political claim radius. It reveals no
+terrain. Atlas packets are bounded and sequenced, and open maps refresh when
+World generates, removes or recovers a dungeon.
+
+For the graphical dungeon checks, run `./gradlew runAtlasTest
+-PatlasTestWorldJar=/absolute/path/to/regnum-world-1.0.0.jar` with a display.
+The opt-in run uses a disposable world and captures the political and terrain-only
+layers as well as the overlay after removal, then reopens the save and checks
+that the removed marker stays absent. Install matching updated Nations
+artifacts on the client and server for live refresh and full dungeon coverage.
+If using Regnum Economy, build it against the approved Nations artifact with that
+artifact's content fingerprint.

@@ -74,6 +74,11 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+	// Use the same compiler as Economy's pinned-source provisioning.
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+		vendor = JvmVendorSpec.ADOPTIUM
+	}
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
 	// If you remove this line, sources will not be generated.
